@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Bot, Clapperboard, Network, GitFork, ShieldAlert, Cpu, ArrowUpRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 const FEATURES = [
   {
@@ -105,6 +106,26 @@ const FEATURES = [
   },
 ];
 
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+    },
+  },
+};
+
 export default function Features() {
   return (
     <section id="features" className="relative py-28 bg-cyber-surface/10 overflow-hidden border-t border-cyber-border/40">
@@ -113,60 +134,82 @@ export default function Features() {
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-20">
-          <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase mb-4">
-            <Cpu className="w-3.5 h-3.5 text-cyber-cyan" />
-            Simulation Modules
-          </div>
-          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white">
-            Core Educational Modules
-          </h2>
-          <p className="mt-4 text-slate-400 text-sm md:text-base leading-relaxed">
-            AEGIS houses five modular components designed to customize scenarios, visualize playbacks, model network environments, verify security compliance, and automate defenses.
-          </p>
-        </div>
+        {/* Core Educational Modules */}
+        <div>
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-3xl mx-auto mb-20"
+          >
+            <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase mb-4">
+              <Cpu className="w-3.5 h-3.5 text-cyber-cyan" />
+              Simulation Modules
+            </div>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white">
+              Core Educational Modules
+            </h2>
+            <p className="mt-4 text-slate-400 text-sm md:text-base leading-relaxed">
+              AEGIS houses five modular components designed to customize scenarios, visualize playbacks, model network environments, verify security compliance, and automate defenses.
+            </p>
+          </motion.div>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {FEATURES.map((feat) => {
-            const Icon = feat.icon;
+          {/* Features Grid */}
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {FEATURES.map((feat) => {
+              const Icon = feat.icon;
 
-            return (
-              <div
-                key={feat.id}
-                className={`group glassmorphism-card rounded-xl p-6 border border-cyber-border relative flex flex-col justify-between overflow-hidden transition-all duration-300 ${feat.borderColor} ${feat.glowColor}`}
-              >
-                {/* Tech card header grid highlights */}
-                <div className="absolute top-0 right-0 w-8 h-8 border-b border-l border-cyber-border group-hover:border-cyber-border-active/40 transition-colors pointer-events-none" />
-                
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest font-bold">
-                      {feat.badge}
-                    </span>
-                    <Icon className="w-5 h-5 text-slate-400 group-hover:text-cyber-cyan transition-colors" />
+              return (
+                <motion.div
+                  key={feat.id}
+                  variants={cardVariants}
+                  className={`group glassmorphism-card rounded-xl p-6 border border-cyber-border relative flex flex-col justify-between overflow-hidden transition-all duration-300 ${feat.borderColor} ${feat.glowColor}`}
+                >
+                  {/* Tech card header grid highlights */}
+                  <div className="absolute top-0 right-0 w-8 h-8 border-b border-l border-cyber-border group-hover:border-cyber-border-active/40 transition-colors pointer-events-none" />
+                  
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest font-bold">
+                        {feat.badge}
+                      </span>
+                      <Icon className="w-5 h-5 text-slate-400 group-hover:text-cyber-cyan transition-colors" />
+                    </div>
+
+                    <h3 className="text-base font-bold text-white tracking-tight mt-6 flex items-center gap-1 group-hover:text-cyber-cyan transition-colors">
+                      {feat.title}
+                      <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </h3>
+
+                    <p className="mt-3 text-xs text-slate-400 leading-relaxed font-sans">
+                      {feat.desc}
+                    </p>
                   </div>
 
-                  <h3 className="text-base font-bold text-white tracking-tight mt-6 flex items-center gap-1 group-hover:text-cyber-cyan transition-colors">
-                    {feat.title}
-                    <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </h3>
-
-                  <p className="mt-3 text-xs text-slate-400 leading-relaxed font-sans">
-                    {feat.desc}
-                  </p>
-                </div>
-
-                {feat.widget}
-              </div>
-            );
-          })}
+                  {feat.widget}
+                </motion.div>
+              );
+            })}
+          </motion.div>
         </div>
 
         {/* What You Can Learn Section */}
         <div className="mt-28">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-3xl mx-auto mb-16"
+          >
             <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase mb-4">
               <ShieldAlert className="w-3.5 h-3.5 text-cyber-cyan" />
               Educational Curriculum
@@ -177,9 +220,15 @@ export default function Features() {
             <p className="mt-4 text-slate-400 text-sm md:text-base leading-relaxed">
               Explore hands-on concepts that model real-world cybersecurity attacks and organizational defense procedures.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
             {[
               {
                 title: "Phishing Attacks",
@@ -212,8 +261,9 @@ export default function Features() {
                 topic: "Preventative Controls",
               },
             ].map((learn, i) => (
-              <div
+              <motion.div
                 key={i}
+                variants={cardVariants}
                 className="bg-black/30 border border-cyber-border rounded-xl p-5 hover:border-cyber-cyan/30 transition-all duration-300 relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 px-2 py-0.5 bg-cyber-cyan/10 border-b border-l border-cyber-cyan/20 rounded-bl text-[8px] font-mono text-cyber-cyan uppercase font-bold">
@@ -225,9 +275,9 @@ export default function Features() {
                 <p className="text-xs text-slate-400 leading-relaxed font-sans">
                   {learn.desc}
                 </p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
 
       </div>

@@ -175,6 +175,15 @@ export default function SimulatePage() {
   const [logs, setLogs] = useState<string[]>([]);
   const [activeConfig, setActiveConfig] = useState<CampaignConfig | null>(null);
 
+  const containerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.1 } },
+  };
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  };
+
   const handleGenerate = () => {
     if (simState === "compiling") return;
     
@@ -300,10 +309,17 @@ export default function SimulatePage() {
                     <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
                       [01] SELECT TARGET ENVIRONMENT
                     </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <motion.div
+                      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+                      variants={containerVariants}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true }}
+                    >
                       {INDUSTRIES.map((ind) => (
-                        <button
+                        <motion.button
                           key={ind.id}
+                          variants={cardVariants}
                           onClick={() => setIndustry(ind.id)}
                           className={`p-4 rounded-lg border text-left transition-all duration-300 relative flex flex-col justify-between cursor-pointer ${
                             industry === ind.id
@@ -318,9 +334,9 @@ export default function SimulatePage() {
                           <div className="text-[9px] font-mono text-cyber-cyan mt-3 pt-2 border-t border-cyber-border/40 w-full uppercase">
                             target: {ind.target}
                           </div>
-                        </button>
+                        </motion.button>
                       ))}
-                    </div>
+                    </motion.div>
                   </div>
 
                   {/* 2. Attacker Profile */}
@@ -328,10 +344,17 @@ export default function SimulatePage() {
                     <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
                       [02] SELECT ATTACKER PROFILE
                     </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <motion.div
+                      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+                      variants={containerVariants}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true }}
+                    >
                       {ACTORS.map((act) => (
-                        <button
+                        <motion.button
                           key={act.id}
+                          variants={cardVariants}
                           onClick={() => setActor(act.id)}
                           className={`p-4 rounded-lg border text-left transition-all duration-300 relative flex flex-col justify-between cursor-pointer ${
                             actor === act.id
@@ -346,9 +369,9 @@ export default function SimulatePage() {
                           <div className="text-[9px] font-mono text-cyber-cyan mt-3 pt-2 border-t border-cyber-border/40 w-full uppercase">
                             specialty: {act.focus}
                           </div>
-                        </button>
+                        </motion.button>
                       ))}
-                    </div>
+                    </motion.div>
                   </div>
 
                   {/* 3. Attack Type */}
@@ -356,10 +379,17 @@ export default function SimulatePage() {
                     <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
                       [03] SELECT ATTACK SCENARIO
                     </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <motion.div
+                      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+                      variants={containerVariants}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true }}
+                    >
                       {ATTACK_TYPES.map((type) => (
-                        <button
+                        <motion.button
                           key={type.id}
+                          variants={cardVariants}
                           onClick={() => setAttack(type.id)}
                           className={`p-4 rounded-lg border text-left transition-all duration-300 relative flex flex-col justify-between cursor-pointer ${
                             attack === type.id
@@ -374,9 +404,9 @@ export default function SimulatePage() {
                           <div className="text-[9px] font-mono text-cyber-cyan mt-3 pt-2 border-t border-cyber-border/40 w-full uppercase">
                             technique: {type.tech}
                           </div>
-                        </button>
+                        </motion.button>
                       ))}
-                    </div>
+                    </motion.div>
                   </div>
 
                   {/* 4. Security Level */}
@@ -384,10 +414,17 @@ export default function SimulatePage() {
                     <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
                       [04] SELECT SECURITY STRENGTH
                     </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <motion.div
+                      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"
+                      variants={containerVariants}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true }}
+                    >
                       {SECURITY_LEVELS.map((lvl) => (
-                        <button
+                        <motion.button
                           key={lvl.id}
+                          variants={cardVariants}
                           onClick={() => setSecurity(lvl.id)}
                           className={`p-4 rounded-lg border text-left transition-all duration-300 relative flex flex-col justify-between cursor-pointer ${
                             security === lvl.id
@@ -402,9 +439,9 @@ export default function SimulatePage() {
                           <div className="text-[9px] font-mono text-cyber-cyan mt-3 pt-2 border-t border-cyber-border/40 w-full uppercase">
                             {lvl.detection}
                           </div>
-                        </button>
+                        </motion.button>
                       ))}
-                    </div>
+                    </motion.div>
                   </div>
 
                 </motion.div>

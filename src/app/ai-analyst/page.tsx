@@ -277,6 +277,15 @@ function AIAnalystContent() {
   const [isLiveAI, setIsLiveAI] = useState(false);
   const [activeMenuSection, setActiveMenuSection] = useState("exec-summary");
 
+  const containerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.1 } },
+  };
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  };
+
   useEffect(() => {
     // 1. Load Campaign
     const history = getCampaignHistory();
@@ -478,7 +487,13 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
       <div className="fixed inset-0 pointer-events-none z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.15)_50%)] bg-[length:100%_4px] opacity-10 print:hidden" />
       <div className="fixed inset-0 pointer-events-none z-50 animate-scanline bg-gradient-to-b from-transparent via-cyber-cyan/[0.012] to-transparent h-16 w-full print:hidden" />
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10 w-full flex-grow pt-8 pb-12 print:pt-0">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="max-w-7xl mx-auto px-6 relative z-10 w-full flex-grow pt-8 pb-12 print:pt-0"
+      >
 
         {/* Navigation back and telemetry info - hidden on print */}
         <div className="flex justify-between items-center mb-8 flex-wrap gap-4 print:hidden">
@@ -847,8 +862,14 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
                 </h3>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono">
-                <div className="bg-black/35 p-4 rounded border border-cyber-border text-left print:bg-white print:border-black print:p-2">
+              <motion.div
+                className="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono"
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+              >
+                <motion.div variants={cardVariants} className="bg-black/35 p-4 rounded border border-cyber-border text-left print:bg-white print:border-black print:p-2">
                   <span className="text-slate-500 text-[8px] uppercase tracking-wider block print:text-black">FINANCIAL LIABILITY</span>
                   <div className="text-cyber-red text-base font-extrabold mt-1 uppercase print:text-black print:text-xs">
                     {reportData.financialLoss.includes("(") ? reportData.financialLoss.split(" ")[0] : reportData.financialLoss}
@@ -858,9 +879,9 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
                       {reportData.financialLoss.substring(reportData.financialLoss.indexOf("("))}
                     </p>
                   )}
-                </div>
+                </motion.div>
 
-                <div className="bg-black/35 p-4 rounded border border-cyber-border text-left print:bg-white print:border-black print:p-2">
+                <motion.div variants={cardVariants} className="bg-black/35 p-4 rounded border border-cyber-border text-left print:bg-white print:border-black print:p-2">
                   <span className="text-slate-500 text-[8px] uppercase tracking-wider block print:text-black">OPERATIONAL DOWNTIME</span>
                   <div className="text-cyber-cyan text-base font-extrabold mt-1 uppercase print:text-black print:text-xs">
                     {reportData.downtime}
@@ -868,9 +889,9 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
                   <p className="text-slate-400 text-[8px] mt-2 leading-relaxed print:text-black">
                     Estimated restoration time for localized network segments.
                   </p>
-                </div>
+                </motion.div>
 
-                <div className="bg-black/35 p-4 rounded border border-cyber-border text-left print:bg-white print:border-black print:p-2">
+                <motion.div variants={cardVariants} className="bg-black/35 p-4 rounded border border-cyber-border text-left print:bg-white print:border-black print:p-2">
                   <span className="text-slate-500 text-[8px] uppercase tracking-wider block print:text-black">INFRASTRUCTURE IMPACT</span>
                   <div className="text-white text-xs font-bold mt-1 uppercase print:text-black truncate">
                     {reportData.operationalImpact.includes(".") ? reportData.operationalImpact.split(".")[0] : reportData.operationalImpact}
@@ -880,8 +901,8 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
                       {reportData.operationalImpact.split(".").slice(1).join(".")}
                     </p>
                   )}
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             </motion.section>
 
             {/* 5. Recommended Defenses */}
@@ -900,9 +921,15 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
                 </h3>
               </div>
 
-              <div className="space-y-4 font-mono text-[10px] print:text-[9px]">
+              <motion.div
+                className="space-y-4 font-mono text-[10px] print:text-[9px]"
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+              >
                 {reportData.mitigations.map((mit: string, i: number) => (
-                  <div key={i} className="flex gap-3 bg-black/20 p-3 rounded border border-cyber-border print:bg-white print:border-black print:p-2">
+                  <motion.div key={i} variants={cardVariants} className="flex gap-3 bg-black/20 p-3 rounded border border-cyber-border print:bg-white print:border-black print:p-2">
                     <div className="w-5 h-5 rounded-full bg-cyber-cyan/15 border border-cyber-cyan/40 text-cyber-cyan flex items-center justify-center font-bold text-[9px] shrink-0 print:border-black print:text-black print:bg-slate-200">
                       {i + 1}
                     </div>
@@ -910,9 +937,9 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
                       <h4 className="text-white font-bold uppercase print:text-black">Adversary Mitigation Action</h4>
                       <p className="text-slate-400 mt-1 leading-relaxed print:text-black">{mit}</p>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </motion.section>
 
             {/* 6. Risk Reduction Projections */}
@@ -975,7 +1002,7 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
 
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Footer - hidden on print */}
       <footer className="relative bg-black border-t border-cyber-border/40 py-10 z-10 overflow-hidden mt-12 print:hidden">

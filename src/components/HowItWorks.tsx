@@ -54,7 +54,13 @@ export default function HowItWorks() {
     <section id="workflow" className="relative py-28 bg-cyber-surface/30 overflow-hidden border-t border-cyber-border/40">
       <div className="absolute top-1/4 left-1/4 w-[40vw] h-[40vh] bg-electric-blue/5 rounded-full blur-[140px] pointer-events-none z-0" />
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="max-w-7xl mx-auto px-6 relative z-10"
+      >
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-20">
@@ -299,7 +305,7 @@ export default function HowItWorks() {
           </AnimatePresence>
         </div>
 
-      </div>
+      </motion.div>
     </section>
   );
 }

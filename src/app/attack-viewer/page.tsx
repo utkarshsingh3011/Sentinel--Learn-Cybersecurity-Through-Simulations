@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { saveCampaignToHistory, getFriendlySimulationName, getActorName } from "../../components/campaignStore";
+import AnimatedCounter from "../../components/AnimatedCounter";
 import { 
   Play, Pause, RotateCcw, ArrowLeft, Terminal, 
   Activity, ShieldCheck, Brain
@@ -348,6 +349,15 @@ export default function AttackViewerPage() {
   };
   const impact = getImpactLevel(campaign.riskFactor);
 
+  const containerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.1 } },
+  };
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  };
+
   return (
     <div className="relative min-h-screen bg-cyber-bg overflow-x-hidden pt-28 pb-16 flex flex-col justify-between selection:bg-electric-blue/30 selection:text-white">
       
@@ -363,7 +373,13 @@ export default function AttackViewerPage() {
       <div className="fixed inset-0 pointer-events-none z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.15)_50%)] bg-[length:100%_4px] opacity-10" />
       <div className="fixed inset-0 pointer-events-none z-50 animate-scanline bg-gradient-to-b from-transparent via-cyber-cyan/[0.012] to-transparent h-16 w-full" />
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10 w-full flex-grow">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="max-w-7xl mx-auto px-6 relative z-10 w-full flex-grow"
+      >
         
         {/* Navigation Link */}
         <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
@@ -574,24 +590,30 @@ export default function AttackViewerPage() {
                 [01] ATTACK SCENARIO SETUP OVERVIEW
               </span>
               
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono text-[10px]">
-                <div className="bg-black/40 p-3 rounded border border-cyber-border">
+              <motion.div
+                className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono text-[10px]"
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+              >
+                <motion.div variants={cardVariants} className="bg-black/40 p-3 rounded border border-cyber-border">
                   <div className="text-slate-500 uppercase">Target Environment</div>
                   <div className="text-white font-bold mt-1 uppercase">{campaign.industry}</div>
-                </div>
-                <div className="bg-black/40 p-3 rounded border border-cyber-border">
+                </motion.div>
+                <motion.div variants={cardVariants} className="bg-black/40 p-3 rounded border border-cyber-border">
                   <div className="text-slate-500 uppercase">Attacker Profile</div>
                   <div className="text-white font-bold mt-1 uppercase">{getActorName(campaign.threatActor)}</div>
-                </div>
-                <div className="bg-black/40 p-3 rounded border border-cyber-border">
+                </motion.div>
+                <motion.div variants={cardVariants} className="bg-black/40 p-3 rounded border border-cyber-border">
                   <div className="text-slate-500 uppercase">Attack Scenario</div>
                   <div className="text-white font-bold mt-1 uppercase">{campaign.attackType}</div>
-                </div>
-                <div className="bg-black/40 p-3 rounded border border-cyber-border">
+                </motion.div>
+                <motion.div variants={cardVariants} className="bg-black/40 p-3 rounded border border-cyber-border">
                   <div className="text-slate-500 uppercase">Security Strength</div>
                   <div className="text-white font-bold mt-1 uppercase">{campaign.securityLevel}</div>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             </div>
 
             {/* 2. Attack Playback Timeline (Sequential animation) */}
@@ -678,9 +700,15 @@ export default function AttackViewerPage() {
                 [03] RECOMMENDED SECURITY MITIGATION SUITE
               </span>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <motion.div
+                className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+              >
                 {defenses.map((def, idx) => (
-                  <div key={idx} className="bg-cyber-surface/40 border border-cyber-border p-4 rounded-lg flex flex-col justify-between">
+                  <motion.div key={idx} variants={cardVariants} className="bg-cyber-surface/40 border border-cyber-border p-4 rounded-lg flex flex-col justify-between">
                     <div>
                       <div className="flex items-center gap-1.5 text-cyber-cyan font-mono text-[10px] uppercase font-bold">
                         <ShieldCheck className="w-3.5 h-3.5" />
@@ -689,9 +717,9 @@ export default function AttackViewerPage() {
                       <h4 className="text-xs font-bold text-white font-mono uppercase mt-2">{def.title}</h4>
                       <p className="text-[10px] text-slate-400 mt-1 font-sans leading-relaxed">{def.desc}</p>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </div>
 
           </div>
@@ -723,7 +751,7 @@ export default function AttackViewerPage() {
                     />
                   </svg>
                   <div className="absolute text-center">
-                    <div className="text-xl font-bold font-mono text-white">{campaign.riskFactor}%</div>
+                    <div className="text-xl font-bold font-mono text-white"><AnimatedCounter value={campaign.riskFactor} suffix="%" /></div>
                     <div className="text-[8px] font-mono text-slate-500 uppercase mt-0.5">Risk</div>
                   </div>
                 </div>
@@ -731,7 +759,7 @@ export default function AttackViewerPage() {
                 <div className="space-y-3 font-mono text-[10px] flex-grow">
                   <div className="flex justify-between items-center bg-black/40 p-2 border border-cyber-border rounded">
                     <span className="text-slate-500">BREACH PROBABILITY</span>
-                    <span className="text-white font-bold">{campaign.compromiseChance}%</span>
+                    <span className="text-white font-bold"><AnimatedCounter value={campaign.compromiseChance} suffix="%" /></span>
                   </div>
                   <div className="flex justify-between items-center bg-black/40 p-2 border border-cyber-border rounded">
                     <span className="text-slate-500">IMPACT LEVEL</span>
@@ -832,7 +860,7 @@ export default function AttackViewerPage() {
 
         </div>
 
-      </div>
+      </motion.div>
 
       {/* Footer Info */}
       <footer className="max-w-7xl mx-auto px-6 w-full text-slate-600 font-mono text-[9px] tracking-wider border-t border-cyber-border/20 pt-6 mt-12 flex justify-between items-center z-10">

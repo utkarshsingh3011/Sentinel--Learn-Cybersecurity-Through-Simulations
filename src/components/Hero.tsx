@@ -90,7 +90,13 @@ export default function Hero() {
         <div className="absolute inset-0 border border-slate-800/20 rounded-full" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10 w-full">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10 w-full"
+      >
         {/* Typography Text Content */}
         <motion.div 
           style={{ y: yText, opacity: opacityFade }}
@@ -300,7 +306,7 @@ export default function Hero() {
             </div>
           </div>
         </motion.div>
-      </div>
+      </motion.div>
     </section>
   );
 }

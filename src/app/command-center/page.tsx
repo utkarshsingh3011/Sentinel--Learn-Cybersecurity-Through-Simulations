@@ -11,6 +11,7 @@ import {
   getCampaignHistory, StoredCampaign, getActorName, 
   getAttackName
 } from "../../components/campaignStore";
+import AnimatedCounter from "../../components/AnimatedCounter";
 
 export default function CommandCenterPage() {
   const [history, setHistory] = useState<StoredCampaign[]>([]);
@@ -177,6 +178,15 @@ export default function CommandCenterPage() {
     return true;
   });
 
+  const containerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.1 } },
+  };
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  };
+
   return (
     <div className="relative min-h-screen flex flex-col justify-between overflow-x-hidden bg-cyber-bg text-slate-100 selection:bg-electric-blue/30 selection:text-white">
       {/* Background Decors */}
@@ -185,7 +195,13 @@ export default function CommandCenterPage() {
       <div className="fixed inset-0 pointer-events-none z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.15)_50%)] bg-[length:100%_4px] opacity-10" />
       <div className="fixed inset-0 pointer-events-none z-50 animate-scanline bg-gradient-to-b from-transparent via-cyber-cyan/[0.012] to-transparent h-16 w-full" />
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10 w-full flex-grow pt-8 pb-12">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="max-w-7xl mx-auto px-6 relative z-10 w-full flex-grow pt-8 pb-12"
+      >
         {/* Navigation back and telemetry stats */}
         <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
           <Link 
@@ -310,8 +326,9 @@ export default function CommandCenterPage() {
             <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6 items-stretch">
               <motion.div 
                 initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4 }}
                 className="glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
               >
                 <div className="flex justify-between items-start">
@@ -320,7 +337,7 @@ export default function CommandCenterPage() {
                       TOTAL RUNS
                     </span>
                     <h3 className="text-4xl font-extrabold font-mono text-white mt-2">
-                      {totalSimulations}
+                      <AnimatedCounter value={totalSimulations} />
                     </h3>
                   </div>
                   <div className="p-3 bg-slate-950 border border-cyber-border rounded text-cyber-cyan">
@@ -334,8 +351,9 @@ export default function CommandCenterPage() {
 
               <motion.div 
                 initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.1 }}
                 className="glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
               >
                 <div className="flex justify-between items-start">
@@ -344,7 +362,7 @@ export default function CommandCenterPage() {
                       HIGH RISK SIMULATIONS
                     </span>
                     <h3 className="text-4xl font-extrabold font-mono text-cyber-red mt-2">
-                      {criticalThreats}
+                      <AnimatedCounter value={criticalThreats} />
                     </h3>
                   </div>
                   <div className="p-3 bg-slate-950 border border-cyber-border rounded text-cyber-red">
@@ -358,8 +376,9 @@ export default function CommandCenterPage() {
 
               <motion.div 
                 initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.2 }}
                 className="glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
               >
                 <div className="flex justify-between items-start">
@@ -368,7 +387,7 @@ export default function CommandCenterPage() {
                       SUCCESSFULLY STOPPED ATTACKS
                     </span>
                     <h3 className="text-4xl font-extrabold font-mono text-cyber-green mt-2">
-                      {blockedAttacks}
+                      <AnimatedCounter value={blockedAttacks} />
                     </h3>
                   </div>
                   <div className="p-3 bg-slate-950 border border-cyber-border rounded text-cyber-green">
@@ -382,8 +401,9 @@ export default function CommandCenterPage() {
 
               <motion.div 
                 initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.3 }}
                 className="glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
               >
                 <div className="flex justify-between items-start">
@@ -392,7 +412,7 @@ export default function CommandCenterPage() {
                       ATTACKS THAT BYPASSED SECURITY
                     </span>
                     <h3 className="text-4xl font-extrabold font-mono text-cyber-red mt-2">
-                      {successfulAttacks}
+                      <AnimatedCounter value={successfulAttacks} />
                     </h3>
                   </div>
                   <div className="p-3 bg-slate-950 border border-cyber-border rounded text-cyber-red">
@@ -490,7 +510,13 @@ export default function CommandCenterPage() {
                   Technique block rate calculated across historical attack scenario simulations.
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <motion.div
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                  variants={containerVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                >
                   {techniqueCoverage.map((tech) => {
                     const getCoverageBadge = (cov: number) => {
                       if (cov >= 75) return { text: "MITIGATED", style: "text-cyber-green border-cyber-green/30 bg-cyber-green/5" };
@@ -501,7 +527,7 @@ export default function CommandCenterPage() {
                     const badge = getCoverageBadge(tech.coverage);
 
                     return (
-                      <div key={tech.code} className="bg-black/35 p-3 rounded border border-cyber-border flex flex-col justify-between text-left font-mono">
+                      <motion.div key={tech.code} variants={cardVariants} className="bg-black/35 p-3 rounded border border-cyber-border flex flex-col justify-between text-left font-mono">
                         <div>
                           <div className="flex justify-between items-start">
                             <span className="text-cyber-cyan text-[10px] font-bold">{tech.code}</span>
@@ -531,10 +557,10 @@ export default function CommandCenterPage() {
                             />
                           </div>
                         </div>
-                      </div>
+                      </motion.div>
                     );
                   })}
-                </div>
+                </motion.div>
               </div>
 
               <div className="text-[10px] text-slate-400 font-sans mt-6 pt-4 border-t border-cyber-border/40 leading-relaxed text-left">
@@ -664,7 +690,13 @@ export default function CommandCenterPage() {
                   [05] SECURITY RECOMMENDATIONS BRIEF
                 </span>
                 
-                <div className="space-y-4 max-h-[360px] overflow-y-auto pr-1">
+                <motion.div
+                  className="space-y-4 max-h-[360px] overflow-y-auto pr-1"
+                  variants={containerVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                >
                   {recommendations.map((rec) => {
                     const getRecHeaderStyle = (sev: string) => {
                       if (sev === "critical") return "text-cyber-red border-cyber-red/30 bg-cyber-red/5";
@@ -673,7 +705,7 @@ export default function CommandCenterPage() {
                     };
 
                     return (
-                      <div key={rec.id} className="border border-cyber-border bg-black/20 p-4 rounded text-left font-mono">
+                      <motion.div key={rec.id} variants={cardVariants} className="border border-cyber-border bg-black/20 p-4 rounded text-left font-mono">
                         <div className="flex justify-between items-start mb-2 flex-wrap gap-2">
                           <span className={`px-2 py-0.5 rounded border text-[8px] font-bold uppercase ${getRecHeaderStyle(rec.severity)}`}>
                             {rec.severity} priority
@@ -684,10 +716,10 @@ export default function CommandCenterPage() {
                         <p className="text-[10px] text-slate-400 mt-2 leading-relaxed">
                           {rec.description}
                         </p>
-                      </div>
+                      </motion.div>
                     );
                   })}
-                </div>
+                </motion.div>
               </div>
 
               <div className="text-[9px] font-mono text-slate-500 uppercase mt-6 pt-4 border-t border-cyber-border/40">
@@ -696,7 +728,7 @@ export default function CommandCenterPage() {
             </motion.div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Side Slide-Over Drawer for Campaign Details & Analysis */}
       <AnimatePresence>

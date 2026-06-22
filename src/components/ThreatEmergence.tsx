@@ -65,6 +65,8 @@ export default function ThreatEmergence() {
     }
   });
 
+  const pathProgress = (activeStage - 1) / 3;
+
   return (
     <section 
       id="threats" 
@@ -177,6 +179,25 @@ export default function ThreatEmergence() {
                     style={{ pathLength }}
                     strokeLinecap="round"
                   />
+                  {/* Active stage path draw (smooth transition on stage change) */}
+                  <motion.path
+                    d="M 50,210 C 150,110 250,310 350,210 C 450,110 500,210 550,210"
+                    fill="none"
+                    stroke="url(#activeAttackGradient)"
+                    strokeWidth="4"
+                    animate={{ pathLength: pathProgress }}
+                    transition={{ duration: 0.8, ease: "easeInOut" }}
+                    strokeLinecap="round"
+                    className="drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]"
+                  />
+                  {/* Traveling light pulse animation */}
+                  <circle r="4" fill="#ffffff" className="drop-shadow-[0_0_6px_#ffffff]">
+                    <animateMotion
+                      path="M 50,210 C 150,110 250,310 350,210 C 450,110 500,210 550,210"
+                      dur="4s"
+                      repeatCount="indefinite"
+                    />
+                  </circle>
                   {/* Running dash line on top of path for active look */}
                   <motion.path
                     d="M 50,210 C 150,110 250,310 350,210 C 450,110 500,210 550,210"
@@ -195,6 +216,12 @@ export default function ThreatEmergence() {
                   />
                   <defs>
                     <linearGradient id="attackGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#2563eb" stopOpacity="0.3" />
+                      <stop offset="35%" stopColor="#06b6d4" stopOpacity="0.3" />
+                      <stop offset="70%" stopColor="#f59e0b" stopOpacity="0.3" />
+                      <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.3" />
+                    </linearGradient>
+                    <linearGradient id="activeAttackGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                       <stop offset="0%" stopColor="#2563eb" />
                       <stop offset="35%" stopColor="#06b6d4" />
                       <stop offset="70%" stopColor="#f59e0b" />
@@ -229,6 +256,24 @@ export default function ThreatEmergence() {
                       )}`}
                     >
                       <div className="relative group">
+                        {/* Sliding/pulsing glow layer behind active node */}
+                        {isCurrent && (
+                          <motion.div
+                            layoutId="activeGlow"
+                            className={`absolute -inset-4 rounded-full blur-[12px] opacity-60 pointer-events-none ${
+                              stage.id === 4 ? "bg-cyber-red/80" : "bg-cyber-cyan/80"
+                            }`}
+                            animate={{
+                              scale: [0.95, 1.15, 0.95],
+                              opacity: [0.4, 0.7, 0.4]
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                          />
+                        )}
                         {/* Node status rings */}
                         <motion.div
                           animate={isCurrent ? { scale: [1, 1.4, 1] } : {}}

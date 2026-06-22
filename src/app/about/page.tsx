@@ -6,6 +6,7 @@ import {
   ArrowLeft, Brain, Cpu, Layers, 
   BookOpen, Lightbulb, Compass, Award
 } from "lucide-react";
+import { motion } from "framer-motion";
 import Header from "../../components/Header";
 
 function LiveClock() {
@@ -35,7 +36,13 @@ export default function AboutPage() {
       <Header />
 
       <main className="flex-grow pt-32 pb-20 relative z-10">
-        <div className="max-w-4xl mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="max-w-4xl mx-auto px-6"
+        >
           
           {/* Navigation back */}
           <Link
@@ -235,7 +242,7 @@ export default function AboutPage() {
             </section>
 
           </div>
-        </div>
+        </motion.div>
       </main>
 
       {/* Futuristic Command Center Footer */}
