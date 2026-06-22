@@ -296,7 +296,7 @@ function AIAnalystContent() {
     }
 
     if (!resolvedCampaign && typeof window !== "undefined") {
-      const saved = sessionStorage.getItem("aegis_campaign_config");
+      const saved = sessionStorage.getItem("sentinel_campaign_config");
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
@@ -340,11 +340,11 @@ function AIAnalystContent() {
         const data = await res.json();
 
         if (data.isFallback) {
-          console.warn("[AEGIS] Live Gemini API not configured or returned fallback. Using local generator.");
+          console.warn("[SENTINEL] Live Gemini API not configured or returned fallback. Using local generator.");
           setReportData(generateCTIReport(camp));
           setIsLiveAI(false);
         } else {
-          console.log("[AEGIS] Live Gemini CTI report generated successfully.");
+          console.log("[SENTINEL] Live Gemini CTI report generated successfully.");
           setReportData({
             id: camp.id,
             timestamp: camp.timestamp,
@@ -371,7 +371,7 @@ function AIAnalystContent() {
           setIsLiveAI(true);
         }
       } catch (error) {
-        console.error("[AEGIS ERROR] Fetching Gemini report failed. Using local compiler:", error);
+        console.error("[SENTINEL ERROR] Fetching Gemini report failed. Using local compiler:", error);
         setReportData(generateCTIReport(camp));
         setIsLiveAI(false);
       } finally {
@@ -396,7 +396,7 @@ function AIAnalystContent() {
       return `Phase ${idx + 1}: ${stage.title} -> MITRE ATT&CK: ${mapping.code} [${mapping.name}] - Status: ${stage.status.toUpperCase()}`;
     }).join("\n");
 
-    const content = `# AEGIS CYBER THREAT INTELLIGENCE (CTI) REPORT
+    const content = `# SENTINEL CYBER THREAT INTELLIGENCE (CTI) REPORT
 Generated: ${new Date().toUTCString()}
 Campaign Reference: ${reportData.id}
 Telemetry Log Time: ${dateStr}
@@ -437,7 +437,7 @@ Projected Risk Post-Remediation: < 5%
 Net Security Posture Risk Reduction: ${reportData.riskReduction}%
 
 ======================================================================
-Report Generated Authenticated by Aegis AI Security Core Node
+Report Generated Authenticated by Sentinel AI Security Core Node
 VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.toUpperCase()}
 `;
 
@@ -445,7 +445,7 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `AEGIS-CTI-Report-${reportData.id}.md`;
+    link.download = `SENTINEL-CTI-Report-${reportData.id}.md`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -477,7 +477,7 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
   }
 
   return (
-    <div 
+    <div
       style={{ overflowAnchor: "none" }}
       className="relative min-h-screen flex flex-col justify-between overflow-x-hidden bg-cyber-bg text-slate-100 selection:bg-electric-blue/30 selection:text-white print:bg-white print:text-black"
     >
@@ -578,13 +578,12 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
                   Assessed Risk Summary
                 </span>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className={`px-2 py-1 rounded border text-xs font-mono font-bold tracking-widest ${
-                    reportData.status === "Blocked"
-                      ? "border-cyber-green/35 bg-cyber-green/10 text-cyber-green"
-                      : reportData.currentRisk >= 70
+                  <span className={`px-2 py-1 rounded border text-xs font-mono font-bold tracking-widest ${reportData.status === "Blocked"
+                    ? "border-cyber-green/35 bg-cyber-green/10 text-cyber-green"
+                    : reportData.currentRisk >= 70
                       ? "border-cyber-red/35 bg-cyber-red/10 text-cyber-red"
                       : "border-amber-500/35 bg-amber-500/10 text-amber-500"
-                  }`}>
+                    }`}>
                     {reportData.status === "Blocked" ? "LOW RISK" : reportData.currentRisk >= 70 ? "CRITICAL RISK" : "HIGH RISK"}
                   </span>
                   <span className="text-slate-400 font-mono text-[10px]">{reportData.currentRisk}%</span>
@@ -660,8 +659,8 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
             <span className="text-slate-600">|</span>
             <span className="text-slate-400">OUTCOME:</span>
             <span className={`px-1.5 py-0.5 rounded border text-[8px] font-bold uppercase ${reportData.status === "Blocked"
-                ? "border-cyber-green/30 bg-cyber-green/10 text-cyber-green"
-                : "border-cyber-red/30 bg-cyber-red/10 text-cyber-red"
+              ? "border-cyber-green/30 bg-cyber-green/10 text-cyber-green"
+              : "border-cyber-red/30 bg-cyber-red/10 text-cyber-red"
               }`}>
               {reportData.status}
             </span>
@@ -697,7 +696,7 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
 
         {/* Print Only Header: Visible only during browser print */}
         <div className="hidden print:block font-mono text-black border-b-2 border-black pb-4 mb-8">
-          <h1 className="text-2xl font-bold uppercase">AEGIS Cyber Threat Intelligence (CTI) Report</h1>
+          <h1 className="text-2xl font-bold uppercase">Sentinel Cyber Threat Intelligence (CTI) Report</h1>
           <div className="grid grid-cols-2 gap-4 text-[10px] mt-2">
             <div><strong>Report Reference:</strong> {reportData.id}</div>
             <div><strong>Adversary Node:</strong> {reportData.actorName}</div>
@@ -734,8 +733,8 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
                     e.currentTarget.blur();
                   }}
                   className={`w-full flex items-center justify-between p-3 rounded border text-left text-[10px] tracking-wider uppercase transition-all cursor-pointer ${isActive
-                      ? "border-cyber-cyan/50 bg-cyber-cyan/10 text-cyber-cyan font-bold"
-                      : "border-cyber-border bg-black/20 text-slate-400 hover:text-white hover:bg-slate-900/30"
+                    ? "border-cyber-cyan/50 bg-cyber-cyan/10 text-cyber-cyan font-bold"
+                    : "border-cyber-border bg-black/20 text-slate-400 hover:text-white hover:bg-slate-900/30"
                     }`}
                 >
                   <span className="flex items-center gap-2">
@@ -832,8 +831,8 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
                           <td className="py-2 text-slate-400 print:text-black">{mapping.name}</td>
                           <td className="py-2 text-right">
                             <span className={`px-1 py-0.5 rounded border text-[7px] font-bold uppercase inline-block ${stage.status === "blocked"
-                                ? "border-cyber-green/30 bg-cyber-green/5 text-cyber-green print:border-black print:text-black"
-                                : "border-cyber-red/30 bg-cyber-red/5 text-cyber-red print:border-black print:text-black"
+                              ? "border-cyber-green/30 bg-cyber-green/5 text-cyber-green print:border-black print:text-black"
+                              : "border-cyber-red/30 bg-cyber-red/5 text-cyber-red print:border-black print:text-black"
                               }`}>
                               {stage.status.toUpperCase()}
                             </span>
@@ -1009,8 +1008,8 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyber-cyan/20 to-transparent" />
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-500 font-mono text-[9px] tracking-wider uppercase">
           <div>
-            <span className="text-white font-bold tracking-[0.2em]">AEGIS PLATFORM COMMAND</span>
-            <span className="ml-2">© {new Date().getFullYear()} AEGIS Cyber Inc.</span>
+            <span className="text-white font-bold tracking-[0.2em]">SENTINEL PLATFORM COMMAND</span>
+            <span className="ml-2">© {new Date().getFullYear()} Sentinel Cyber Inc.</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">

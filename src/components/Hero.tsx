@@ -19,7 +19,7 @@ export default function Hero() {
 
   // Set up scroll for parallax shifts
   const { scrollY } = useScroll();
-  
+
   // Parallax offsets for a premium digital agency feel
   const yText = useTransform(scrollY, [0, 800], [0, 100]);
   const yCard = useTransform(scrollY, [0, 800], [0, -50]);
@@ -27,12 +27,12 @@ export default function Hero() {
 
   const startSimulation = () => {
     if (simulationState !== "idle") return;
-    
+
     setSimulationState("running");
     setLogs([]);
-    
+
     const steps = [
-      `Initializing AEGIS educational simulation engine...`,
+      `Initializing SENTINEL educational simulation engine...`,
       `Mapping virtual network topology (endpoints, servers, and firewall)...`,
       `Injecting simulated attack via ${SIMULATION_CAMPAIGNS.find(c => c.id === selectedCampaign)?.technique}...`,
       `Checking firewall rules and network port statuses...`,
@@ -57,7 +57,7 @@ export default function Hero() {
   };
 
   return (
-    <section 
+    <section
       ref={heroRef}
       className="relative min-h-screen flex items-center justify-center pt-24 pb-16 overflow-hidden"
     >
@@ -77,12 +77,12 @@ export default function Hero() {
 
       {/* Pulsing command center radar rings behind the terminal */}
       <div className="absolute right-[10%] top-[30%] w-[450px] h-[450px] pointer-events-none z-0 hidden lg:block">
-        <motion.div 
+        <motion.div
           animate={{ scale: [1, 1.8], opacity: [0.15, 0] }}
           transition={{ repeat: Infinity, duration: 4, ease: "easeOut" }}
           className="absolute inset-0 border border-cyber-cyan/30 rounded-full"
         />
-        <motion.div 
+        <motion.div
           animate={{ scale: [1, 1.8], opacity: [0.1, 0] }}
           transition={{ repeat: Infinity, duration: 4, delay: 2, ease: "easeOut" }}
           className="absolute inset-0 border border-electric-blue/30 rounded-full"
@@ -98,7 +98,7 @@ export default function Hero() {
         className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10 w-full"
       >
         {/* Typography Text Content */}
-        <motion.div 
+        <motion.div
           style={{ y: yText, opacity: opacityFade }}
           className="lg:col-span-6 flex flex-col items-start text-left"
         >
@@ -132,7 +132,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="mt-6 text-sm md:text-base text-slate-400 max-w-xl font-sans leading-relaxed"
           >
-            AEGIS generates real-time, step-by-step attack simulations inside a safe virtual network. Select an attack scenario, watch how it spreads, and learn how to configure security rules to protect network systems.
+            SENTINEL generates real-time, step-by-step attack simulations inside a safe virtual network. Select an attack scenario, watch how it spreads, and learn how to configure security rules to protect network systems.
           </motion.p>
 
           {/* Project Purpose Section */}
@@ -144,7 +144,7 @@ export default function Hero() {
           >
             <div className="absolute top-0 left-0 bottom-0 w-[3px] bg-cyber-cyan" />
             <span className="font-mono text-[9px] uppercase tracking-widest text-cyber-cyan font-bold block mb-1">Project Purpose</span>
-            AEGIS is an educational cybersecurity simulation platform that helps students, beginners, and security enthusiasts understand how modern cyberattacks work and how organizations defend against them.
+            SENTINEL is an educational cybersecurity simulation platform that helps students, beginners, and security enthusiasts understand how modern cyberattacks work and how organizations defend against them.
           </motion.div>
 
           <motion.div
@@ -183,7 +183,7 @@ export default function Hero() {
                 <span className="w-3 h-3 rounded-full bg-red-500/80" />
                 <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
                 <span className="w-3 h-3 rounded-full bg-green-500/80" />
-                <span className="text-[10px] font-mono text-slate-500 ml-2">aegis-simulation-console.sh</span>
+                <span className="text-[10px] font-mono text-slate-500 ml-2">sentinel-simulation-console.sh</span>
               </div>
               <div className="flex items-center gap-1 font-mono text-[9px] text-cyber-cyan border border-cyber-cyan/20 px-1.5 py-0.5 rounded bg-cyber-cyan/5">
                 <Terminal className="w-2.5 h-2.5" />
@@ -204,22 +204,20 @@ export default function Hero() {
                       <button
                         key={campaign.id}
                         onClick={() => setSelectedCampaign(campaign.id)}
-                        className={`p-3 rounded text-left border flex items-center justify-between transition-all duration-300 ${
-                          selectedCampaign === campaign.id
-                            ? "bg-electric-blue/15 border-electric-blue text-white"
-                            : "bg-cyber-surface/40 border-cyber-border hover:border-slate-700 text-slate-400 hover:text-slate-200"
-                        }`}
+                        className={`p-3 rounded text-left border flex items-center justify-between transition-all duration-300 ${selectedCampaign === campaign.id
+                          ? "bg-electric-blue/15 border-electric-blue text-white"
+                          : "bg-cyber-surface/40 border-cyber-border hover:border-slate-700 text-slate-400 hover:text-slate-200"
+                          }`}
                       >
                         <div>
                           <div className="text-xs font-bold font-mono">{campaign.name}</div>
                           <div className="text-[10px] opacity-60 mt-0.5">{campaign.actor} <span className="text-slate-600">|</span> {campaign.technique}</div>
                         </div>
                         <div
-                          className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                            selectedCampaign === campaign.id
-                              ? "border-cyber-cyan bg-cyber-cyan/10"
-                              : "border-slate-600"
-                          }`}
+                          className={`w-4 h-4 rounded-full border flex items-center justify-center ${selectedCampaign === campaign.id
+                            ? "border-cyber-cyan bg-cyber-cyan/10"
+                            : "border-slate-600"
+                            }`}
                         >
                           {selectedCampaign === campaign.id && (
                             <span className="w-2 h-2 rounded-full bg-cyber-cyan" />
@@ -301,7 +299,7 @@ export default function Hero() {
 
             {/* Console Footer Info */}
             <div className="bg-cyber-surface px-4 py-2 border-t border-cyber-border flex items-center justify-between text-[9px] font-mono text-slate-500">
-              <div>HOST: twin-core-01.aegis.local</div>
+              <div>HOST: twin-core-01.sentinel.local</div>
               <div className="text-cyber-green animate-pulse">● SECURE SSL CONSOLE</div>
             </div>
           </div>

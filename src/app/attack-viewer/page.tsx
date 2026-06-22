@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { saveCampaignToHistory, getFriendlySimulationName, getActorName } from "../../components/campaignStore";
 import AnimatedCounter from "../../components/AnimatedCounter";
-import { 
-  Play, Pause, RotateCcw, ArrowLeft, Terminal, 
+import {
+  Play, Pause, RotateCcw, ArrowLeft, Terminal,
   Activity, ShieldCheck, Brain
 } from "lucide-react";
 
@@ -147,7 +147,7 @@ export default function AttackViewerPage() {
   useEffect(() => {
     const loadCampaign = () => {
       if (typeof window !== "undefined") {
-        const saved = sessionStorage.getItem("aegis_campaign_config");
+        const saved = sessionStorage.getItem("sentinel_campaign_config");
         if (saved) {
           try {
             const parsed = JSON.parse(saved);
@@ -178,7 +178,7 @@ export default function AttackViewerPage() {
 
     const streamTimer = setInterval(() => {
       elapsedTimeInStage += updateInterval;
-      
+
       // Calculate overall progress across the 6 stages
       const totalStages = campaign.stages.length;
       const baseProgress = (currentStageIdx / totalStages) * 100;
@@ -200,10 +200,10 @@ export default function AttackViewerPage() {
       if (elapsedTimeInStage >= stageDuration) {
         const stage = campaign.stages[currentStageIdx];
         setTerminalLogs(prev => [
-          ...prev, 
+          ...prev,
           `[STAGE DONE] Completed Phase: ${stage.title} | Result: ${stage.status.toUpperCase()}`
         ]);
-        
+
         if (currentStageIdx < totalStages - 1) {
           setCurrentStageIdx(prev => prev + 1);
           elapsedTimeInStage = 0;
@@ -360,7 +360,7 @@ export default function AttackViewerPage() {
 
   return (
     <div className="relative min-h-screen bg-cyber-bg overflow-x-hidden pt-28 pb-16 flex flex-col justify-between selection:bg-electric-blue/30 selection:text-white">
-      
+
       {/* Background radial glows */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[40vh] bg-electric-blue/10 rounded-full blur-[140px] pointer-events-none z-0" />
       <div className="absolute bottom-1/4 left-1/4 w-[30vw] h-[30vh] bg-cyber-cyan/5 rounded-full blur-[100px] pointer-events-none z-0" />
@@ -380,11 +380,11 @@ export default function AttackViewerPage() {
         transition={{ duration: 0.6 }}
         className="max-w-7xl mx-auto px-6 relative z-10 w-full flex-grow"
       >
-        
+
         {/* Navigation Link */}
         <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
-          <Link 
-            href="/simulate" 
+          <Link
+            href="/simulate"
             className="inline-flex items-center gap-2 text-[10px] font-mono tracking-widest text-slate-400 hover:text-white uppercase transition-colors group"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
@@ -483,15 +483,14 @@ export default function AttackViewerPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
-                isPlaying 
-                  ? "bg-amber-500 text-black hover:bg-amber-400" 
+              className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${isPlaying
+                  ? "bg-amber-500 text-black hover:bg-amber-400"
                   : "bg-electric-blue text-white hover:bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.3)]"
-              }`}
+                }`}
             >
               {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
             </button>
-            
+
             <button
               onClick={resetSimulation}
               className="w-9 h-9 rounded-full bg-cyber-surface border border-cyber-border hover:border-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-all duration-300 cursor-pointer"
@@ -552,23 +551,23 @@ export default function AttackViewerPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-sans text-xs leading-relaxed text-slate-300">
               <div className="bg-black/40 p-4 rounded border border-cyber-border/40">
                 <strong className="text-white block mb-1 font-mono uppercase tracking-wider text-[10px] text-cyber-green">What Happened?</strong>
-                The adversary emulated {campaign.threatActor} tactics against the {campaign.industry} target ({campaign.primaryTarget}). 
-                Under the current &quot;{campaign.securityLevel}&quot; defense configuration: 
-                {campaign.securityLevel === "Enterprise" 
-                  ? " Every single stage was successfully blocked by active EDR playbooks. No data was accessed or exfiltrated." 
-                  : campaign.securityLevel === "High" 
-                  ? " The intrusion was detected and contained at Phase 2 (Initial Access) and Phase 4 (Lateral Propagation). The target database remains secure." 
-                  : campaign.securityLevel === "Medium" 
-                  ? " Defenses flagged the initial scan and credential swipe, but failed to block the lateral propagation and final exfiltration, resulting in a database breach." 
-                  : " All security layers failed to detect or block the intrusion. The adversary successfully established a foothold, harvested admin credentials, moved laterally, and exfiltrated core database tables."}
+                The adversary emulated {campaign.threatActor} tactics against the {campaign.industry} target ({campaign.primaryTarget}).
+                Under the current &quot;{campaign.securityLevel}&quot; defense configuration:
+                {campaign.securityLevel === "Enterprise"
+                  ? " Every single stage was successfully blocked by active EDR playbooks. No data was accessed or exfiltrated."
+                  : campaign.securityLevel === "High"
+                    ? " The intrusion was detected and contained at Phase 2 (Initial Access) and Phase 4 (Lateral Propagation). The target database remains secure."
+                    : campaign.securityLevel === "Medium"
+                      ? " Defenses flagged the initial scan and credential swipe, but failed to block the lateral propagation and final exfiltration, resulting in a database breach."
+                      : " All security layers failed to detect or block the intrusion. The adversary successfully established a foothold, harvested admin credentials, moved laterally, and exfiltrated core database tables."}
               </div>
               <div className="bg-black/40 p-4 rounded border border-cyber-border/40">
                 <strong className="text-white block mb-1 font-mono uppercase tracking-wider text-[10px] text-cyber-green">How Could This Be Prevented?</strong>
-                {campaign.securityLevel === "Enterprise" 
-                  ? "Maintain current optimal policies and perform regular red-team compliance audits." 
-                  : campaign.securityLevel === "High" 
-                  ? "Upgrade remaining warning stages (like privilege escalation detection) to active containment rules." 
-                  : "Upgrade the defense posture to High or Enterprise. Implement FIDO2 multi-factor authentication, network microsegmentation to block lateral subnets, and strict host credential guard settings."}
+                {campaign.securityLevel === "Enterprise"
+                  ? "Maintain current optimal policies and perform regular red-team compliance audits."
+                  : campaign.securityLevel === "High"
+                    ? "Upgrade remaining warning stages (like privilege escalation detection) to active containment rules."
+                    : "Upgrade the defense posture to High or Enterprise. Implement FIDO2 multi-factor authentication, network microsegmentation to block lateral subnets, and strict host credential guard settings."}
               </div>
               <div className="bg-black/40 p-4 rounded border border-cyber-border/40">
                 <strong className="text-white block mb-1 font-mono uppercase tracking-wider text-[10px] text-cyber-green">What Did We Learn?</strong>
@@ -580,16 +579,16 @@ export default function AttackViewerPage() {
 
         {/* Layout Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
+
           {/* Left Side: Overview, Timeline, recommended defenses (7 cols) */}
           <div className="lg:col-span-7 space-y-8">
-            
+
             {/* 1. Attack Overview Panel */}
             <div className="glassmorphism-card rounded-xl p-6 border border-cyber-border">
               <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-4">
                 [01] ATTACK SCENARIO SETUP OVERVIEW
               </span>
-              
+
               <motion.div
                 className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono text-[10px]"
                 variants={containerVariants}
@@ -640,43 +639,39 @@ export default function AttackViewerPage() {
                   };
 
                   return (
-                    <div 
+                    <div
                       key={stage.title}
-                      className={`relative transition-all duration-500 ${
-                        isPending ? "opacity-35 pointer-events-none" : "opacity-100"
-                      }`}
+                      className={`relative transition-all duration-500 ${isPending ? "opacity-35 pointer-events-none" : "opacity-100"
+                        }`}
                     >
                       {/* Interactive dot selector */}
-                      <span className={`absolute -left-[31px] top-1.5 w-4.5 h-4.5 rounded-full border flex items-center justify-center ${
-                        isActive
+                      <span className={`absolute -left-[31px] top-1.5 w-4.5 h-4.5 rounded-full border flex items-center justify-center ${isActive
                           ? "bg-black border-cyber-cyan shadow-[0_0_10px_rgba(6,182,212,0.6)]"
                           : isCompleted
-                          ? "bg-cyber-cyan border-cyber-cyan"
-                          : "bg-slate-950 border-slate-800"
-                      }`}>
+                            ? "bg-cyber-cyan border-cyber-cyan"
+                            : "bg-slate-950 border-slate-800"
+                        }`}>
                         {isCompleted && <span className="w-1.5 h-1.5 rounded-full bg-black" />}
-                        {isActive && <motion.span 
-                          animate={{ scale: [1, 1.4, 1] }} 
+                        {isActive && <motion.span
+                          animate={{ scale: [1, 1.4, 1] }}
                           transition={{ repeat: Infinity, duration: 1.5 }}
-                          className="w-1.5 h-1.5 rounded-full bg-cyber-cyan" 
+                          className="w-1.5 h-1.5 rounded-full bg-cyber-cyan"
                         />}
                       </span>
 
                       {/* Content Card */}
-                      <div className={`p-4 rounded-lg border transition-all duration-300 ${
-                        isActive 
+                      <div className={`p-4 rounded-lg border transition-all duration-300 ${isActive
                           ? "bg-cyber-surface border-cyber-border-active shadow-[0_0_20px_rgba(6,182,212,0.06)]"
                           : "bg-cyber-surface/30 border-cyber-border/30"
-                      }`}>
+                        }`}>
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
                             <span className="text-[10px] font-mono text-slate-500">PHASE 0{idx + 1}</span>
                             <span className="text-slate-700">|</span>
-                            <span className={`px-1.5 py-0.5 rounded border text-[8px] font-mono font-bold uppercase ${
-                              stage.severity === "critical" ? "text-cyber-red border-cyber-red/30 bg-cyber-red/5" :
-                              stage.severity === "high" ? "text-rose-500 border-rose-500/30 bg-rose-500/5" :
-                              "text-cyber-cyan border-cyber-cyan/30 bg-cyber-cyan/5"
-                            }`}>
+                            <span className={`px-1.5 py-0.5 rounded border text-[8px] font-mono font-bold uppercase ${stage.severity === "critical" ? "text-cyber-red border-cyber-red/30 bg-cyber-red/5" :
+                                stage.severity === "high" ? "text-rose-500 border-rose-500/30 bg-rose-500/5" :
+                                  "text-cyber-cyan border-cyber-cyan/30 bg-cyber-cyan/5"
+                              }`}>
                               {stage.severity}
                             </span>
                           </div>
@@ -699,7 +694,7 @@ export default function AttackViewerPage() {
               <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-4">
                 [03] RECOMMENDED SECURITY MITIGATION SUITE
               </span>
-              
+
               <motion.div
                 className="grid grid-cols-1 md:grid-cols-3 gap-4"
                 variants={containerVariants}
@@ -726,11 +721,11 @@ export default function AttackViewerPage() {
 
           {/* Right Side: Risk indicators, live logs terminal, MITRE matrix (5 cols) */}
           <div className="lg:col-span-5 space-y-8">
-            
+
             {/* 1. Risk Assessment Panel */}
             <div className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative overflow-hidden">
               <div className="absolute top-0 right-0 w-[40%] h-[40%] bg-cyber-red/5 rounded-full blur-[60px] pointer-events-none" />
-              
+
               <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-4">
                 [04] SIMULATED COMPROMISE RISK METRICS
               </span>
@@ -740,9 +735,9 @@ export default function AttackViewerPage() {
                 <div className="relative w-28 h-28 flex items-center justify-center flex-shrink-0">
                   <svg className="w-full h-full transform -rotate-90">
                     <circle cx="56" cy="56" r="48" stroke="rgba(30,41,59,0.5)" strokeWidth="6" fill="transparent" />
-                    <motion.circle 
-                      cx="56" cy="56" r="48" 
-                      stroke={campaign.riskFactor > 70 ? "#f43f5e" : campaign.riskFactor > 40 ? "#f59e0b" : "#3b82f6"} 
+                    <motion.circle
+                      cx="56" cy="56" r="48"
+                      stroke={campaign.riskFactor > 70 ? "#f43f5e" : campaign.riskFactor > 40 ? "#f59e0b" : "#3b82f6"}
                       strokeWidth="7" fill="transparent"
                       strokeDasharray={2 * Math.PI * 48}
                       animate={{ strokeDashoffset: (2 * Math.PI * 48) * (1 - campaign.riskFactor / 100) }}
@@ -804,7 +799,7 @@ export default function AttackViewerPage() {
               </div>
 
               {/* Logs Screen */}
-              <div 
+              <div
                 ref={terminalContainerRef}
                 onScroll={handleTerminalScroll}
                 className="bg-black/90 p-4 font-mono text-[10px] text-slate-400 h-[260px] overflow-y-auto space-y-1.5"
@@ -817,11 +812,10 @@ export default function AttackViewerPage() {
                   terminalLogs.map((log, idx) => {
                     const isSystem = log.includes("[STAGE DONE]") || log.includes("[COMPLETE]");
                     return (
-                      <div 
-                        key={idx} 
-                        className={`leading-relaxed ${
-                          isSystem ? "text-cyber-cyan font-bold" : "text-slate-400"
-                        }`}
+                      <div
+                        key={idx}
+                        className={`leading-relaxed ${isSystem ? "text-cyber-cyan font-bold" : "text-slate-400"
+                          }`}
                       >
                         <span className="text-slate-700 mr-1.5">&gt;</span>
                         {log}
@@ -837,11 +831,11 @@ export default function AttackViewerPage() {
               <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-4">
                 [05] ATTACK TECHNIQUES USED (MITRE ATT&CK)
               </span>
-              
+
               <div className="space-y-2.5 font-mono text-[10px]">
                 {mitreTechniques.map((tech) => (
-                  <div 
-                    key={tech.id} 
+                  <div
+                    key={tech.id}
                     className="p-2.5 rounded bg-cyber-surface/40 border border-cyber-border flex items-center justify-between"
                   >
                     <div className="flex items-center gap-2">
@@ -864,7 +858,7 @@ export default function AttackViewerPage() {
 
       {/* Footer Info */}
       <footer className="max-w-7xl mx-auto px-6 w-full text-slate-600 font-mono text-[9px] tracking-wider border-t border-cyber-border/20 pt-6 mt-12 flex justify-between items-center z-10">
-        <div>CORE MONITOR: attack-viewer.aegis.local</div>
+        <div>CORE MONITOR: attack-viewer.sentinel.local</div>
         <div className="flex items-center gap-2">
           <Activity className="w-3.5 h-3.5 text-cyber-cyan" />
           <span>SYS_TELEMETRY: PROCESSING ACTIVE INTRUSION MOVIE</span>

@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { 
-  ArrowLeft, Brain, Cpu, Layers, 
+import {
+  ArrowLeft, Brain, Cpu, Layers,
   BookOpen, Lightbulb, Compass, Award
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -25,7 +25,7 @@ function LiveClock() {
 export default function AboutPage() {
   return (
     <div className="relative min-h-screen flex flex-col justify-between overflow-x-hidden bg-cyber-bg text-slate-200 selection:bg-electric-blue/30 selection:text-white">
-      
+
       {/* Background radial glows & grids */}
       <div className="absolute inset-0 cyber-grid opacity-20 pointer-events-none z-0" />
       <div className="absolute inset-0 cyber-grid-fine opacity-40 pointer-events-none z-0" />
@@ -43,7 +43,7 @@ export default function AboutPage() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="max-w-4xl mx-auto px-6"
         >
-          
+
           {/* Navigation back */}
           <Link
             href="/"
@@ -58,7 +58,7 @@ export default function AboutPage() {
             <div className="absolute top-0 left-0 bottom-0 w-[3px] bg-cyber-cyan" />
             <div>
               <strong className="text-white block mb-0.5">What is this?</strong>
-              An educational overview explaining the architecture, technology stack, and design of the AEGIS simulation platform.
+              An educational overview explaining the architecture, technology stack, and design of the SENTINEL simulation platform.
             </div>
             <div>
               <strong className="text-white block mb-0.5">Why does it matter?</strong>
@@ -77,15 +77,15 @@ export default function AboutPage() {
               Document Node: about-project.exe
             </div>
             <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase">
-              About the AEGIS Platform
+              About the SENTINEL Platform
             </h1>
             <p className="mt-4 text-slate-400 text-sm md:text-base leading-relaxed">
-              AEGIS is an educational cybersecurity simulation platform that helps students, beginners, and security enthusiasts understand how modern cyberattacks work and how organizations defend against them.
+              SENTINEL is an educational cybersecurity simulation platform that helps students, beginners, and security enthusiasts understand how modern cyberattacks work and how organizations defend against them.
             </p>
           </div>
 
           <div className="space-y-16">
-            
+
             {/* 1. Project Overview & Purpose */}
             <section className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative overflow-hidden">
               <div className="absolute top-0 left-0 bottom-0 w-[3px] bg-cyber-cyan" />
@@ -95,27 +95,27 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-4 text-sm text-slate-300 leading-relaxed font-sans">
                 <p>
-                  Cybersecurity concepts are often locked behind dense jargon and command-line interfaces. AEGIS was built to make these complex processes visible and intuitive. By combining custom simulation controls, real-time playbacks, and AI-driven analysis, AEGIS allows users to safely watch how attacks spread across networks and study defensive protections in real-time.
+                  Cybersecurity concepts are often locked behind dense jargon and command-line interfaces. SENTINEL was built to make these complex processes visible and intuitive. By combining custom simulation controls, real-time playbacks, and AI-driven analysis, SENTINEL allows users to safely watch how attacks spread across networks and study defensive protections in real-time.
                 </p>
                 <p>
-                  Whether you are a recruiter evaluating technical competency, a professor verifying architectural frameworks, or a beginner starting your cybersecurity journey, AEGIS is designed to convey the core mechanics of threat blocking and defense in less than 60 seconds.
+                  Whether you are a recruiter evaluating technical competency, a professor verifying architectural frameworks, or a beginner starting your cybersecurity journey, SENTINEL is designed to convey the core mechanics of threat blocking and defense in less than 60 seconds.
                 </p>
               </div>
             </section>
 
-            {/* 2. Why I Built AEGIS */}
+            {/* 2. Why I Built SENTINEL */}
             <section className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative overflow-hidden">
               <div className="absolute top-0 left-0 bottom-0 w-[3px] bg-cyber-cyan" />
               <h2 className="text-white font-mono text-xs uppercase tracking-widest font-bold mb-4 flex items-center gap-2">
                 <Lightbulb className="w-4 h-4 text-cyber-cyan" />
-                [2.0] Why I Built AEGIS
+                [2.0] Why I Built SENTINEL
               </h2>
               <div className="space-y-4 text-sm text-slate-300 leading-relaxed font-sans">
                 <p>
                   As a student learning cybersecurity, I noticed a huge gap between textbook theory and practical, visual understanding. Concepts like port scanning, lateral network movement, and credential protection are often taught purely through text or complex command-line logs, making it hard for beginners to grasp the &quot;big picture.&quot;
                 </p>
                 <p>
-                  I built AEGIS as an educational student project to bridge this gap. My goal was to create a visual, interactive simulation workspace that makes cybersecurity concepts clear and accessible. It serves as:
+                  I built SENTINEL as an educational student project to bridge this gap. My goal was to create a visual, interactive simulation workspace that makes cybersecurity concepts clear and accessible. It serves as:
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-slate-400 pl-2">
                   <li><strong className="text-slate-200">A Visual Textbook:</strong> Turning abstract network logs into interactive timeline playback animations.</li>
@@ -169,7 +169,7 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-6 text-sm text-slate-300 leading-relaxed">
                 <p>
-                  AEGIS is structured as a client-first React application deployed on Vercel. It leverages serverless server endpoints for external API requests.
+                  SENTINEL is structured as a client-first React application deployed on Vercel. It leverages serverless server endpoints for external API requests.
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono text-xs">
@@ -201,7 +201,7 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-4 text-sm text-slate-300 leading-relaxed font-sans">
                 <p>
-                  The AI Security Analyst Console integrates Google&apos;s <strong className="text-white">Gemini 2.5 Flash / 1.5 Flash</strong> model to generate reports. 
+                  The AI Security Analyst Console integrates Google&apos;s <strong className="text-white">Gemini 2.5 Flash / 1.5 Flash</strong> model to generate reports.
                   When a simulation concludes, security logs are sent to the Next.js API endpoint `/api/analyze`.
                 </p>
                 <p>
@@ -231,7 +231,7 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-4 text-sm text-slate-300 leading-relaxed font-sans">
                 <p>
-                  AEGIS is actively developed. Future enhancements include:
+                  SENTINEL is actively developed. Future enhancements include:
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-slate-400 pl-2">
                   <li><strong className="text-slate-200">Active Defenses:</strong> Toggle firewall rules and network limits *during* simulation playback to see the attacker blocked in real-time.</li>
@@ -249,13 +249,13 @@ export default function AboutPage() {
       <footer className="relative bg-black border-t border-cyber-border/40 py-12 z-10 overflow-hidden">
         {/* Decorative Grid Line */}
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyber-cyan/20 to-transparent" />
-        
+
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-8 items-center text-slate-500 font-mono text-[10px] tracking-wider">
-          
+
           {/* Brand copyright */}
           <div className="md:col-span-4 flex flex-col gap-1 text-left">
-            <span className="text-white font-bold tracking-[0.2em] uppercase">AEGIS PLATFORM</span>
-            <span>© {new Date().getFullYear()} AEGIS Cyber Inc. All rights reserved.</span>
+            <span className="text-white font-bold tracking-[0.2em] uppercase">SENTINEL PLATFORM</span>
+            <span>© {new Date().getFullYear()} SENTINEL Cyber Inc. All rights reserved.</span>
             <span className="text-slate-600 uppercase text-[8px] mt-1">
               SECURE DEPLOYMENT NODE: REG-49.882.A
             </span>
@@ -275,7 +275,7 @@ export default function AboutPage() {
           {/* Minimal links */}
           <div className="md:col-span-4 flex justify-start md:justify-end gap-6 text-[9px] uppercase">
             <Link href="/about" className="hover:text-cyber-cyan transition-colors">About</Link>
-            <a href="https://github.com/utkarshsingh3011/AEGIS-ai-cyber-simulator" target="_blank" rel="noopener noreferrer" className="hover:text-cyber-cyan transition-colors">GitHub Repository</a>
+            <a href="https://github.com/utkarshsingh3011/SENTINEL-ai-cyber-simulator" target="_blank" rel="noopener noreferrer" className="hover:text-cyber-cyan transition-colors">GitHub Repository</a>
             <Link href="/about#tech-stack" className="hover:text-cyber-cyan transition-colors">Technology Stack</Link>
             <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-cyber-cyan transition-colors">LinkedIn</a>
           </div>

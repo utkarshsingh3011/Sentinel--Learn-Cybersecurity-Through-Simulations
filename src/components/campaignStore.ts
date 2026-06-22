@@ -74,7 +74,7 @@ export const getIndustryName = (id: string): string => {
 // Seed initial history if empty
 const getMockCampaigns = (): StoredCampaign[] => {
   const now = new Date();
-  
+
   const createPastDate = (hoursAgo: number) => {
     const d = new Date(now);
     d.setHours(d.getHours() - hoursAgo);
@@ -451,24 +451,24 @@ const getMockCampaigns = (): StoredCampaign[] => {
 
 export const getCampaignHistory = (): StoredCampaign[] => {
   if (typeof window === "undefined") return [];
-  const stored = localStorage.getItem("aegis_campaign_history");
+  const stored = localStorage.getItem("sentinel_campaign_history");
   if (!stored) {
     const mocks = getMockCampaigns();
-    localStorage.setItem("aegis_campaign_history", JSON.stringify(mocks));
+    localStorage.setItem("sentinel_campaign_history", JSON.stringify(mocks));
     return mocks;
   }
   try {
     return JSON.parse(stored);
   } catch {
     const mocks = getMockCampaigns();
-    localStorage.setItem("aegis_campaign_history", JSON.stringify(mocks));
+    localStorage.setItem("sentinel_campaign_history", JSON.stringify(mocks));
     return mocks;
   }
 };
 
 export const saveCampaignToHistory = (campaign: SaveCampaignInput): StoredCampaign => {
   const history = getCampaignHistory();
-  
+
   // Determine if this campaign is already saved (by timestamp or matching config details)
   const isAlreadySaved = history.some(
     (c) => c.timestamp === campaign.timestamp && c.industry === campaign.industry && c.threatActor === campaign.threatActor
@@ -481,8 +481,8 @@ export const saveCampaignToHistory = (campaign: SaveCampaignInput): StoredCampai
   }
 
   // Derive Status: if last stage is "blocked", then overall is Blocked. Otherwise Successful.
-  const finalStage = campaign.stages && campaign.stages.length > 0 
-    ? campaign.stages[campaign.stages.length - 1] 
+  const finalStage = campaign.stages && campaign.stages.length > 0
+    ? campaign.stages[campaign.stages.length - 1]
     : null;
   const status = finalStage && finalStage.status === "blocked" ? "Blocked" : "Successful";
 
@@ -503,6 +503,6 @@ export const saveCampaignToHistory = (campaign: SaveCampaignInput): StoredCampai
   };
 
   const updated = [newRecord, ...history];
-  localStorage.setItem("aegis_campaign_history", JSON.stringify(updated));
+  localStorage.setItem("sentinel_campaign_history", JSON.stringify(updated));
   return newRecord;
 };

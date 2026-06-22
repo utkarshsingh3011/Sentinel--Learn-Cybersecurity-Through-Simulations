@@ -61,7 +61,7 @@ export default function HowItWorks() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="max-w-7xl mx-auto px-6 relative z-10"
       >
-        
+
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-20">
           <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase mb-4">
@@ -69,10 +69,10 @@ export default function HowItWorks() {
             Execution Guide
           </div>
           <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white">
-            How AEGIS Works
+            How SENTINEL Works
           </h2>
           <p className="mt-4 text-slate-400 text-sm md:text-base leading-relaxed">
-            AEGIS provides a step-by-step educational flow that translates simulation logs into verified system security improvements.
+            SENTINEL provides a step-by-step educational flow that translates simulation logs into verified system security improvements.
           </p>
         </div>
 
@@ -86,11 +86,10 @@ export default function HowItWorks() {
               <button
                 key={step.id}
                 onClick={() => setActiveStep(step.id)}
-                className={`p-4 rounded border text-left transition-all duration-300 relative overflow-hidden group cursor-pointer ${
-                  isActive
-                    ? "bg-cyber-surface border-cyber-border-active/60 shadow-[0_0_20px_rgba(6,182,212,0.05)]"
-                    : "bg-black/30 border-cyber-border/30 hover:border-slate-800"
-                }`}
+                className={`p-4 rounded border text-left transition-all duration-300 relative overflow-hidden group cursor-pointer ${isActive
+                  ? "bg-cyber-surface border-cyber-border-active/60 shadow-[0_0_20px_rgba(6,182,212,0.05)]"
+                  : "bg-black/30 border-cyber-border/30 hover:border-slate-800"
+                  }`}
               >
                 {/* Accent top line */}
                 {isActive && (
@@ -99,7 +98,7 @@ export default function HowItWorks() {
                     className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-electric-blue to-cyber-cyan"
                   />
                 )}
-                
+
                 <div className="flex justify-between items-center">
                   <span className={`text-[10px] font-mono font-bold ${isActive ? "text-cyber-cyan" : "text-slate-600"}`}>
                     STEP {step.num}
@@ -149,7 +148,7 @@ export default function HowItWorks() {
                         <Terminal className="w-3.5 h-3.5 text-slate-400" />
                       </div>
                       <div className="text-[10px] font-mono text-slate-500">
-                        ACTIVE INSTANCE ID: <span className="text-slate-300">inst-aegis-{step.id}-098</span>
+                        ACTIVE INSTANCE ID: <span className="text-slate-300">inst-sentinel-{step.id}-098</span>
                       </div>
                     </div>
                   </div>
@@ -172,7 +171,7 @@ export default function HowItWorks() {
                           <div className="space-y-2">
                             <div className="text-slate-500 font-mono text-[10px]"># inputs/apt29-spearphish.json</div>
                             <pre className="text-[11px] leading-relaxed text-cyber-cyan bg-cyber-surface/30 p-4 rounded border border-cyber-border/60">
-{`{
+                              {`{
   "scenario_name": "CozyBear Foothold Emulation",
   "actor": "APT29",
   "techniques": ["T1566.002", "T1078.001"],

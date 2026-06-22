@@ -30,7 +30,7 @@ export default function Home() {
           <ThreatEmergence />
         </ScrollReveal>
 
-        {/* How AEGIS Works */}
+        {/* How Sentinel Works */}
         <ScrollReveal delay={0.15}>
           <HowItWorks />
         </ScrollReveal>
@@ -54,9 +54,9 @@ export default function Home() {
             <div className="max-w-7xl mx-auto px-6">
               <div className="text-center max-w-3xl mx-auto mb-16">
                 <span className="font-mono text-[9px] uppercase tracking-widest text-cyber-cyan font-bold block mb-4">Target Audience</span>
-                <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white">Who Is AEGIS For?</h2>
+                <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white">Who Is Sentinel For?</h2>
                 <p className="mt-4 text-slate-400 text-sm leading-relaxed">
-                  AEGIS is designed to be an accessible, visual entry point for anyone wishing to explore how cybersecurity works in practice.
+                  Sentinel is designed to be an accessible, visual entry point for anyone wishing to explore how cybersecurity works in practice.
                 </p>
               </div>
 
@@ -154,8 +154,8 @@ export default function Home() {
 
           {/* Brand copyright */}
           <div className="md:col-span-4 flex flex-col gap-1 text-left">
-            <span className="text-white font-bold tracking-[0.2em] uppercase">AEGIS PLATFORM</span>
-            <span>© {new Date().getFullYear()} AEGIS Cyber Inc. All rights reserved.</span>
+            <span className="text-white font-bold tracking-[0.2em] uppercase">SENTINEL PLATFORM</span>
+            <span>© {new Date().getFullYear()} SENTINEL Cyber Inc. All rights reserved.</span>
             <span className="text-slate-600 uppercase text-[8px] mt-1">
               SECURE DEPLOYMENT NODE: REG-49.882.A
             </span>
@@ -173,7 +173,7 @@ export default function Home() {
           {/* Minimal links */}
           <div className="md:col-span-4 flex justify-start md:justify-end gap-6 text-[9px] uppercase">
             <Link href="/about" className="hover:text-cyber-cyan transition-colors">About</Link>
-            <a href="https://github.com/utkarshsingh3011/AEGIS-ai-cyber-simulator" target="_blank" rel="noopener noreferrer" className="hover:text-cyber-cyan transition-colors">GitHub Repository</a>
+            <a href="https://github.com/utkarshsingh3011/Sentinel-ai-cyber-simulator" target="_blank" rel="noopener noreferrer" className="hover:text-cyber-cyan transition-colors">GitHub Repository</a>
             <Link href="/about#tech-stack" className="hover:text-cyber-cyan transition-colors">Technology Stack</Link>
             <a href="https://www.linkedin.com/in/utkarshsingh3011" target="_blank" rel="noopener noreferrer" className="hover:text-cyber-cyan transition-colors">LinkedIn</a>
           </div>

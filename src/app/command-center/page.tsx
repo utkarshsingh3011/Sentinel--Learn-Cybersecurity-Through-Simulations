@@ -3,12 +3,12 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  ArrowLeft, Terminal, Activity, ShieldCheck, ShieldAlert, 
+import {
+  ArrowLeft, Terminal, Activity, ShieldCheck, ShieldAlert,
   Database, RefreshCw, Brain, ChevronRight, Flame
 } from "lucide-react";
-import { 
-  getCampaignHistory, StoredCampaign, getActorName, 
+import {
+  getCampaignHistory, StoredCampaign, getActorName,
   getAttackName
 } from "../../components/campaignStore";
 import AnimatedCounter from "../../components/AnimatedCounter";
@@ -50,7 +50,7 @@ export default function CommandCenterPage() {
   const blockedAttacks = history.filter(c => c.status === "Blocked").length;
   const successfulAttacks = history.filter(c => c.status === "Successful").length;
 
-  const avgRisk = totalSimulations > 0 
+  const avgRisk = totalSimulations > 0
     ? Math.round(history.reduce((acc, curr) => acc + curr.riskScore, 0) / totalSimulations)
     : 0;
 
@@ -80,7 +80,7 @@ export default function CommandCenterPage() {
   const techniqueCoverage = mitreTechniquesList.map(tech => {
     const matchingCampaigns = history.filter(c => c.attackType === tech.typeId);
     let coverage = 50; // base fallback
-    
+
     if (matchingCampaigns.length > 0) {
       const blocked = matchingCampaigns.filter(c => c.status === "Blocked").length;
       coverage = Math.round((blocked / matchingCampaigns.length) * 100);
@@ -204,8 +204,8 @@ export default function CommandCenterPage() {
       >
         {/* Navigation back and telemetry stats */}
         <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
-          <Link 
-            href="/simulate" 
+          <Link
+            href="/simulate"
             className="inline-flex items-center gap-2 text-[10px] font-mono tracking-widest text-slate-400 hover:text-white uppercase transition-colors group"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
@@ -257,14 +257,14 @@ export default function CommandCenterPage() {
           {/* Row 1: Security Posture & Threat Statistics */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
             {/* Posture Card (4 cols) */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               className="lg:col-span-4 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between items-center text-center relative overflow-hidden"
             >
               <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyber-cyan/35 to-transparent" />
-              
+
               <div className="w-full text-left">
                 <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-2">
                   [01] OVERALL SECURITY SCORE
@@ -298,7 +298,7 @@ export default function CommandCenterPage() {
                   />
                 </svg>
                 <div className="absolute flex flex-col items-center justify-center">
-                  <motion.span 
+                  <motion.span
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.3 }}
@@ -324,7 +324,7 @@ export default function CommandCenterPage() {
 
             {/* Statistics Cards (8 cols) */}
             <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6 items-stretch">
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -349,7 +349,7 @@ export default function CommandCenterPage() {
                 </p>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -374,7 +374,7 @@ export default function CommandCenterPage() {
                 </p>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -395,11 +395,11 @@ export default function CommandCenterPage() {
                   </div>
                 </div>
                 <p className="text-[10px] text-slate-400 font-sans mt-4 border-t border-cyber-border/40 pt-4 leading-relaxed">
-                  <strong>Blocked Attacks</strong>: Simulations where AEGIS security configurations detected and stopped the intrusion path before the final target was reached.
+                  <strong>Blocked Attacks</strong>: Simulations where SENTINEL's security configurations detected and stopped the intrusion path before the final target was reached.
                 </p>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -429,7 +429,7 @@ export default function CommandCenterPage() {
           {/* Row 2: Heatmap & MITRE Coverage */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
             {/* Industry Heatmap (5 cols) */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -446,7 +446,7 @@ export default function CommandCenterPage() {
                 <div className="space-y-4">
                   {industryCounts.map((ind) => {
                     const percentage = maxIndustryCount > 0 ? (ind.count / maxIndustryCount) * 100 : 0;
-                    
+
                     const getBarColor = (cnt: number) => {
                       if (cnt >= 3) return "bg-cyber-red";
                       if (cnt >= 1) return "bg-electric-blue";
@@ -496,7 +496,7 @@ export default function CommandCenterPage() {
             </motion.div>
 
             {/* MITRE ATT&CK Coverage (7 cols) */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
@@ -545,14 +545,13 @@ export default function CommandCenterPage() {
                             <span>{tech.coverage}%</span>
                           </div>
                           <div className="h-1 bg-slate-900 rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full ${
-                                tech.coverage >= 75 
-                                  ? "bg-cyber-green" 
-                                  : tech.coverage >= 35 
-                                  ? "bg-amber-500" 
+                            <div
+                              className={`h-full ${tech.coverage >= 75
+                                ? "bg-cyber-green"
+                                : tech.coverage >= 35
+                                  ? "bg-amber-500"
                                   : "bg-cyber-red"
-                              }`} 
+                                }`}
                               style={{ width: `${tech.coverage}%` }}
                             />
                           </div>
@@ -572,7 +571,7 @@ export default function CommandCenterPage() {
           {/* Row 3: Campaign History Table & Recommendations */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
             {/* Campaign Table (8 cols) */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
@@ -583,7 +582,7 @@ export default function CommandCenterPage() {
                   <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
                     [04] PAST SIMULATION RECORDS
                   </span>
-                  
+
                   {/* Filters */}
                   <div className="flex items-center gap-2 bg-slate-950 p-1 border border-cyber-border rounded text-[9px] font-mono">
                     <button
@@ -629,7 +628,7 @@ export default function CommandCenterPage() {
                         </tr>
                       ) : (
                         filteredHistory.map((camp) => (
-                          <tr 
+                          <tr
                             key={camp.id}
                             onClick={() => setSelectedCampaign(camp)}
                             className="hover:bg-slate-900/40 transition-colors cursor-pointer group"
@@ -639,7 +638,7 @@ export default function CommandCenterPage() {
                               <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-cyber-cyan" />
                             </td>
                             <td className="py-3 text-slate-400">
-                              {new Date(camp.timestamp).toLocaleDateString()} {new Date(camp.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                              {new Date(camp.timestamp).toLocaleDateString()} {new Date(camp.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </td>
                             <td className="py-3 text-slate-300 font-bold uppercase">{getActorName(camp.threatActor)}</td>
                             <td className="py-3 text-slate-300 font-semibold uppercase">{camp.industry}</td>
@@ -650,11 +649,10 @@ export default function CommandCenterPage() {
                               </span>
                             </td>
                             <td className="py-3 text-right">
-                              <span className={`px-2 py-0.5 rounded border text-[8px] font-bold uppercase inline-block ${
-                                camp.status === "Blocked" 
-                                  ? "border-cyber-green/30 bg-cyber-green/10 text-cyber-green"
-                                  : "border-cyber-red/30 bg-cyber-red/10 text-cyber-red"
-                              }`}>
+                              <span className={`px-2 py-0.5 rounded border text-[8px] font-bold uppercase inline-block ${camp.status === "Blocked"
+                                ? "border-cyber-green/30 bg-cyber-green/10 text-cyber-green"
+                                : "border-cyber-red/30 bg-cyber-red/10 text-cyber-red"
+                                }`}>
                                 {camp.status}
                               </span>
                             </td>
@@ -679,7 +677,7 @@ export default function CommandCenterPage() {
             </motion.div>
 
             {/* Recommendations Panel (4 cols) */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
@@ -689,7 +687,7 @@ export default function CommandCenterPage() {
                 <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-4">
                   [05] SECURITY RECOMMENDATIONS BRIEF
                 </span>
-                
+
                 <motion.div
                   className="space-y-4 max-h-[360px] overflow-y-auto pr-1"
                   variants={containerVariants}
@@ -799,14 +797,13 @@ export default function CommandCenterPage() {
                     </span>
                   </div>
                   <div className="h-1.5 bg-slate-900 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full ${
-                        selectedCampaign.riskScore >= 70 
-                          ? "bg-cyber-red" 
-                          : selectedCampaign.riskScore >= 45 
-                          ? "bg-amber-500" 
+                    <div
+                      className={`h-full ${selectedCampaign.riskScore >= 70
+                        ? "bg-cyber-red"
+                        : selectedCampaign.riskScore >= 45
+                          ? "bg-amber-500"
                           : "bg-cyber-green"
-                      }`} 
+                        }`}
                       style={{ width: `${selectedCampaign.riskScore}%` }}
                     />
                   </div>
@@ -824,24 +821,22 @@ export default function CommandCenterPage() {
                   <span className="text-[9px] text-slate-500 uppercase tracking-widest block font-bold">
                     [ STAGES TIMELINE TELEMETRY ]
                   </span>
-                  
+
                   <div className="border-l border-cyber-border pl-4 space-y-4 ml-2 text-[10px]">
                     {selectedCampaign.stages.map((stage, idx) => (
                       <div key={idx} className="relative">
                         {/* Dot indicator */}
-                        <div className={`absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full border ${
-                          stage.status === "blocked" 
-                            ? "bg-cyber-green border-cyber-green" 
-                            : "bg-cyber-red border-cyber-red"
-                        }`} />
-                        
+                        <div className={`absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full border ${stage.status === "blocked"
+                          ? "bg-cyber-green border-cyber-green"
+                          : "bg-cyber-red border-cyber-red"
+                          }`} />
+
                         <div className="flex justify-between items-start flex-wrap gap-2">
                           <span className="text-white font-bold uppercase">{stage.title}</span>
-                          <span className={`px-1 rounded text-[8px] font-bold ${
-                            stage.status === "blocked"
-                              ? "text-cyber-green border border-cyber-green/30 bg-cyber-green/5"
-                              : "text-cyber-red border border-cyber-red/30 bg-cyber-red/5"
-                          }`}>
+                          <span className={`px-1 rounded text-[8px] font-bold ${stage.status === "blocked"
+                            ? "text-cyber-green border border-cyber-green/30 bg-cyber-green/5"
+                            : "text-cyber-red border border-cyber-red/30 bg-cyber-red/5"
+                            }`}>
                             {stage.status.toUpperCase()}
                           </span>
                         </div>
@@ -886,8 +881,8 @@ export default function CommandCenterPage() {
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyber-cyan/20 to-transparent" />
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-500 font-mono text-[9px] tracking-wider uppercase">
           <div>
-            <span className="text-white font-bold tracking-[0.2em]">AEGIS PLATFORM COMMAND</span>
-            <span className="ml-2">© {new Date().getFullYear()} AEGIS Cyber Inc.</span>
+            <span className="text-white font-bold tracking-[0.2em]">SENTINEL PLATFORM COMMAND</span>
+            <span className="ml-2">© {new Date().getFullYear()} SENTINEL Cyber Inc.</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">

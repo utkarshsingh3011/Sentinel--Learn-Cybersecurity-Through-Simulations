@@ -133,7 +133,7 @@ export default function Features() {
       <div className="absolute bottom-1/4 right-1/4 w-[40vw] h-[40vh] bg-cyber-cyan/5 rounded-full blur-[140px] pointer-events-none z-0" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        
+
         {/* Core Educational Modules */}
         <div>
           {/* Header */}
@@ -152,7 +152,7 @@ export default function Features() {
               Core Educational Modules
             </h2>
             <p className="mt-4 text-slate-400 text-sm md:text-base leading-relaxed">
-              AEGIS houses five modular components designed to customize scenarios, visualize playbacks, model network environments, verify security compliance, and automate defenses.
+              SENTINEL houses five modular components designed to customize scenarios, visualize playbacks, model network environments, verify security compliance, and automate defenses.
             </p>
           </motion.div>
 
@@ -175,7 +175,7 @@ export default function Features() {
                 >
                   {/* Tech card header grid highlights */}
                   <div className="absolute top-0 right-0 w-8 h-8 border-b border-l border-cyber-border group-hover:border-cyber-border-active/40 transition-colors pointer-events-none" />
-                  
+
                   <div>
                     <div className="flex items-center justify-between">
                       <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest font-bold">

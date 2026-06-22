@@ -13,12 +13,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AEGIS | AI-Powered Cyber Warfare Simulation & Defense Platform",
-  description: "Visualize, simulate, and defend against advanced persistent threats in a cinematic digital twin environment. AEGIS maps threat campaigns to MITRE ATT&CK and generates predictive playbooks before they impact your network.",
+  title: "Sentinel | AI-Powered Cyber Warfare Simulation & Defense Platform",
+  description: "Visualize, simulate, and defend against advanced persistent threats in a cinematic digital twin environment. Sentinel maps threat campaigns to MITRE ATT&CK and generates predictive playbooks before they impact your network.",
   keywords: ["cybersecurity", "AI simulation", "cyber warfare", "digital twin", "threat modeling", "MITRE ATT&CK", "automated defense"],
-  authors: [{ name: "AEGIS Engineering" }],
+  authors: [{ name: "Sentinel Engineering" }],
   openGraph: {
-    title: "AEGIS | AI-Powered Cyber Warfare Simulation",
+    title: "Sentinel | AI-Powered Cyber Warfare Simulation",
     description: "Visualize and simulate advanced cyber threats before they strike.",
     type: "website",
   },
@@ -39,10 +39,10 @@ export default function RootLayout({
         {/* Global Monitor CRT Filter Overlays */}
         {/* Subtle horizontal scanline mesh pattern */}
         <div className="fixed inset-0 pointer-events-none z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.15)_50%)] bg-[length:100%_4px] opacity-[0.03]" />
-        
+
         {/* Slow vertical sweeping scanline beam */}
         <div className="fixed inset-0 pointer-events-none z-50 animate-scanline bg-gradient-to-b from-transparent via-cyber-cyan/[0.012] to-transparent h-16 w-full" />
-        
+
         {children}
       </body>
     </html>

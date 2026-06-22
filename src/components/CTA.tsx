@@ -36,7 +36,7 @@ export default function CTA() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[40vh] bg-electric-blue/10 rounded-full blur-[140px] pointer-events-none z-0" />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10 text-center">
-        
+
         {/* Decorative alert icon */}
         <motion.div
           animate={{ scale: [1, 1.05, 1] }}
@@ -52,7 +52,7 @@ export default function CTA() {
         </h2>
 
         <p className="mt-6 text-slate-400 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
-          Get access to the AEGIS simulation workspace. Select attack simulations, see how they spread, and learn how to secure networks.
+          Get access to the SENTINEL simulation workspace. Select attack simulations, see how they spread, and learn how to secure networks.
         </p>
 
         {/* Console Signup Card */}
@@ -106,7 +106,7 @@ export default function CTA() {
                       </>
                     )}
                   </button>
-                  
+
                   {consoleMsg && (
                     <motion.div
                       initial={{ opacity: 0 }}
@@ -129,7 +129,7 @@ export default function CTA() {
                   <div>
                     <h3 className="text-xs font-bold text-white uppercase tracking-wider">Demo Access Granted</h3>
                     <p className="text-[10px] text-slate-400 mt-2 max-w-xs mx-auto leading-relaxed">
-                      This is a demonstration environment for the AEGIS cybersecurity simulation platform. No email is sent. You may continue exploring the simulation features.
+                      This is a demonstration environment for the SENTINEL cybersecurity simulation platform. No email is sent. You may continue exploring the simulation features.
                     </p>
                   </div>
                 </motion.div>
@@ -140,7 +140,7 @@ export default function CTA() {
           {/* Footer console note */}
           <div className="bg-cyber-surface/60 border-t border-cyber-border/40 px-4 py-2 text-[8px] font-mono text-slate-600 flex justify-between">
             <div>SECURE DEPLOYMENT PROTOCOL ACTIVE</div>
-            <div>AEGIS v4.2</div>
+            <div>SENTINEL v4.2</div>
           </div>
         </div>
 

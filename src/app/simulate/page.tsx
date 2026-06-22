@@ -4,9 +4,9 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { 
-  Terminal, Bot, Layers, Play, CheckCircle2, 
-  ArrowLeft, RefreshCw, Cpu, Database, Network, ArrowRight 
+import {
+  Terminal, Bot, Layers, Play, CheckCircle2,
+  ArrowLeft, RefreshCw, Cpu, Database, Network, ArrowRight
 } from "lucide-react";
 
 // Types matching the architectural requirements
@@ -71,11 +71,11 @@ const compileCampaignConfig = (
 ): CampaignConfig => {
   const chosenIndustry = INDUSTRIES.find(i => i.id === industry) || INDUSTRIES[0];
   const chosenAttack = ATTACK_TYPES.find(t => t.id === attack) || ATTACK_TYPES[0];
-  
+
   // Calculate compromise chance and risk factors based on security level
   let compromiseChance = 85;
   let riskFactor = 75;
-  
+
   // Set stage statuses (evaded vs blocked) based on security level
   let status1: "evaded" | "blocked" = "evaded";
   let status2: "evaded" | "blocked" = "evaded";
@@ -186,7 +186,7 @@ export default function SimulatePage() {
 
   const handleGenerate = () => {
     if (simState === "compiling") return;
-    
+
     setSimState("compiling");
     setLogs([]);
 
@@ -196,7 +196,7 @@ export default function SimulatePage() {
 
     // Save configuration in session storage so a future '/attack-viewer' page can read it directly!
     if (typeof window !== "undefined") {
-      sessionStorage.setItem("aegis_campaign_config", JSON.stringify(config));
+      sessionStorage.setItem("sentinel_campaign_config", JSON.stringify(config));
     }
 
     const compileLogs = [
@@ -233,7 +233,7 @@ export default function SimulatePage() {
 
   return (
     <div className="relative min-h-screen bg-cyber-bg overflow-x-hidden pt-28 pb-16 flex flex-col justify-between selection:bg-electric-blue/30 selection:text-white">
-      
+
       {/* Background radial glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[40vh] bg-electric-blue/10 rounded-full blur-[140px] pointer-events-none z-0" />
       <div className="absolute bottom-1/4 left-1/4 w-[30vw] h-[30vh] bg-cyber-cyan/5 rounded-full blur-[100px] pointer-events-none z-0" />
@@ -247,10 +247,10 @@ export default function SimulatePage() {
       <div className="fixed inset-0 pointer-events-none z-50 animate-scanline bg-gradient-to-b from-transparent via-cyber-cyan/[0.012] to-transparent h-16 w-full" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10 w-full flex-grow">
-        
+
         {/* Navigation Indicator */}
-        <Link 
-          href="/" 
+        <Link
+          href="/"
           className="inline-flex items-center gap-2 text-[10px] font-mono tracking-widest text-slate-400 hover:text-white uppercase mb-8 transition-colors group"
         >
           <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
@@ -290,20 +290,20 @@ export default function SimulatePage() {
 
         {/* Main Work Area */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
+
           {/* Left Column: Parameter Selection Forms (8 cols) */}
           <div className="lg:col-span-8 space-y-8">
-            
+
             <AnimatePresence mode="wait">
               {simState === "idle" ? (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -15 }}
                   className="space-y-8"
                 >
                   {/* Parameter Selection Cards */}
-                  
+
                   {/* 1. Industry Segment */}
                   <div className="space-y-4">
                     <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
@@ -321,11 +321,10 @@ export default function SimulatePage() {
                           key={ind.id}
                           variants={cardVariants}
                           onClick={() => setIndustry(ind.id)}
-                          className={`p-4 rounded-lg border text-left transition-all duration-300 relative flex flex-col justify-between cursor-pointer ${
-                            industry === ind.id
-                              ? "bg-electric-blue/15 border-electric-blue shadow-[0_0_15px_rgba(37,99,235,0.1)] text-white"
-                              : "bg-cyber-surface/40 border-cyber-border hover:border-slate-800 text-slate-400 hover:text-slate-200"
-                          }`}
+                          className={`p-4 rounded-lg border text-left transition-all duration-300 relative flex flex-col justify-between cursor-pointer ${industry === ind.id
+                            ? "bg-electric-blue/15 border-electric-blue shadow-[0_0_15px_rgba(37,99,235,0.1)] text-white"
+                            : "bg-cyber-surface/40 border-cyber-border hover:border-slate-800 text-slate-400 hover:text-slate-200"
+                            }`}
                         >
                           <div>
                             <div className="text-xs font-bold font-mono uppercase tracking-wider">{ind.name}</div>
@@ -356,11 +355,10 @@ export default function SimulatePage() {
                           key={act.id}
                           variants={cardVariants}
                           onClick={() => setActor(act.id)}
-                          className={`p-4 rounded-lg border text-left transition-all duration-300 relative flex flex-col justify-between cursor-pointer ${
-                            actor === act.id
-                              ? "bg-electric-blue/15 border-electric-blue shadow-[0_0_15px_rgba(37,99,235,0.1)] text-white"
-                              : "bg-cyber-surface/40 border-cyber-border hover:border-slate-800 text-slate-400 hover:text-slate-200"
-                          }`}
+                          className={`p-4 rounded-lg border text-left transition-all duration-300 relative flex flex-col justify-between cursor-pointer ${actor === act.id
+                            ? "bg-electric-blue/15 border-electric-blue shadow-[0_0_15px_rgba(37,99,235,0.1)] text-white"
+                            : "bg-cyber-surface/40 border-cyber-border hover:border-slate-800 text-slate-400 hover:text-slate-200"
+                            }`}
                         >
                           <div>
                             <div className="text-xs font-bold font-mono uppercase tracking-wider">{act.name}</div>
@@ -391,11 +389,10 @@ export default function SimulatePage() {
                           key={type.id}
                           variants={cardVariants}
                           onClick={() => setAttack(type.id)}
-                          className={`p-4 rounded-lg border text-left transition-all duration-300 relative flex flex-col justify-between cursor-pointer ${
-                            attack === type.id
-                              ? "bg-electric-blue/15 border-electric-blue shadow-[0_0_15px_rgba(37,99,235,0.1)] text-white"
-                              : "bg-cyber-surface/40 border-cyber-border hover:border-slate-800 text-slate-400 hover:text-slate-200"
-                          }`}
+                          className={`p-4 rounded-lg border text-left transition-all duration-300 relative flex flex-col justify-between cursor-pointer ${attack === type.id
+                            ? "bg-electric-blue/15 border-electric-blue shadow-[0_0_15px_rgba(37,99,235,0.1)] text-white"
+                            : "bg-cyber-surface/40 border-cyber-border hover:border-slate-800 text-slate-400 hover:text-slate-200"
+                            }`}
                         >
                           <div>
                             <div className="text-xs font-bold font-mono uppercase tracking-wider">{type.name}</div>
@@ -426,11 +423,10 @@ export default function SimulatePage() {
                           key={lvl.id}
                           variants={cardVariants}
                           onClick={() => setSecurity(lvl.id)}
-                          className={`p-4 rounded-lg border text-left transition-all duration-300 relative flex flex-col justify-between cursor-pointer ${
-                            security === lvl.id
-                              ? "bg-electric-blue/15 border-electric-blue shadow-[0_0_15px_rgba(37,99,235,0.1)] text-white"
-                              : "bg-cyber-surface/40 border-cyber-border hover:border-slate-800 text-slate-400 hover:text-slate-200"
-                          }`}
+                          className={`p-4 rounded-lg border text-left transition-all duration-300 relative flex flex-col justify-between cursor-pointer ${security === lvl.id
+                            ? "bg-electric-blue/15 border-electric-blue shadow-[0_0_15px_rgba(37,99,235,0.1)] text-white"
+                            : "bg-cyber-surface/40 border-cyber-border hover:border-slate-800 text-slate-400 hover:text-slate-200"
+                            }`}
                         >
                           <div>
                             <div className="text-xs font-bold font-mono uppercase tracking-wider">{lvl.name}</div>
@@ -447,7 +443,7 @@ export default function SimulatePage() {
                 </motion.div>
               ) : (
                 /* Compile / Load Terminal Screen */
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -15 }}
@@ -460,7 +456,7 @@ export default function SimulatePage() {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-cyan opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-cyber-cyan"></span>
                       </span>
-                      <span className="text-[10px] font-mono text-slate-500 ml-1">aegis-compiler-daemon.sh</span>
+                      <span className="text-[10px] font-mono text-slate-500 ml-1">sentinel-compiler-daemon.sh</span>
                     </div>
                     <div className="text-[9px] font-mono text-cyber-cyan border border-cyber-cyan/30 px-2 py-0.5 rounded bg-cyber-cyan/5">
                       {simState === "compiling" ? "COMPILING PROFILE..." : "PROFILE READY"}
@@ -512,7 +508,7 @@ export default function SimulatePage() {
                           >
                             Reset Form
                           </button>
-                          
+
                           {/* Ready to route to future /attack-viewer page */}
                           <Link
                             href="/attack-viewer"
@@ -528,7 +524,7 @@ export default function SimulatePage() {
 
                   {/* Console footer SSL info */}
                   <div className="bg-cyber-surface/70 px-4 py-2 border-t border-cyber-border text-[9px] font-mono text-slate-600 flex justify-between">
-                    <div>COMPILER_NODE: build-srv-77.aegis.local</div>
+                    <div>COMPILER_NODE: build-srv-77.sentinel.local</div>
                     <div className="text-cyber-green">● AUTH_SSL_ESTABLISHED</div>
                   </div>
                 </motion.div>
@@ -553,7 +549,7 @@ export default function SimulatePage() {
 
               {/* Selection summary items */}
               <div className="space-y-5 font-mono text-[10px]">
-                
+
                 <div className="flex items-start gap-3">
                   <div className="w-7 h-7 rounded border border-cyber-border bg-cyber-surface/40 flex items-center justify-center flex-shrink-0 text-slate-400">
                     <Database className="w-3.5 h-3.5" />
@@ -624,7 +620,7 @@ export default function SimulatePage() {
 
       {/* Retro-futuristic Status Info Bar */}
       <footer className="max-w-7xl mx-auto px-6 w-full text-slate-600 font-mono text-[9px] tracking-wider border-t border-cyber-border/20 pt-6 mt-12 flex justify-between items-center z-10">
-        <div>NODE: simulation-studio.aegis.local</div>
+        <div>NODE: simulation-studio.sentinel.local</div>
         <div className="flex items-center gap-2">
           <Cpu className="w-3.5 h-3.5 text-cyber-cyan" />
           <span>STATUS: SECURE STANDBY</span>

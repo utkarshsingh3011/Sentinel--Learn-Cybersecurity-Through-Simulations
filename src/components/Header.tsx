@@ -40,11 +40,10 @@ export default function Header() {
       initial={{ y: -50, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
           ? "py-3 bg-cyber-bg/85 backdrop-blur-md border-b border-cyber-border/70 shadow-[0_4px_30px_rgba(0,0,0,0.4)]"
           : "py-6 bg-transparent border-b border-transparent"
-      }`}
+        }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo and Brand */}
@@ -59,7 +58,7 @@ export default function Header() {
           </div>
           <div className="flex flex-col">
             <span className="font-mono text-lg font-bold tracking-[0.2em] text-white flex items-center gap-1">
-              AEGIS
+              SENTINEL
               <span className="text-xs text-cyber-cyan font-semibold border border-cyber-cyan/30 px-1 rounded bg-cyber-cyan/5 tracking-wider scale-90">
                 AI
               </span>

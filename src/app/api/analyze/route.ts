@@ -12,7 +12,7 @@ interface AnalyzeRequestBody {
 
 export async function POST(request: Request) {
   const apiKey = process.env.GEMINI_API_KEY;
-  
+
   let body: AnalyzeRequestBody;
   try {
     body = await request.json();
@@ -25,9 +25,9 @@ export async function POST(request: Request) {
   // Fallback check if API key is not configured
   if (!apiKey || apiKey === "your_gemini_api_key_here") {
     console.warn(
-      "[AEGIS WARNING] GEMINI_API_KEY environment variable is not configured. Falling back to localized mock analyzer."
+      "[SENTINEL WARNING] GEMINI_API_KEY environment variable is not configured. Falling back to localized mock analyzer."
     );
-    return NextResponse.json({ 
+    return NextResponse.json({
       isFallback: true,
       message: "Gemini API Key is not configured. Using local mock generator."
     });
@@ -124,13 +124,13 @@ Respond ONLY with the JSON matching this schema.
     }
 
     const reportData = JSON.parse(textResponse.trim());
-    
+
     return NextResponse.json({
       isFallback: false,
       ...reportData,
     });
   } catch (error: unknown) {
-    console.error("[AEGIS ERROR] Gemini API generation failed:", error);
+    console.error("[SENTINEL ERROR] Gemini API generation failed:", error);
     const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred during API fetch.";
     return NextResponse.json({
       isFallback: true,
