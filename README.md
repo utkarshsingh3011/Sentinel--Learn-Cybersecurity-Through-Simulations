@@ -1,177 +1,221 @@
-# 🛡️ AEGIS
+# 🛡️ Sentinel
 
-### Understanding Cyber Attacks Through Simulation
+### Interactive Cyber Attack Simulation & Defense Learning Platform
 
-AEGIS is an interactive cybersecurity simulation platform designed to make complex cyber attacks easier to understand.
+> Learn. Simulate. Defend.
 
-Most people learn cybersecurity through diagrams, slides, and theory. AEGIS takes a different approach.
+Sentinel is an educational cybersecurity platform that transforms complex cyber attacks into visual, interactive simulations.
 
-Instead of reading about phishing, ransomware, credential theft, or lateral movement, users can step into a simulated environment, launch attack scenarios, analyze the results, and explore how defensive decisions affect outcomes.
+Instead of reading about phishing campaigns, ransomware incidents, or supply-chain attacks in lengthy reports, users can explore how attacks unfold, understand why defenses fail, and learn how organizations can strengthen their security posture.
 
-The objective is simple:
-
-**Make cybersecurity visual, interactive, and approachable.**
+Built using modern web technologies and inspired by real-world threat intelligence methodologies, Sentinel provides a safe environment for understanding attacker behavior, security operations, and cyber defense strategies.
 
 ---
 
-## Why AEGIS Exists
+## Why Sentinel Exists
 
-When I started learning cybersecurity, I noticed that most educational resources focused on explaining attacks rather than helping people truly understand them.
+Cybersecurity is often taught through theory.
 
-Terms like:
+Attack chains, threat actors, and security frameworks can feel abstract when they exist only in slides, documentation, or classroom discussions.
 
-* Spearphishing
-* Initial Access
-* Privilege Escalation
-* Data Exfiltration
-* MITRE ATT&CK
+Sentinel was built to bridge that gap.
 
-often felt disconnected from what actually happens during an attack.
+The platform enables users to visualize cyber attacks, explore defensive controls, analyze security outcomes, and understand how modern organizations respond to security incidents.
 
-AEGIS was built to bridge that gap.
-
-It transforms cyber attack concepts into an experience where users can see how attacks unfold, why defenses fail, and what security teams can do differently.
+Rather than memorizing concepts, users experience them.
 
 ---
 
-## What You Can Do
+# Platform Preview
 
-### Build Attack Scenarios
+## Landing Experience
 
-Choose a target environment, attacker profile, attack technique, and security configuration.
-
-Watch how different combinations produce different outcomes.
-
----
-
-### Explore Security Reports
-
-Every simulation generates a detailed analyst-style report containing:
-
-* Executive summaries
-* Threat profiles
-* Attack progression
-* Risk assessments
-* Business impact estimates
-* Defensive recommendations
-
----
-
-### Visualize Security Posture
-
-AEGIS tracks historical simulation outcomes and converts them into actionable metrics.
-
-Users can review:
-
-* Security scores
-* Attack success rates
-* Vulnerable attack techniques
-* Defensive coverage
-* Industry targeting trends
-
----
-
-### Learn Through Experimentation
-
-The platform encourages curiosity.
-
-What happens when defenses are weak?
-
-What changes when security controls improve?
-
-How does ransomware differ from phishing?
-
-How much damage can a successful attack cause?
-
-Instead of reading answers, users discover them.
-
----
-
-## Platform Preview
-
-### Landing Experience
+The platform introduces users to cybersecurity through an interactive attack simulation console inspired by modern Security Operations Centers.
 
 ![Landing Page](public/landing-page.png)
 
 ---
 
-### Attack Simulation Builder
+## Attack Simulation Builder
+
+Configure environments, attacker profiles, attack techniques, and security strength levels to observe how different defenses impact attack outcomes.
 
 ![Simulation Builder](public/simulation-builder.png)
 
 ---
 
-### AI Security Analyst Console
+## Security Analyst Console
 
-![AI Analyst](public/ai-analyst.png)
+After every simulation, Sentinel generates a detailed threat briefing explaining attacker behavior, attack progression, business impact, and defensive recommendations.
+
+![AI Analyst Console](public/ai-analyst.png)
 
 ---
 
-### Security Insights Dashboard
+## Security Insights Dashboard
+
+Visualize attack trends, security posture, defensive effectiveness, risk exposure, and MITRE ATT&CK coverage through a dedicated analytics dashboard.
 
 ![Security Dashboard](public/security-dashboard.png)
 
 ---
 
-## Built With
+# Core Capabilities
+
+### Attack Simulations
+
+Explore realistic cyber attack scenarios inspired by modern threat campaigns.
+
+Users can follow each stage of an attack chain and understand how compromise occurs.
+
+### Threat Intelligence Reporting
+
+Generate educational security reports covering:
+
+* Attack objectives
+* Threat actor behavior
+* Security weaknesses
+* Risk assessment
+* Mitigation strategies
+
+### Security Analytics
+
+Monitor:
+
+* Overall Security Score
+* Attack Success Rates
+* Defensive Coverage
+* Industry Target Distribution
+* Risk Exposure Metrics
+
+### Educational Learning Environment
+
+Sentinel is designed for:
+
+* Students
+* Cybersecurity beginners
+* Security enthusiasts
+* Academic demonstrations
+* Portfolio projects
+* Cyber awareness programs
+
+The focus is always on education and defense.
+
+---
+
+# Key Features
+
+* Interactive Cyber Attack Simulations
+* Dynamic Threat Scenarios
+* AI-Assisted Threat Analysis
+* Executive Security Reports
+* MITRE ATT&CK Inspired Workflows
+* Security Insights Dashboard
+* Threat Actor Profiling
+* Defensive Coverage Metrics
+* Responsive Modern Interface
+* Real-Time Scenario Configuration
+
+---
+
+# Simulation Workflow
+
+```text
+Target Environment
+        ↓
+Attacker Profile
+        ↓
+Attack Scenario
+        ↓
+Security Controls
+        ↓
+Attack Execution
+        ↓
+Threat Analysis
+        ↓
+Risk Assessment
+        ↓
+Security Recommendations
+```
+
+---
+
+# Technology Stack
+
+### Frontend
 
 * Next.js
-* React
 * TypeScript
 * Tailwind CSS
 * Framer Motion
+
+### Intelligence Layer
+
+* Gemini API
+* Dynamic Threat Report Generation
+
+### Security Concepts
+
+* MITRE ATT&CK Framework
+* Threat Intelligence Principles
+* Security Operations Workflows
+* Risk Assessment Methodologies
+
+### Deployment
+
 * Vercel
 
 ---
 
-## What I Learned
+# Design Philosophy
 
-Building AEGIS challenged me far beyond writing code.
+Most cybersecurity learning resources explain attacks.
 
-It pushed me to think about:
+Sentinel demonstrates them.
 
-* User experience
-* Cybersecurity storytelling
-* System design
-* Technical communication
-* Interface design
-* Performance optimization
-* Security education
+The project was designed around a simple idea:
 
-The most interesting part wasn't building the simulator.
+> Complex security concepts become easier to understand when people can see them unfold.
 
-It was figuring out how to make cybersecurity understandable for someone seeing these concepts for the first time.
+Every simulation, dashboard, and report is intended to transform abstract cybersecurity concepts into practical learning experiences.
 
 ---
 
-## Future Vision
+# Future Roadmap
 
-AEGIS is currently focused on cybersecurity education.
+Planned improvements include:
 
-Future versions may include:
-
-* AI-generated attack scenarios
-* Interactive attack timelines
-* Team-based simulations
-* Threat intelligence integration
-* Custom report generation
-* PDF exports
-* Scenario sharing
-
-The long-term goal is to evolve AEGIS into a complete cybersecurity learning experience that combines simulation, visualization, and AI-assisted analysis.
+* Additional attack scenarios
+* Expanded threat actor profiles
+* Security architecture simulations
+* Blue Team training modules
+* Threat hunting exercises
+* SOC investigation workflows
+* Advanced analytics dashboards
+* Multi-stage attack campaigns
 
 ---
 
-## About The Developer
+# Educational Disclaimer
 
-Hi, I'm **Utkarsh Singh**.
+Sentinel is an educational cybersecurity project.
 
-I'm an Electronics & Communication Engineering student at JIIT Noida with a growing interest in cybersecurity, software development, and building products that make technical concepts easier to understand.
+All attack scenarios are simulated and operate within a controlled learning environment.
 
-AEGIS represents my effort to combine those interests into a single project.
+The platform does not provide tools, instructions, or capabilities for conducting unauthorized activities against real-world systems.
 
-If you found the project interesting, feel free to connect, provide feedback, or contribute ideas.
+Its sole purpose is cybersecurity education, awareness, and defensive learning.
 
 ---
 
-⭐ If you enjoyed exploring AEGIS, consider starring the repository.
+# About The Project
+
+Sentinel was built as an exploration of how cybersecurity concepts can be taught through visualization, simulation, and interactive user experiences.
+
+By combining modern web technologies with cybersecurity learning principles, the project aims to make attack chains, defensive controls, and security decision-making easier to understand for learners at every level.
+
+---
+
+## Sentinel
+
+Learn • Simulate • Defend
