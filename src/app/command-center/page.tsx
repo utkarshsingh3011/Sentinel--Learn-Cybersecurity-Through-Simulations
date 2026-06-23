@@ -67,6 +67,99 @@ export default function CommandCenterPage() {
 
   const statusInfo = getSecurityStatus(securityScore);
 
+  // Helper functions for learning insights
+  const getMostExploredAttack = () => {
+    if (history.length === 0) return "None yet";
+    const counts: Record<string, number> = {};
+    history.forEach(c => {
+      counts[c.attackType] = (counts[c.attackType] || 0) + 1;
+    });
+    let maxType = "";
+    let maxCount = -1;
+    Object.entries(counts).forEach(([type, count]) => {
+      if (count > maxCount) {
+        maxCount = count;
+        maxType = type;
+      }
+    });
+    return getAttackName(maxType);
+  };
+
+  const getStrongestDefense = () => {
+    if (history.length === 0) return "None simulated yet";
+    const levelMap: Record<string, number> = { "Basic": 1, "Standard": 2, "High": 3, "Enterprise": 4 };
+    let maxLevelVal = 0;
+    let maxLevelName = "None";
+    history.forEach(c => {
+      const val = levelMap[c.securityLevel] || 0;
+      if (val > maxLevelVal) {
+        maxLevelVal = val;
+        maxLevelName = c.securityLevel;
+      }
+    });
+    return `${maxLevelName} Protection`;
+  };
+
+  const getBiggestWeakness = () => {
+    if (history.length === 0) return "None yet";
+    const totals: Record<string, number> = {};
+    const blocked: Record<string, number> = {};
+    history.forEach(c => {
+      totals[c.attackType] = (totals[c.attackType] || 0) + 1;
+      if (c.status === "Blocked") {
+        blocked[c.attackType] = (blocked[c.attackType] || 0) + 1;
+      } else {
+        blocked[c.attackType] = blocked[c.attackType] || 0;
+      }
+    });
+
+    let minRate = 1.1;
+    let minType = "";
+    Object.entries(totals).forEach(([type, total]) => {
+      const rate = blocked[type] / total;
+      if (rate < minRate) {
+        minRate = rate;
+        minType = type;
+      }
+    });
+    return minType ? `${getAttackName(minType)} (${Math.round(minRate * 100)}% Defended)` : "None yet";
+  };
+
+  const getRecommendedNextScenario = () => {
+    const allTypes = ["Phishing", "Ransomware", "DDoS", "SQL Injection", "Supply Chain"];
+    const simulatedTypes = new Set(history.map(c => c.attackType));
+    
+    // Check for unsimulated first
+    for (const type of allTypes) {
+      if (!simulatedTypes.has(type)) {
+        return `Simulate ${getAttackName(type)}`;
+      }
+    }
+    
+    // Otherwise return the lowest success rate type
+    const totals: Record<string, number> = {};
+    const blocked: Record<string, number> = {};
+    history.forEach(c => {
+      totals[c.attackType] = (totals[c.attackType] || 0) + 1;
+      if (c.status === "Blocked") {
+        blocked[c.attackType] = (blocked[c.attackType] || 0) + 1;
+      } else {
+        blocked[c.attackType] = blocked[c.attackType] || 0;
+      }
+    });
+
+    let minRate = 1.1;
+    let minType = "Phishing";
+    Object.entries(totals).forEach(([type, total]) => {
+      const rate = blocked[type] / total;
+      if (rate < minRate) {
+        minRate = rate;
+        minType = type;
+      }
+    });
+    return `Test defenses against ${getAttackName(minType)}`;
+  };
+
   // MITRE ATT&CK Coverage
   // List of techniques to show
   const mitreTechniquesList = [
@@ -246,13 +339,13 @@ export default function CommandCenterPage() {
         <div className="mb-12 max-w-4xl">
           <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase mb-4">
             <Terminal className="w-3.5 h-3.5 text-cyber-cyan" />
-            Cybersecurity Mission Control: mission-control.exe
+            SENTINEL Learning Center: command-center.exe
           </div>
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase">
-            Cybersecurity Mission Control
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase tracking-tight">
+            COMMAND CENTER
           </h1>
           <p className="text-sm text-slate-400 mt-2 font-mono">
-            See how your simulated organization performs against cyberattacks and track your overall learning progress.
+            Cybersecurity Learning & Progress Dashboard
           </p>
         </div>
 
@@ -271,7 +364,7 @@ export default function CommandCenterPage() {
 
               <div className="w-full text-left">
                 <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-2">
-                  [01] SECURITY HEALTH SCORE
+                  [01] Learning Progress Snapshot
                 </span>
               </div>
 
@@ -311,7 +404,7 @@ export default function CommandCenterPage() {
                     {securityScore}%
                   </motion.span>
                   <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest mt-1">
-                    SECURITY INDEX
+                    LEARNING PROGRESS INDEX
                   </span>
                 </div>
               </div>
@@ -321,7 +414,7 @@ export default function CommandCenterPage() {
                   {statusInfo.label}
                 </div>
                 <p className="text-[10px] text-slate-400 font-sans mt-3 leading-relaxed text-left">
-                  <strong>Security Health Score</strong>: The percentage of simulated attacks that were successfully blocked. A higher score means a more secure network.
+                  <strong>Learning Progress Snapshot</strong>: The percentage of simulated attacks that were successfully defended. A higher index indicates stronger defensive design.
                 </p>
               </div>
             </motion.div>
@@ -430,6 +523,73 @@ export default function CommandCenterPage() {
             </div>
           </div>
 
+          {/* Row: Learning Insights Snapshot */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4 }}
+              className="glassmorphism-card rounded-xl p-5 border border-cyber-cyan/30 bg-cyber-cyan/5 flex flex-col justify-between"
+            >
+              <div>
+                <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">Most Explored Attack</span>
+                <div className="text-white text-sm font-bold mt-2 uppercase font-mono">{getMostExploredAttack()}</div>
+              </div>
+              <p className="text-[9px] text-slate-400 mt-3 font-sans leading-relaxed">
+                The attack type you have simulated the most.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="glassmorphism-card rounded-xl p-5 border border-cyber-green/30 bg-cyber-green/5 flex flex-col justify-between"
+            >
+              <div>
+                <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">Strongest Defense Tested</span>
+                <div className="text-white text-sm font-bold mt-2 uppercase font-mono">{getStrongestDefense()}</div>
+              </div>
+              <p className="text-[9px] text-slate-400 mt-3 font-sans leading-relaxed">
+                The highest level of protection you have tested in a simulation.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+              className="glassmorphism-card rounded-xl p-5 border border-cyber-red/30 bg-cyber-red/5 flex flex-col justify-between"
+            >
+              <div>
+                <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">Biggest Security Weakness</span>
+                <div className="text-white text-sm font-bold mt-2 uppercase font-mono">{getBiggestWeakness()}</div>
+              </div>
+              <p className="text-[9px] text-slate-400 mt-3 font-sans leading-relaxed">
+                The attack scenario with the lowest defensive success rate.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.3 }}
+              className="glassmorphism-card rounded-xl p-5 border-purple-500/30 bg-purple-550/5 flex flex-col justify-between"
+            >
+              <div>
+                <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">Recommended Next Scenario</span>
+                <div className="text-white text-sm font-bold mt-2 uppercase font-mono">{getRecommendedNextScenario()}</div>
+              </div>
+              <p className="text-[9px] text-slate-400 mt-3 font-sans leading-relaxed">
+                Suggested simulation based on un-simulated threat categories.
+              </p>
+            </motion.div>
+          </div>
+
           {/* Row 2: Campaign History Narrative Cards & Recommendations */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
             {/* Campaign History Cards (8 cols) */}
@@ -442,7 +602,7 @@ export default function CommandCenterPage() {
               <div>
                 <div className="flex justify-between items-center border-b border-cyber-border/40 pb-4 mb-6">
                   <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                    [04] SIMULATION HISTORY & OUTCOMES
+                    [04] Your Simulation History
                   </span>
 
                   {/* Filters */}
@@ -687,7 +847,7 @@ export default function CommandCenterPage() {
                   >
                     <div>
                       <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-4">
-                        [03] DEFENSIVE READINESS BREAKDOWN
+                        [03] Attack Types Explored (Defense Success Rate)
                       </span>
                       <p className="text-xs text-slate-400 mb-6 font-mono">
                         The success rate of our defensive configurations against specific attack types.
@@ -746,7 +906,7 @@ export default function CommandCenterPage() {
                     </div>
 
                     <div className="text-[10px] text-slate-400 font-sans mt-6 pt-4 border-t border-cyber-border/40 leading-relaxed text-left">
-                      <strong>Attack Coverage</strong>: Measures defensive readiness against specific attack patterns mapped to the MITRE ATT&CK framework. It shows the percentage of simulations blocked for each attack type.
+                      <strong>Attack Types Explored</strong>: Measures defensive readiness against specific attack patterns. It shows the percentage of simulations successfully defended for each attack type.
                     </div>
                   </motion.div>
                 </div>

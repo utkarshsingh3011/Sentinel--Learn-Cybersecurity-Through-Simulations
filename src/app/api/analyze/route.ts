@@ -35,9 +35,9 @@ export async function POST(request: Request) {
 
   // System instructions + prompt mapping target variables to MITRE AT&CK
   const prompt = `
-You are an educational Cyber Threat Analyst helping students and beginners learn about cyber security.
-Analyze the following simulated cyber attack and compile an educational, beginner-friendly threat report.
-Maintain technical accuracy (explain techniques, ports, and mitigations correctly) so it works as a credible cybersecurity simulator, but use simple, clear, and approachable English. Avoid overly dense military or warfare jargon.
+You are a friendly, expert cybersecurity mentor. Your role is to provide brief, punchy, and highly understandable simulation results.
+Analyze the simulated attack and compile a concise threat summary.
+CRITICAL: Keep all descriptions extremely brief and to the point. All textual values (executiveSummary, actorProfile, operationalImpact, mitigations) MUST be exactly 1 to 2 short, direct sentences maximum. Absolutely no fluff, verbose narratives, or generic boilerplate text.
 
 Campaign Telemetry Variables:
 - Campaign Reference ID: ${id}
@@ -51,13 +51,12 @@ Adversary Intrusion Execution Stages and Local EDR Logs:
 ${JSON.stringify(stages, null, 2)}
 
 Task:
-Generate an educational, beginner-friendly threat report in JSON format.
-Ensure that the response matches exactly the JSON Schema below. Do NOT output any markdown tags (like \`\`\`json or \`\`\`), just return the raw JSON object string.
+Generate a concise educational threat report in JSON format matching the schema below. Act as a supportive mentor. Do NOT output any markdown tags (like \`\`\`json or \`\`\`), just return the raw JSON object string.
 
 Expected Output JSON Schema:
 {
-  "executiveSummary": "A clear, educational summary of the simulated attack. Detail how the attacker gained access, what they did, and how defenses blocked them (or where defenses were too weak), using approachable cybersecurity concepts and simple English.",
-  "actorProfile": "An educational overview of this attacker profile, explaining their typical motivations (like financial gain, data theft, or disruption), their methods, and common targets in plain English.",
+  "executiveSummary": "A concise 1-2 sentence explanation of what happened and whether defenses succeeded.",
+  "actorProfile": "A brief 1-2 sentence profile of who this threat actor is and their primary goal.",
   "mitreMapping": [
     {
       "stageIndex": number (matching the index of each stage, starting from 0),
@@ -66,14 +65,14 @@ Expected Output JSON Schema:
     }
   ],
   "businessImpact": {
-    "financialLoss": "Estimated financial damages, e.g., '$4,200,000 (regulatory penalties, class-action litigation, and backup restoration audits)'. Make it realistic to the environment and simulation outcome.",
-    "operationalImpact": "Detailed explanation of downtime, affected systems, data integrity risk, and compliance breaches in simple terms.",
+    "financialLoss": "Estimated financial damages, e.g., '$4,200,000 (remediation and class-action audits)'. Make it realistic and short.",
+    "operationalImpact": "A brief 1-2 sentence description of affected systems and operational downtime.",
     "downtime": "Downtime statement, e.g., '24 Hours' or '0 Hours' if fully blocked."
   },
   "mitigations": [
-    "Immediate security improvement recommendation...",
-    "Secondary remediation action...",
-    "Long-term security standard or network change..."
+    "Practical recommendation 1 (1 short sentence why it works)...",
+    "Practical recommendation 2 (1 short sentence why it works)...",
+    "Practical recommendation 3 (1 short sentence why it works)..."
   ],
   "riskAssessment": {
     "currentRisk": number (estimated current compromise chance %, e.g., 85),

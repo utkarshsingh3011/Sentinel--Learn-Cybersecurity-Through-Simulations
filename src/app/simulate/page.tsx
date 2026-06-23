@@ -117,42 +117,42 @@ const compileCampaignConfig = (
     primaryTarget: chosenIndustry.target,
     stages: [
       {
-        title: "Reconnaissance & Port Scan",
-        description: `Attacker ${actor} initiated active reconnaissance scans mapping the target subnets for ${chosenIndustry.name}.`,
+        title: "Looking for Weak Points (Reconnaissance)",
+        description: `Attacker ${actor} initiated active scans mapping the target subnets for ${chosenIndustry.name}.`,
         log: `[RECON] Mapping subnets on segment 10.0.4.x. Found open ports: 443, 8080. EDR status: ${status1 === "blocked" ? "BLOCKED" : "EVADED"}`,
         status: status1,
         severity: "low",
       },
       {
-        title: "Initial Access Foothold",
-        description: `Foothold vector established using ${chosenAttack.name} (${chosenAttack.tech}) to bypass gateway filtering.`,
-        log: `[INGRESS] Exploit payload dispatched. Channel established with target client. EDR status: ${status2 === "blocked" ? "BLOCKED" : "EVADED"}`,
+        title: "Trying to Get In (Initial Access)",
+        description: `Foothold vector established using ${chosenAttack.name} to bypass gateway filtering.`,
+        log: `[INGRESS] Entry payload dispatched. Channel established with target client. EDR status: ${status2 === "blocked" ? "BLOCKED" : "EVADED"}`,
         status: status2,
         severity: "medium",
       },
       {
-        title: "Credential Swipe",
+        title: "Trying to Steal Passwords (Credential Access)",
         description: `Searching local memory dumps and active directory tables for active session tokens and admin keys.`,
         log: `[CREDENTIALS] LSASS memory dump initiated / credential extraction requested. EDR status: ${status3 === "blocked" ? "BLOCKED" : "EVADED"}`,
         status: status3,
         severity: "medium",
       },
       {
-        title: "Lateral Subnet Propagation",
-        description: `Pivoting from compromised host endpoints to jump servers. Internal target segment reached: ${chosenIndustry.target}.`,
+        title: "Moving Through the Network (Lateral Movement)",
+        description: `Pivoting from compromised host endpoints to servers. Internal target segment reached: ${chosenIndustry.target}.`,
         log: `[LATERAL] Remote session hijacked to cross network subnets. Target node reached: ${chosenIndustry.target}. EDR status: ${status4 === "blocked" ? "BLOCKED" : "EVADED"}`,
         status: status4,
         severity: "high",
       },
       {
-        title: "Privilege Domain Escalation",
+        title: "Taking Control (Privilege Escalation)",
         description: `Attempting admin privilege elevation via token impersonation on Active Directory controller nodes.`,
         log: `[ESCALATION] Token impersonation executed. Root credentials retrieved. EDR status: ${status5 === "blocked" ? "BLOCKED" : "EVADED"}`,
         status: status5,
         severity: "high",
       },
       {
-        title: "Data Exfiltration & Impact",
+        title: "Attempting to Steal Data (Data Exfiltration)",
         description: `Executing final payload actions on database target ${chosenIndustry.target}. Archiving core customer tables.`,
         log: `[EXFILTRATION] Compressing database files. Transmitting out of band over port 443. EDR status: ${status6 === "blocked" ? "BLOCKED" : "EVADED"}`,
         status: status6,
@@ -336,39 +336,22 @@ export default function SimulatePage() {
         </Link>
 
         {/* Header */}
-        <div className="mb-10 max-w-4xl flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-          <div>
-            <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase mb-4">
-              <Terminal className="w-3.5 h-3.5 text-cyber-cyan" />
-              Simulation Builder: simulation-builder.exe
-            </div>
-            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase">
-              Attack Simulation Builder
-            </h1>
-            <p className="mt-4 text-slate-400 text-sm md:text-base leading-relaxed font-sans">
-              Explore how different cyberattacks work and see how security defenses respond in a safe, interactive environment.
-            </p>
+        <div className="mb-10 max-w-4xl mx-auto text-center flex flex-col items-center justify-center">
+          <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase mb-4 font-bold">
+            <Terminal className="w-3.5 h-3.5 text-cyber-cyan animate-pulse" />
+            Security Learning Hub: Simulation Builder
           </div>
-
-          {/* Global Threat Intel Mode Toggle */}
-          <div className="flex-shrink-0">
-            <button
-              onClick={() => setShowTechnicalIntel(!showTechnicalIntel)}
-              className={`px-4 py-2 rounded border font-mono text-[9px] uppercase tracking-widest transition-all duration-300 flex items-center gap-2 hover:cursor-pointer ${
-                showTechnicalIntel 
-                  ? "bg-cyber-cyan/15 border-cyber-cyan text-cyber-cyan shadow-[0_0_15px_rgba(6,182,212,0.2)]" 
-                  : "bg-cyber-surface/40 border-cyber-border hover:border-slate-800 text-slate-450 hover:text-white"
-              }`}
-            >
-              <Cpu className="w-3.5 h-3.5" />
-              {showTechnicalIntel ? "Hide Threat Intel (Friendly Mode)" : "Show Threat Intel & MITRE IDs"}
-            </button>
-          </div>
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase">
+            Build Your Cyber Attack Scenario
+          </h1>
+          <p className="mt-4 text-slate-400 text-sm md:text-base leading-relaxed font-sans max-w-2xl mx-auto">
+            Choose a target, attacker, and defense level to see how a cyberattack might unfold in the real world.
+          </p>
         </div>
 
         {/* How It Works - Centered Onboarding Card */}
         {simState === "idle" && (
-          <div className="mb-12 mx-auto max-w-[800px] w-full p-6 md:p-8 rounded-xl bg-cyber-surface/40 border border-cyber-cyan/30 shadow-[0_0_20px_rgba(6,182,212,0.1)] relative overflow-hidden backdrop-blur-sm">
+          <div className="mb-12 mx-auto max-w-[850px] w-full p-6 md:p-8 rounded-xl bg-cyber-surface/40 border border-cyber-cyan/30 shadow-[0_0_20px_rgba(6,182,212,0.1)] relative overflow-hidden backdrop-blur-sm">
             {/* Top accent line */}
             <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyber-cyan to-transparent animate-pulse" />
             {/* Ambient glows */}
@@ -377,39 +360,37 @@ export default function SimulatePage() {
             
             <h2 className="text-white text-center text-sm md:text-base font-bold font-mono tracking-wider uppercase mb-6 flex items-center justify-center gap-2">
               <Layers className="w-4 h-4 text-cyber-cyan animate-pulse" />
-              How This Simulation Works
+              How It Works
             </h2>
             
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 text-center">
-              <div className="p-3 rounded-lg bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-2 min-h-[90px] group">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+              <div className="p-3.5 rounded-lg bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-2 min-h-[100px] group">
                 <span className="text-2xl group-hover:scale-110 transition-transform duration-200">🏥</span>
-                <span className="text-[10px] text-slate-300 font-medium leading-tight font-sans">Choose a target environment</span>
+                <div className="text-[10px] text-white font-mono font-bold uppercase tracking-wider">1. Pick a Target</div>
+                <span className="text-[9px] text-slate-450 leading-tight font-sans">Select which system to defend</span>
               </div>
               
-              <div className="p-3 rounded-lg bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-2 min-h-[90px] group">
+              <div className="p-3.5 rounded-lg bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-2 min-h-[100px] group">
                 <span className="text-2xl group-hover:scale-110 transition-transform duration-200">🕵️</span>
-                <span className="text-[10px] text-slate-300 font-medium leading-tight font-sans">Select an attacker profile</span>
+                <div className="text-[10px] text-white font-mono font-bold uppercase tracking-wider">2. Pick an Attacker</div>
+                <span className="text-[9px] text-slate-450 leading-tight font-sans">Choose who is behind the attack</span>
               </div>
               
-              <div className="p-3 rounded-lg bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-2 min-h-[90px] group">
-                <span className="text-2xl group-hover:scale-110 transition-transform duration-200">⚠️</span>
-                <span className="text-[10px] text-slate-300 font-medium leading-tight font-sans">Choose an attack type</span>
+              <div className="p-3.5 rounded-lg bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-2 min-h-[100px] group">
+                <span className="text-2xl group-hover:scale-110 transition-transform duration-200">📧</span>
+                <div className="text-[10px] text-white font-mono font-bold uppercase tracking-wider">3. Pick an Attack</div>
+                <span className="text-[9px] text-slate-450 leading-tight font-sans">Choose how the attack starts</span>
               </div>
               
-              <div className="p-3 rounded-lg bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-2 min-h-[90px] group">
+              <div className="p-3.5 rounded-lg bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-2 min-h-[100px] group">
                 <span className="text-2xl group-hover:scale-110 transition-transform duration-200">🛡️</span>
-                <span className="text-[10px] text-slate-300 font-medium leading-tight font-sans">Select defense strength</span>
+                <div className="text-[10px] text-white font-mono font-bold uppercase tracking-wider">4. Choose Protection</div>
+                <span className="text-[9px] text-slate-450 leading-tight font-sans">Configure defense strength levels</span>
               </div>
-              
-              <div className="p-3 rounded-lg bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-2 min-h-[90px] group">
-                <span className="text-2xl group-hover:scale-110 transition-transform duration-200">▶️</span>
-                <span className="text-[10px] text-slate-300 font-medium leading-tight font-sans">Run the simulation</span>
-              </div>
-              
-              <div className="p-3 rounded-lg bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-2 min-h-[90px] group">
-                <span className="text-2xl group-hover:scale-110 transition-transform duration-200">🧠</span>
-                <span className="text-[10px] text-slate-300 font-medium leading-tight font-sans">Review the outcome</span>
-              </div>
+            </div>
+            
+            <div className="text-center mt-6 font-mono text-[9px] text-cyber-cyan uppercase tracking-widest animate-pulse">
+              ▲ Configure the parameters below and run the simulation to see the results ▲
             </div>
           </div>
         )}
@@ -433,7 +414,7 @@ export default function SimulatePage() {
                   {/* 1. Environment Segment */}
                   <div className="space-y-4">
                     <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      Step 1: Where is the attack happening?
+                      Step 1: Pick a Target
                     </span>
                     <motion.div
                       className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
@@ -456,11 +437,6 @@ export default function SimulatePage() {
                             <div className="text-xs font-bold font-sans uppercase tracking-wider">{ind.name}</div>
                             <div className="text-[10px] opacity-60 mt-1.5 font-sans leading-relaxed">{ind.desc}</div>
                           </div>
-                          {showTechnicalIntel && (
-                            <div className="text-[9px] font-mono text-cyber-cyan mt-3 pt-2 border-t border-cyber-border/40 w-full uppercase">
-                              Target ID: {ind.target}
-                            </div>
-                          )}
                         </motion.button>
                       ))}
                     </motion.div>
@@ -469,7 +445,7 @@ export default function SimulatePage() {
                   {/* 2. Attacker Profile */}
                   <div className="space-y-4">
                     <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      Step 2: Who is launching the attack?
+                      Step 2: Pick an Attacker
                     </span>
                     <motion.div
                       className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
@@ -492,11 +468,6 @@ export default function SimulatePage() {
                             <div className="text-xs font-bold font-sans uppercase tracking-wider">{act.name}</div>
                             <div className="text-[10px] opacity-60 mt-1.5 font-sans leading-relaxed">{act.desc}</div>
                           </div>
-                          {showTechnicalIntel && (
-                            <div className="text-[9px] font-mono text-cyber-cyan mt-3 pt-2 border-t border-cyber-border/40 w-full uppercase">
-                              Intel: {act.techName}
-                            </div>
-                          )}
                         </motion.button>
                       ))}
                     </motion.div>
@@ -505,7 +476,7 @@ export default function SimulatePage() {
                   {/* 3. Attack Type */}
                   <div className="space-y-4">
                     <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      Step 3: What type of attack is being attempted?
+                      Step 3: Pick an Attack
                     </span>
                     <motion.div
                       className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
@@ -528,11 +499,6 @@ export default function SimulatePage() {
                             <div className="text-xs font-bold font-sans uppercase tracking-wider">{type.name}</div>
                             <div className="text-[10px] opacity-60 mt-1.5 font-sans leading-relaxed">{type.desc}</div>
                           </div>
-                          {showTechnicalIntel && (
-                            <div className="text-[9px] font-mono text-cyber-cyan mt-3 pt-2 border-t border-cyber-border/40 w-full uppercase">
-                              MITRE ID: {type.tech}
-                            </div>
-                          )}
                         </motion.button>
                       ))}
                     </motion.div>
@@ -541,7 +507,7 @@ export default function SimulatePage() {
                   {/* 4. Security Level */}
                   <div className="space-y-4">
                     <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      Step 4: How strong are the defenses?
+                      Step 4: Choose Protection Level
                     </span>
                     <motion.div
                       className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"
@@ -724,9 +690,6 @@ export default function SimulatePage() {
                     <div className="text-white font-bold uppercase mt-0.5">
                       {INDUSTRIES.find(i => i.id === industry)?.name.split(" ").slice(1).join(" ") || industry}
                     </div>
-                    {showTechnicalIntel && (
-                      <div className="text-cyber-cyan text-[8px] mt-0.5">ID: {INDUSTRIES.find(i => i.id === industry)?.target}</div>
-                    )}
                   </div>
                 </div>
 
@@ -739,9 +702,6 @@ export default function SimulatePage() {
                     <div className="text-white font-bold uppercase mt-0.5">
                       {ACTORS.find(a => a.id === actor)?.name.split(" ").slice(1).join(" ") || actor}
                     </div>
-                    {showTechnicalIntel && (
-                      <div className="text-cyber-cyan text-[8px] mt-0.5">ID: {ACTORS.find(a => a.id === actor)?.techName}</div>
-                    )}
                   </div>
                 </div>
 
@@ -754,9 +714,6 @@ export default function SimulatePage() {
                     <div className="text-white font-bold uppercase mt-0.5">
                       {ATTACK_TYPES.find(t => t.id === attack)?.name.split(" ").slice(1).join(" ") || attack}
                     </div>
-                    {showTechnicalIntel && (
-                      <div className="text-cyber-cyan text-[8px] mt-0.5">MITRE ID: {ATTACK_TYPES.find(t => t.id === attack)?.tech}</div>
-                    )}
                   </div>
                 </div>
 
@@ -769,9 +726,6 @@ export default function SimulatePage() {
                     <div className="text-white font-bold uppercase mt-0.5">
                       {SECURITY_LEVELS.find(l => l.id === security)?.name.split(" ").slice(1).join(" ") || security}
                     </div>
-                    {showTechnicalIntel && (
-                      <div className="text-cyber-cyan text-[8px] mt-0.5">Rate: {SECURITY_LEVELS.find(l => l.id === security)?.detection}</div>
-                    )}
                   </div>
                 </div>
 

@@ -360,36 +360,61 @@ const getIocData = (attackType: string) => {
   }
 };
 
-const getStorySteps = (attackType: string, status: "Blocked" | "Successful") => {
+const getStorySteps = (attackType: string, status: "Blocked" | "Successful", stages: CampaignStage[]) => {
   const steps = [
     {
-      title: "Step 1: Network Boundary Scanning",
-      desc: "The attacker scans the target network to map online servers and find open entry ports, checking for gaps in the perimeter.",
+      title: "Looking for Weak Points (Reconnaissance)",
+      doing: "Scanning network boundaries to identify active computers and open ports.",
+      why: "To locate open doors and map the network layout before launching an exploit.",
+      response: stages[0]?.status === "blocked"
+        ? "The firewall immediately detected the scan patterns, flagged the IP, and blocked all further requests."
+        : "The perimeter checks failed to flag the scan, allowing the attacker to map the target network segment successfully."
     },
     {
-      title: "Step 2: Gaining Initial Entry",
-      desc: "Using the attack vector, the attacker bypasses outer filters (e.g. sending a fake email or injecting inputs) to run initial scripts.",
+      title: "Trying to Get In (Initial Access)",
+      doing: `Attempting to gain entry using the attack method (${attackType}).`,
+      why: "To establish an active connection inside the network and bypass outer perimeter controls.",
+      response: stages[1]?.status === "blocked"
+        ? "The security gateway intercepted the malicious traffic or email link, blocking execution and terminating the connection."
+        : "The security filters failed to block the payload, allowing the attacker to establish a silent connection inside the system."
     },
     {
-      title: "Step 3: Attempting to Steal Passwords",
-      desc: "The attacker searches local system memory dumps to harvest active admin credentials and access keys.",
+      title: "Trying to Steal Passwords (Credential Access)",
+      doing: "Searching system memory (e.g. LSASS dumps) for active login passwords and session keys.",
+      why: "To steal administrator credentials, making it easy to masquerade as a legitimate user.",
+      response: stages[2]?.status === "blocked"
+        ? "Local endpoint protection detected the memory dumping attempt and immediately terminated the hostile process."
+        : "Local protections failed, and the attacker successfully dumped system memory to harvest plain-text admin passwords."
     },
     {
-      title: "Step 4: Moving Deeper into the Network",
-      desc: "With the credentials, the attacker pivots from the compromised host, moving laterally to core network segments.",
+      title: "Moving Through the Network (Lateral Movement)",
+      doing: "Connecting from the first compromised computer to other critical servers deep in the network.",
+      why: "To locate and access key database storage arrays containing sensitive data.",
+      response: stages[3]?.status === "blocked"
+        ? "Internal network firewalls blocked the unauthorized server-to-server traffic, isolating the threat."
+        : "Unsegmented network paths allowed the attacker to pivot directly from the workstation to the database gateway."
     },
     {
-      title: "Step 5: Gaining Administrator Control",
-      desc: "The attacker escalates permissions on network controllers, acquiring full master administrator rights.",
+      title: "Taking Control (Privilege Escalation)",
+      doing: "Manipulating active security tokens to elevate permissions from a standard user to a system administrator.",
+      why: "To gain unrestricted access and bypass database write locks and security rules.",
+      response: stages[4]?.status === "blocked"
+        ? "Access controllers flagged the token manipulation attempt and revoked the account's credentials."
+        : "Loose configuration settings allowed the attacker to hijack admin tokens, granting them master control."
     },
     {
-      title: "Step 6: Accessing the Target Database",
-      desc: "The attacker targets the database server, attempting to compress records for copy or deploy encryption payloads.",
-    },
+      title: "Attempting to Steal Data (Data Exfiltration)",
+      doing: "Accessing target database directories to copy files and deploy disruptive payloads.",
+      why: "To exfiltrate sensitive files out of the network and encrypt databases to demand ransom payment.",
+      response: stages[5]?.status === "blocked"
+        ? "Automated database triggers and write locks immediately isolated the target files, preventing all exfiltration."
+        : "Defenses failed to halt database operations, allowing the attacker to copy sensitive customer files and encrypt the system."
+    }
   ];
 
   return steps;
 };
+
 
 interface CTIReport {
   id: string;
@@ -774,331 +799,226 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
           </div>
         </div>
 
-        {/* Unified Single-Column Flow Layout */}
+        {/* Unified Single-Column Flow Layou        {/* Unified Single-Column Flow Layout */}
         <div className="space-y-10 max-w-5xl mx-auto">
           
-          {/* Section 1: Executive Summary */}
+          {/* Panel 1: Simulation Verdict & AI Explanation */}
           <motion.section
-            id="exec-summary"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative print:border-none print:shadow-none print:p-0"
+            className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative"
           >
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent print:hidden" />
-            <div className="flex items-center gap-2 border-b border-cyber-border/40 pb-3 mb-6">
-              <FileText className="w-4 h-4 text-cyber-cyan print:text-black" />
-              <h3 className="text-white font-bold text-xs uppercase tracking-widest print:text-black font-mono">
-                Executive Summary
-              </h3>
-            </div>
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent" />
             
-            <div className="space-y-4 font-sans text-[11px] leading-relaxed text-slate-300">
-              <div className="p-4 rounded-lg bg-cyber-surface/40 border border-cyber-border/60">
-                <strong className="text-white font-mono text-[9px] uppercase tracking-wider block mb-1 text-cyber-cyan">⚔️ Attack Attempt</strong>
-                <p>{attackAttempt}</p>
-              </div>
-
-              <div className="p-4 rounded-lg bg-cyber-surface/40 border border-cyber-border/60">
-                <strong className="text-white font-mono text-[9px] uppercase tracking-wider block mb-1 text-cyber-cyan">🛡️ Defense Response</strong>
-                <p>{defenseResponse}</p>
-              </div>
-
-              <div className="p-4 rounded-lg bg-cyber-surface/40 border border-cyber-border/60">
-                <strong className="text-white font-mono text-[9px] uppercase tracking-wider block mb-1 text-cyber-cyan">🏁 Final Outcome</strong>
-                <p>{finalOutcome}</p>
-              </div>
-            </div>
-          </motion.section>
-
-          {/* Section 2: Attack Walkthrough */}
-          <motion.section
-            id="attack-story"
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative print:border-none print:shadow-none print:p-0"
-          >
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent print:hidden" />
-            <div className="flex items-center justify-between border-b border-cyber-border/40 pb-3 mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-cyber-border/40 pb-4 mb-6">
               <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-cyber-cyan print:text-black animate-pulse" />
-                <h3 className="text-white font-bold text-xs uppercase tracking-widest print:text-black font-mono">
-                  Attack Walkthrough
+                <Brain className="w-4 h-4 text-cyber-cyan" />
+                <h3 className="text-white font-bold text-xs uppercase tracking-widest font-mono">
+                  Simulation Outcome & Verdict
                 </h3>
               </div>
-              <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Walkthrough Steps</span>
-            </div>
-
-            <div className="relative border-l border-cyber-border/80 pl-6 space-y-6 ml-3">
-              {getStorySteps(reportData.vectorId, reportData.status)
-                .slice(0, showFullTimeline ? 7 : 3)
-                .map((step, idx) => {
-                  const stage = reportData.stages[idx];
-                  const isBlocked = stage ? stage.status === "blocked" : false;
-                  const isPriorBlocked = reportData.stages.slice(0, idx).some(s => s.status === "blocked");
-                  
-                  let stepStatus: "Stopped" | "Successful" | "Unreached" = "Successful";
-                  if (isPriorBlocked) {
-                    stepStatus = "Unreached";
-                  } else if (isBlocked) {
-                    stepStatus = "Stopped";
-                  }
-
-                  let cleanTitle = step.title;
-                  if (idx === 0) cleanTitle = "Step 1: Reconnaissance (Network Scanning Attempt)";
-                  if (idx === 1) cleanTitle = "Step 2: Initial Access (Entry Attempt)";
-                  if (idx === 2) cleanTitle = "Step 3: Credential Theft (Password Theft Attempt)";
-                  if (idx === 3) cleanTitle = "Step 4: Lateral Movement (Moving Deeper)";
-                  if (idx === 4) cleanTitle = "Step 5: Privilege Escalation (Gaining Admin Control)";
-                  if (idx === 5) cleanTitle = "Step 6: Target DB Access (Reaching Database)";
-
-                  return (
-                    <div key={idx} className={`relative transition-all duration-300 ${stepStatus === "Unreached" ? "opacity-30" : "opacity-100"}`}>
-                      <span className={`absolute -left-[31px] top-1.5 w-4.5 h-4.5 rounded-full border flex items-center justify-center font-mono text-[8px] font-bold ${
-                        stepStatus === "Stopped"
-                          ? "bg-black border-cyber-green text-cyber-green shadow-[0_0_10px_rgba(16,185,129,0.3)]"
-                          : stepStatus === "Successful"
-                            ? "bg-cyber-red border-cyber-red text-black"
-                            : "bg-slate-955 border-slate-800 text-slate-600"
-                      }`}>
-                        {idx + 1}
-                      </span>
-
-                      <div className="p-4 rounded-lg bg-cyber-surface/30 border border-cyber-border/40 flex flex-wrap md:flex-nowrap gap-4 justify-between items-start">
-                        <div className="space-y-1 font-sans">
-                          <h4 className="text-xs font-bold text-white font-mono uppercase tracking-wide">{cleanTitle}</h4>
-                          <p className="text-[11px] text-slate-400 leading-relaxed font-sans">{step.desc}</p>
-                        </div>
-
-                        <div className="shrink-0 pt-0.5">
-                          {stepStatus === "Stopped" && (
-                            <span className="px-2 py-0.5 rounded border border-cyber-green/30 bg-cyber-green/10 text-cyber-green text-[8px] font-mono font-bold uppercase tracking-wider">
-                              🟢 Stopped
-                            </span>
-                          )}
-                          {stepStatus === "Successful" && (
-                            <span className="px-2 py-0.5 rounded border border-cyber-red/30 bg-cyber-red/10 text-cyber-red text-[8px] font-mono font-bold uppercase tracking-wider">
-                              🔴 Successful
-                            </span>
-                          )}
-                          {stepStatus === "Unreached" && (
-                            <span className="px-2 py-0.5 rounded border border-slate-850 bg-slate-900/50 text-slate-500 text-[8px] font-mono font-bold uppercase tracking-wider">
-                              ⚪ Unreached
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-
-              {showFullTimeline && (
-                <div className="relative">
-                  <span className={`absolute -left-[31px] top-1.5 w-4.5 h-4.5 rounded-full border flex items-center justify-center font-mono text-[8px] font-bold ${
-                    reportData.status === "Blocked"
-                      ? "bg-cyber-green border-cyber-green text-black shadow-[0_0_10px_rgba(16,185,129,0.4)]"
-                      : "bg-cyber-red border-cyber-red text-black shadow-[0_0_10px_rgba(244,63,94,0.4)]"
-                  }`}>
-                    7
+              <div>
+                {reportData.status === "Blocked" ? (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded border border-cyber-green/40 bg-cyber-green/10 text-cyber-green text-xs font-mono font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+                    🟢 Attack Contained
                   </span>
-
-                  <div className="p-4 rounded-lg bg-cyber-surface/30 border border-cyber-border/40 flex flex-wrap md:flex-nowrap gap-4 justify-between items-center">
-                    <div className="space-y-1">
-                      <h4 className="text-xs font-bold text-white font-mono uppercase tracking-wide">
-                        {reportData.status === "Blocked" ? "Step 7: Attack Blocked" : "Step 7: Attack Successful"}
-                      </h4>
-                      <p className="text-[11px] text-slate-450 leading-relaxed font-sans">
-                        {reportData.status === "Blocked"
-                          ? "Defenses successfully isolated compromised routes and terminated active script payloads before the attacker reached databases."
-                          : "Defenses failed to halt lateral movements, allowing the attacker to access internal database directories and complete operations."}
-                      </p>
-                    </div>
-
-                    <div className="shrink-0">
-                      {reportData.status === "Blocked" ? (
-                        <span className="px-2.5 py-1 rounded border border-cyber-green/45 bg-cyber-green/15 text-cyber-green text-[9px] font-mono font-bold uppercase tracking-wider">
-                          🟢 Stopped
-                        </span>
-                      ) : (
-                        <span className="px-2.5 py-1 rounded border border-cyber-red/45 bg-cyber-red/15 text-cyber-red text-[9px] font-mono font-bold uppercase tracking-wider">
-                          🔴 Successful
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded border border-cyber-red/40 bg-cyber-red/10 text-cyber-red text-xs font-mono font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(244,63,94,0.15)]">
+                    🔴 System Compromised
+                  </span>
+                )}
+              </div>
             </div>
 
-            {/* Toggle Button */}
-            <div className="mt-6 flex justify-center print:hidden">
-              <button
-                onClick={() => setShowFullTimeline(!showFullTimeline)}
-                className="px-4 py-2 rounded border border-cyber-cyan/35 bg-cyber-cyan/10 hover:bg-cyber-cyan/20 text-cyber-cyan text-[10px] tracking-widest font-mono font-bold uppercase transition-all hover:shadow-[0_0_12px_rgba(6,182,212,0.2)] cursor-pointer"
-              >
-                {showFullTimeline ? "[-] Collapse Timeline" : "[+] Show Full Timeline"}
-              </button>
+            <div className="space-y-4 font-sans text-xs leading-relaxed text-slate-300">
+              <div className="p-4 rounded-lg bg-cyber-surface/40 border border-cyber-border/60">
+                <strong className="text-white font-mono text-[9px] uppercase tracking-wider block mb-1 text-cyber-cyan">AI Mentor Analysis</strong>
+                <p className="text-slate-200 text-sm font-semibold leading-relaxed">
+                  {reportData.executiveSummary}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[10px] font-mono text-slate-400">
+                <div className="bg-black/35 p-3 rounded border border-cyber-border">
+                  <span className="text-slate-505 uppercase block text-[8px] text-slate-500">TARGET ENVIRONMENT</span>
+                  <span className="text-white font-bold block mt-1 uppercase">{reportData.industryName} ({reportData.targetName})</span>
+                </div>
+                <div className="bg-black/35 p-3 rounded border border-cyber-border">
+                  <span className="text-slate-505 uppercase block text-[8px] text-slate-500">ATTACKER GROUP</span>
+                  <span className="text-white font-bold block mt-1 uppercase">{reportData.actorName}</span>
+                </div>
+                <div className="bg-black/35 p-3 rounded border border-cyber-border">
+                  <span className="text-slate-505 uppercase block text-[8px] text-slate-500">ENTRY METHOD</span>
+                  <span className="text-white font-bold block mt-1 uppercase">{reportData.vectorName}</span>
+                </div>
+              </div>
             </div>
           </motion.section>
 
-          {/* Section 3: Real World Impact */}
+          {/* Panel 2: Simulation Impact & Prevention Index */}
           <motion.section
-            id="business-impact"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative print:border-none print:shadow-none print:p-0"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
           >
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent print:hidden" />
-            <div className="flex items-center gap-2 border-b border-cyber-border/40 pb-3 mb-6 font-mono">
-              <AlertTriangle className="w-4 h-4 text-cyber-cyan print:text-black" />
-              <h3 className="text-white font-bold text-xs uppercase tracking-widest print:text-black">
-                Real World Impact
-              </h3>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-sans text-xs">
-              <div className="bg-black/35 p-4 rounded border border-cyber-border text-left flex flex-col justify-between h-[90px]">
-                <span className="text-slate-500 font-mono text-[9px] uppercase tracking-wider block font-bold">💰 Financial Impact</span>
-                <div className="text-cyber-red text-sm font-extrabold mt-1 uppercase">
+            {/* Financial Card */}
+            <div className="glassmorphism-card rounded-xl p-4 border border-cyber-border flex flex-col justify-between h-[115px]">
+              <div>
+                <span className="text-slate-505 font-mono text-[9px] uppercase tracking-wider block font-bold text-slate-500">💰 Financial Liability</span>
+                <div className="text-cyber-red text-sm font-extrabold mt-1 uppercase font-mono">
                   {reportData.financialLoss.includes("(") ? reportData.financialLoss.split(" ")[0] : reportData.financialLoss}
                 </div>
-                <p className="text-slate-400 text-[9px] leading-tight">
-                  Potential investigation and recovery costs.
-                </p>
               </div>
+              <p className="text-slate-400 text-[9px] leading-tight">
+                Potential remediation & recovery fees.
+              </p>
+            </div>
 
-              <div className="bg-black/35 p-4 rounded border border-cyber-border text-left flex flex-col justify-between h-[90px]">
-                <span className="text-slate-505 font-mono text-[9px] uppercase tracking-wider block font-bold text-slate-500">⏱️ Operational Impact</span>
-                <div className="text-cyber-cyan text-sm font-extrabold mt-1 uppercase">
+            {/* Downtime Card */}
+            <div className="glassmorphism-card rounded-xl p-4 border border-cyber-border flex flex-col justify-between h-[115px]">
+              <div>
+                <span className="text-slate-505 font-mono text-[9px] uppercase tracking-wider block font-bold text-slate-500">⏱️ Operational Downtime</span>
+                <div className="text-cyber-cyan text-sm font-extrabold mt-1 uppercase font-mono">
                   {reportData.downtime}
                 </div>
-                <p className="text-slate-400 text-[9px] leading-tight">
-                  Temporary disruption of critical services.
-                </p>
               </div>
+              <p className="text-slate-400 text-[9px] leading-tight">
+                Infrastructure restoration delay duration.
+              </p>
+            </div>
 
-              <div className="bg-black/35 p-4 rounded border border-cyber-border text-left flex flex-col justify-between h-[90px]">
-                <span className="text-slate-500 font-mono text-[9px] uppercase tracking-wider block font-bold">📄 Data Exposure Risk</span>
-                <div className="text-white text-xs font-bold mt-1 uppercase truncate">
-                  {reportData.status === "Blocked" ? "No Data Exposed" : "Critical Exposure Risk"}
+            {/* Recommended Fix Card */}
+            <div className="glassmorphism-card rounded-xl p-4 border border-cyber-border flex flex-col justify-between h-[115px]">
+              <div>
+                <span className="text-slate-505 font-mono text-[9px] uppercase tracking-wider block font-bold text-slate-500">🛡️ Recommended Fix</span>
+                <div className="text-white text-[11px] font-bold mt-1 uppercase truncate font-mono" title={
+                  reportData.mitigations && reportData.mitigations.length > 0
+                    ? reportData.mitigations[0].split(":")[0]
+                    : getPreventionSuite(reportData.vectorId)[0].title
+                }>
+                  {
+                    reportData.mitigations && reportData.mitigations.length > 0
+                      ? reportData.mitigations[0].split(":")[0]
+                      : getPreventionSuite(reportData.vectorId)[0].title
+                  }
                 </div>
-                <p className="text-slate-400 text-[9px] leading-tight">
-                  Sensitive records could have been exposed if defenses failed.
-                </p>
               </div>
+              <p className="text-slate-400 text-[9px] leading-tight truncate">
+                {
+                  reportData.mitigations && reportData.mitigations.length > 0
+                    ? reportData.mitigations[0].split(":").slice(1).join(":")
+                    : getPreventionSuite(reportData.vectorId)[0].why
+                }
+              </p>
+            </div>
+
+            {/* Risk Reduction Card */}
+            <div className="glassmorphism-card rounded-xl p-4 border border-cyber-green/30 bg-cyber-green/5 flex flex-col justify-between h-[115px]">
+              <div>
+                <span className="text-cyber-green font-mono text-[9px] uppercase tracking-wider block font-bold">⚡ Risk Mitigated</span>
+                <div className="text-cyber-green text-sm font-extrabold mt-1 font-mono">
+                  +{reportData.riskReduction}% Security
+                </div>
+              </div>
+              <p className="text-slate-400 text-[9px] leading-tight">
+                Current Risk: {reportData.currentRisk}% → Projected: {reportData.projectedRisk}%
+              </p>
             </div>
           </motion.section>
 
-          {/* Section 4: Recommended Security Actions */}
+          {/* Panel 3: Simplified 3-Step Timeline */}
           <motion.section
-            id="recommended-defenses"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative print:border-none print:shadow-none print:p-0"
+            className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative"
           >
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent print:hidden" />
-            <div className="flex items-center gap-2 border-b border-cyber-border/40 pb-3 mb-6 font-mono">
-              <Shield className="w-4 h-4 text-cyber-cyan print:text-black" />
-              <h3 className="text-white font-bold text-xs uppercase tracking-widest print:text-black">
-                Recommended Security Actions
-              </h3>
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent" />
+            <div className="flex items-center justify-between border-b border-cyber-border/40 pb-3 mb-6">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-cyber-cyan animate-pulse" />
+                <h3 className="text-white font-bold text-xs uppercase tracking-widest font-mono">
+                  Simulation Progression Timeline
+                </h3>
+              </div>
+              <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Condensed Milestones</span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-sans text-xs">
-              <div className="bg-cyber-surface/40 border border-cyber-border p-4 rounded-lg flex flex-col justify-between hover:border-slate-800 transition-colors">
-                <div>
-                  <div className="flex items-center gap-2 text-cyber-cyan font-mono text-[9px] uppercase font-bold">
-                    <Lock className="w-3.5 h-3.5" />
-                    Action 1
-                  </div>
-                  <h4 className="text-xs font-bold text-white font-mono uppercase mt-2">Enable Multi-Factor Authentication</h4>
-                  <p className="text-[10px] text-slate-400 mt-1 leading-normal font-sans">
-                    Makes stolen passwords far less useful by requiring a second verification factor.
-                  </p>
-                </div>
-              </div>
+            {(() => {
+              const stages = reportData.stages;
+              const isStep1Blocked = stages[0]?.status === "blocked" || stages[1]?.status === "blocked";
+              const isStep2Blocked = !isStep1Blocked && (stages[2]?.status === "blocked" || stages[3]?.status === "blocked" || stages[4]?.status === "blocked");
+              const isStep3Blocked = !isStep1Blocked && !isStep2Blocked && (stages[5]?.status === "blocked");
 
-              <div className="bg-cyber-surface/40 border border-cyber-border p-4 rounded-lg flex flex-col justify-between hover:border-slate-800 transition-colors">
-                <div>
-                  <div className="flex items-center gap-2 text-cyber-cyan font-mono text-[9px] uppercase font-bold">
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    Action 2
-                  </div>
-                  <h4 className="text-xs font-bold text-white font-mono uppercase mt-2">Use Endpoint Protection</h4>
-                  <p className="text-[10px] text-slate-400 mt-1 leading-normal font-sans">
-                    Instantly alerts on and isolates devices exhibiting anomalous host behaviors.
-                  </p>
-                </div>
-              </div>
+              const milestones = [
+                {
+                  title: "Milestone 1: Looking for Entry (Ingress Attempt)",
+                  desc: `Attacker performed scanning and executed initial entry payloads via ${reportData.vectorName}.`,
+                  status: isStep1Blocked ? "Stopped" : "Successful"
+                },
+                {
+                  title: "Milestone 2: Pivoting Inside (Lateral Movement & Escalation)",
+                  desc: "Attacker attempted credential harvesting, host token manipulation, and lateral pivots to secure server zones.",
+                  status: isStep1Blocked ? "Unreached" : isStep2Blocked ? "Stopped" : "Successful"
+                },
+                {
+                  title: "Milestone 3: Data Target (Exfiltration & System Ransom)",
+                  desc: "Attacker targeted core operational files to compress databases for exfiltration and execute locking scripts.",
+                  status: (isStep1Blocked || isStep2Blocked) ? "Unreached" : isStep3Blocked ? "Stopped" : "Successful"
+                }
+              ];
 
-              <div className="bg-cyber-surface/40 border border-cyber-border p-4 rounded-lg flex flex-col justify-between hover:border-slate-800 transition-colors">
-                <div>
-                  <div className="flex items-center gap-2 text-cyber-cyan font-mono text-[9px] uppercase font-bold">
-                    <Brain className="w-3.5 h-3.5" />
-                    Action 3
-                  </div>
-                  <h4 className="text-xs font-bold text-white font-mono uppercase mt-2">Provide Employee Awareness Training</h4>
-                  <p className="text-[10px] text-slate-400 mt-1 leading-normal font-sans">
-                    Educates staff to identify phishing links and avoid running unauthorized scripts.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </motion.section>
+              return (
+                <div className="relative border-l border-cyber-border/80 pl-6 space-y-6 ml-3">
+                  {milestones.map((milestone, idx) => {
+                    const stepStatus = milestone.status;
+                    return (
+                      <div key={idx} className={`relative transition-all duration-300 ${stepStatus === "Unreached" ? "opacity-30" : "opacity-100"}`}>
+                        <span className={`absolute -left-[31px] top-1.5 w-4.5 h-4.5 rounded-full border flex items-center justify-center font-mono text-[8px] font-bold ${
+                          stepStatus === "Stopped"
+                            ? "bg-black border-cyber-green text-cyber-green shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                            : stepStatus === "Successful"
+                              ? "bg-cyber-red border-cyber-red text-black"
+                              : "bg-slate-955 border-slate-800 text-slate-600"
+                        }`}>
+                          {idx + 1}
+                        </span>
 
-          {/* Section 5: Security Improvement Potential */}
-          <motion.section
-            id="risk-reduction"
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative print:border-none print:shadow-none print:p-0"
-          >
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent print:hidden" />
-            <div className="flex items-center gap-2 border-b border-cyber-border/40 pb-3 mb-4 font-mono">
-              <TrendingUp className="w-4 h-4 text-cyber-cyan print:text-black" />
-              <h3 className="text-white font-bold text-xs uppercase tracking-widest print:text-black">
-                Security Improvement Potential
-              </h3>
-            </div>
+                        <div className="p-4 rounded-lg bg-cyber-surface/30 border border-cyber-border/40 flex flex-wrap md:flex-nowrap gap-4 justify-between items-center">
+                          <div className="space-y-1 font-sans text-xs flex-grow">
+                            <h4 className="text-xs font-bold text-white font-mono uppercase tracking-wide">{milestone.title}</h4>
+                            <p className="text-[11px] text-slate-400 leading-relaxed font-sans">{milestone.desc}</p>
+                          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-              <div className="space-y-3 font-mono text-[9px]">
-                <div className="space-y-1">
-                  <div className="flex justify-between font-bold text-slate-400 text-[8px]">
-                    <span>BEFORE IMPROVEMENTS (CURRENT RISK):</span>
-                    <span className="text-cyber-red">HIGH RISK ({reportData.currentRisk}%)</span>
-                  </div>
-                  <div className="h-1 bg-slate-900 border border-cyber-border rounded-full overflow-hidden">
-                    <div className="h-full bg-cyber-red" style={{ width: `${reportData.currentRisk}%` }} />
-                  </div>
+                          <div className="shrink-0 pt-0.5 font-mono">
+                            {stepStatus === "Stopped" && (
+                              <span className="px-2 py-0.5 rounded border border-cyber-green/30 bg-cyber-green/10 text-cyber-green text-[8px] font-bold uppercase tracking-wider">
+                                🟢 Stopped
+                              </span>
+                            )}
+                            {stepStatus === "Successful" && (
+                              <span className="px-2 py-0.5 rounded border border-cyber-red/30 bg-cyber-red/10 text-cyber-red text-[8px] font-bold uppercase tracking-wider">
+                                🔴 Successful
+                              </span>
+                            )}
+                            {stepStatus === "Unreached" && (
+                              <span className="px-2 py-0.5 rounded border border-slate-800 bg-slate-900/50 text-slate-500 text-[8px] font-bold uppercase tracking-wider">
+                                ⚪ Unreached
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-
-                <div className="space-y-1">
-                  <div className="flex justify-between font-bold text-slate-400 text-[8px]">
-                    <span>AFTER IMPROVEMENTS (PROJECTED RISK):</span>
-                    <span className="text-cyber-green">LOW RISK (&lt; {reportData.projectedRisk}%)</span>
-                  </div>
-                  <div className="h-1 bg-slate-900 border border-cyber-border rounded-full overflow-hidden">
-                    <div className="h-full bg-cyber-green" style={{ width: `${reportData.projectedRisk}%` }} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between p-3 border border-cyber-border bg-black/40 rounded h-[60px]">
-                <div className="flex flex-col text-left">
-                  <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">ESTIMATED IMPROVEMENT</span>
-                  <span className="text-[9px] font-mono text-cyber-green uppercase tracking-widest font-bold mt-0.5">Post-Remediation Safety Range</span>
-                </div>
-                <div className="text-xl font-extrabold font-mono text-cyber-cyan">
-                  +{reportData.riskReduction}%
-                </div>
-              </div>
-            </div>
+              );
+            })()}
           </motion.section>
 
           {/* Section 6 & 7: Collapsible Technical Threat Intelligence */}
           <div className="w-full">
             <div className="p-5 rounded-lg border border-cyber-border bg-cyber-surface/30 mb-4 text-left print:hidden">
-              <h4 className="text-white font-mono text-xs uppercase font-bold tracking-wider">Technical Threat Intelligence - Advanced View</h4>
+              <h4 className="text-white font-mono text-xs uppercase font-bold tracking-wider">Advanced Cybersecurity Concepts (Technical Reference)</h4>
               <p className="text-[10px] text-slate-400 mt-1 font-sans">
                 For cybersecurity learners, analysts, and recruiters interested in deeper technical details.
               </p>
@@ -1107,7 +1027,7 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
                 className="mt-3 py-2 px-4 rounded border border-cyber-cyan/35 bg-cyber-cyan/10 hover:bg-cyber-cyan/20 text-cyber-cyan hover:text-white flex items-center gap-2 font-mono text-[9px] uppercase tracking-wider transition-all duration-300 hover:cursor-pointer font-bold"
               >
                 <Layers className="w-3.5 h-3.5 text-cyber-cyan animate-pulse" />
-                <span>{isTechnicalExpanded ? "Hide Technical Details" : "View Technical Details"}</span>
+                <span>{isTechnicalExpanded ? "Hide Advanced Cybersecurity Concepts (Technical Reference)" : "View Advanced Cybersecurity Concepts (Technical Reference)"}</span>
               </button>
             </div>
 
@@ -1123,13 +1043,13 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
                   {/* Threat Intelligence Metadata */}
                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 font-mono text-[10px]">
                     <div className="bg-black/40 p-4 rounded-xl border border-cyber-border bg-black/40">
-                      <div className="text-cyber-cyan text-[8px] uppercase tracking-wider">Threat Actor / APT Group</div>
+                      <div className="text-cyber-cyan text-[8px] uppercase tracking-wider">Who is behind the attack (Threat Actor)</div>
                       <div className="text-white font-bold mt-1.5 uppercase">
                         {getActorName(reportData.actorId, true)}
                       </div>
                     </div>
                     <div className="bg-black/40 p-4 rounded-xl border border-cyber-border bg-black/40">
-                      <div className="text-cyber-cyan text-[8px] uppercase tracking-wider">Attack Vector (MITRE)</div>
+                      <div className="text-cyber-cyan text-[8px] uppercase tracking-wider">How the attack starts (Attack Vector)</div>
                       <div className="text-white font-bold mt-1.5 uppercase font-bold">
                         {getAttackName(reportData.vectorId, true)}
                       </div>
@@ -1150,7 +1070,7 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
 
                   {/* Attacker Threat Intel profile reference */}
                   <div className="bg-cyber-surface/40 border border-cyber-border p-5 rounded-xl">
-                    <div className="text-cyber-cyan font-mono text-[10px] uppercase font-bold mb-3 font-bold">Threat Actor Intelligence Profile</div>
+                    <div className="text-cyber-cyan font-mono text-[10px] uppercase font-bold mb-3 font-bold">Adversary Threat Intelligence Profile (Advanced)</div>
                     <p className="text-slate-350 leading-relaxed text-[11px] font-sans">
                       {reportData.actorProfile}
                     </p>
@@ -1198,7 +1118,7 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* MITRE Card */}
                     <div className="bg-cyber-surface/40 border border-cyber-border p-5 rounded-xl">
-                      <div className="text-cyber-cyan font-mono text-[10px] uppercase font-bold mb-4">MITRE ATT&CK Mapping</div>
+                      <div className="text-cyber-cyan font-mono text-[10px] uppercase font-bold mb-4">Technical Reference (MITRE ATT&CK Mapping)</div>
                       <div className="space-y-2.5 font-mono text-[9px]">
                         {reportData.stages.map((stage: CampaignStage, idx: number) => {
                           const customMapping = reportData.mitreMapping?.find((m: { stageIndex: number; code: string; name: string }) => m.stageIndex === idx);
@@ -1286,8 +1206,8 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
               )}
             </AnimatePresence>
           </div>
-
         </div>
+
       </motion.div>
 
       {/* Footer - hidden on print */}

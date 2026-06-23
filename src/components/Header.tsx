@@ -93,7 +93,7 @@ export default function Header() {
             </span>
 
             <span className="text-[9px] font-mono tracking-widest text-slate-500 uppercase">
-              Attack Simulation & Defense Platform
+              Interactive Cybersecurity Learning Platform
             </span>
           </div>
         </div>

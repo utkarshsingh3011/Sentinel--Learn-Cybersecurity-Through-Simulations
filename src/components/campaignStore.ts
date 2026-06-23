@@ -487,27 +487,27 @@ const getMockCampaigns = (): StoredCampaign[] => {
       const mappedStage = { ...stage };
       const statusText = stage.status.toUpperCase();
       if (idx === 0) {
-        mappedStage.title = "Scanning the Network";
+        mappedStage.title = "Looking for Weak Points (Reconnaissance)";
         mappedStage.description = `Attacker scanned the network to find active computers and open ports.`;
         mappedStage.log = `[RECON] Scan complete. Found open ports: 443, 8080. Status: ${statusText}`;
       } else if (idx === 1) {
-        mappedStage.title = "Attacker Gained Access";
+        mappedStage.title = "Trying to Get In (Initial Access)";
         mappedStage.description = `Attacker established a foothold in the network, bypassing outer defenses.`;
         mappedStage.log = `[INGRESS] Entry payload executed. Connection established with target device. Status: ${statusText}`;
       } else if (idx === 2) {
-        mappedStage.title = "Passwords Were Stolen";
+        mappedStage.title = "Trying to Steal Passwords (Credential Access)";
         mappedStage.description = `Attacker searched computer memory and tables to find login passwords and session tokens.`;
         mappedStage.log = `[CREDENTIALS] Stole administrative credentials and login keys from memory. Status: ${statusText}`;
       } else if (idx === 3) {
-        mappedStage.title = "Moved to Another System";
+        mappedStage.title = "Moving Through the Network (Lateral Movement)";
         mappedStage.description = `Attacker moved from the first compromised computer to a server deeper in the network.`;
         mappedStage.log = `[LATERAL] Moved to server node segment containing ${c.primaryTarget}. Status: ${statusText}`;
       } else if (idx === 4) {
-        mappedStage.title = "Gained Admin Access";
+        mappedStage.title = "Taking Control (Privilege Escalation)";
         mappedStage.description = `Attacker elevated their access level to become a network administrator.`;
         mappedStage.log = `[ESCALATION] Root credentials retrieved. Gained administrator rights. Status: ${statusText}`;
       } else if (idx === 5) {
-        mappedStage.title = "Data Was Stolen and Locked";
+        mappedStage.title = "Attempting to Steal Data (Data Exfiltration)";
         mappedStage.description = `Attacker copied sensitive files out of the network and started encrypting systems.`;
         mappedStage.log = `[EXFILTRATION] Copied customer database tables and encrypted database files. Status: ${statusText}`;
       }

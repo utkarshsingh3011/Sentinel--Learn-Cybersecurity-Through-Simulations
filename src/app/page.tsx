@@ -137,7 +137,7 @@ export default function Home() {
                   <span className="text-cyber-cyan font-extrabold text-sm">AI</span> Gemini API
                 </div>
                 <div className="flex items-center gap-2 hover:text-white transition-colors">
-                  <span className="text-cyber-cyan font-extrabold text-sm">M</span> MITRE ATT&CK Matrix
+                  <span className="text-cyber-cyan font-extrabold text-sm">M</span> MITRE ATT&CK (Technical Reference)
                 </div>
               </div>
             </div>
@@ -165,11 +165,7 @@ export default function Home() {
               </h3>
 
               <p className="text-slate-400 text-xs mt-5 leading-relaxed max-w-sm">
-                Sentinel transforms complex cyber attack chains into visual,
-                interactive simulations. Designed for students, educators,
-                and security enthusiasts, it provides a safe environment to
-                explore attacker behavior, defensive controls, and security
-                decision-making.
+                Sentinel is an interactive cybersecurity learning platform that helps users understand how cyberattacks work through simulations, visual storytelling, and AI-guided explanations. Designed for students, educators, and security enthusiasts.
               </p>
 
               <div className="mt-5">

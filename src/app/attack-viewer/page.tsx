@@ -329,70 +329,104 @@ export default function AttackViewerPage() {
   const getStoryboardEvent = (stageIdx: number, status?: "blocked" | "evaded" | "alerted", attackType?: string) => {
     const isBlocked = status === "blocked";
     
-    const reconNarrative = isBlocked
-      ? "At this stage the attacker is scanning network boundaries to locate open ports. Fortunately, firewall rules immediately flagged the IP address and blocked all scanning attempts, stopping the attack at the perimeter."
-      : "At this stage the attacker is scanning network boundaries to identify active systems and open ports. Since no active firewalls blocked the scanning, the attacker successfully mapped the environment.";
+    let attackerDoing = "";
+    let attackerWhy = "";
+    let whatNext = "";
+    let securityResponse = "";
 
-    const ingressNarrative = isBlocked
-      ? "At this stage the attacker attempts to deliver their initial payload to gain a foothold. Fortunately, local endpoint sandboxing or email filter rules blocked the script execution, terminating the attack."
-      : "At this stage the attacker attempts to deliver their initial payload. Because outer filters did not block the delivery, the attacker successfully established a remote connection to the host.";
+    switch (stageIdx) {
+      case 0:
+        attackerDoing = "Scanning network boundaries to identify active computers and open ports.";
+        attackerWhy = "To locate open doors and map the network layout before launching an exploit.";
+        whatNext = "The attacker will attempt to deliver a malicious payload to gain entry.";
+        securityResponse = isBlocked
+          ? "The firewall immediately detected the scan patterns, flagged the attacker's IP, and blocked all further requests."
+          : "The perimeter checks failed to flag the scan, allowing the attacker to map the target network segment successfully.";
+        break;
+      case 1:
+        attackerDoing = `Attempting to gain entry using the attack method (${attackType}).`;
+        attackerWhy = "To establish an active connection inside the network and bypass outer perimeter controls.";
+        whatNext = "The attacker will attempt to harvest passwords and authentication keys from memory.";
+        securityResponse = isBlocked
+          ? "The security gateway intercepted the malicious traffic or email link, blocking execution and terminating the connection."
+          : "The security filters failed to block the payload, allowing the attacker to establish a silent connection inside the system.";
+        break;
+      case 2:
+        attackerDoing = "Searching system memory (e.g. LSASS dumps) for active login passwords and session keys.";
+        attackerWhy = "To steal administrator credentials, making it easy to masquerade as a legitimate user.";
+        whatNext = "The attacker will use the stolen passwords to move to other servers on the network.";
+        securityResponse = isBlocked
+          ? "Local endpoint protection detected the memory dumping attempt and immediately terminated the hostile process."
+          : "Local protections failed, and the attacker successfully dumped system memory to harvest plain-text admin passwords.";
+        break;
+      case 3:
+        attackerDoing = "Connecting from the first compromised computer to other critical servers deep in the network.";
+        attackerWhy = "To locate and access key database storage arrays containing sensitive data.";
+        whatNext = "The attacker will attempt to elevate their user permissions to gain full control.";
+        securityResponse = isBlocked
+          ? "Internal network firewalls blocked the unauthorized server-to-server traffic, isolating the threat."
+          : "Unsegmented network paths allowed the attacker to pivot directly from the workstation to the database gateway.";
+        break;
+      case 4:
+        attackerDoing = "Manipulating active security tokens to elevate permissions from a standard user to a system administrator.";
+        attackerWhy = "To gain unrestricted access and bypass database write locks and security rules.";
+        whatNext = "The attacker will access target databases to lock or extract records.";
+        securityResponse = isBlocked
+          ? "Access controllers flagged the token manipulation attempt and revoked the account's credentials."
+          : "Loose configuration settings allowed the attacker to hijack admin tokens, granting them master control.";
+        break;
+      case 5:
+        attackerDoing = "Accessing target database directories to copy files and deploy disruptive payloads.";
+        attackerWhy = "To exfiltrate sensitive files out of the network and encrypt databases to demand ransom payment.";
+        whatNext = "The attack is complete. System administrators must initiate recovery, notify regulators, and repair endpoints.";
+        securityResponse = isBlocked
+          ? "Automated database triggers and write locks immediately isolated the target files, preventing all exfiltration."
+          : "Defenses failed to halt database operations, allowing the attacker to copy sensitive customer files and encrypt the system.";
+        break;
+    }
 
-    const credsNarrative = isBlocked
-      ? "At this stage the attacker is attempting to steal login credentials. If successful, these credentials could allow them to impersonate legitimate users and move deeper into the network. Fortunately, security controls detected the memory scraping activity and blocked access."
-      : "At this stage the attacker is attempting to steal login credentials. Because local host memory protections were absent, the attacker scraped administrative account keys directly from active memory tables.";
-
-    const lateralNarrative = isBlocked
-      ? "At this stage the attacker attempts to pivot to core server nodes holding database assets. Fortunately, internal network segmentation firewalls blocked the cross-subnet connection request, isolating the threat."
-      : "At this stage the attacker attempts to pivot deeper. Since internal subnets were unsegmented, the attacker hopped directly from the user host to the database server gateway.";
-
-    const escalationNarrative = isBlocked
-      ? "At this stage the attacker attempts to acquire full network Administrator privileges. Fortunately, active access control policies blocked the token impersonation attempt, preventing the escalation."
-      : "At this stage the attacker attempts to acquire full network Administrator privileges. Because permissions were loosely configured, the attacker successfully impersonated system accounts to gain master control.";
-
-    const exfilNarrative = isBlocked
-      ? "At this stage the attacker reaches the database server to lock files or extract records. Fortunately, automated database triggers and write locks blocked the exfiltration attempt, securing the database."
-      : "At this stage the attacker reaches their final target. The attacker copied sensitive database files out of the network and ran file encryption commands, completing a successful breach.";
-
-    const narratives = [reconNarrative, ingressNarrative, credsNarrative, lateralNarrative, escalationNarrative, exfilNarrative];
     const titles = [
-      "Step 1: Attempting to Scan Network Boundaries",
-      "Step 2: Attempting to Gain Initial Entry",
-      "Step 3: Attempting to Steal Passwords",
-      "Step 4: Attempting to Move Deeper into the Network",
-      "Step 5: Attempting to Gain Administrator Control",
-      "Step 6: Attempting to Access the Target Database"
+      "Looking for Weak Points (Reconnaissance)",
+      "Trying to Get In (Initial Access)",
+      "Trying to Steal Passwords (Credential Access)",
+      "Moving Through the Network (Lateral Movement)",
+      "Taking Control (Privilege Escalation)",
+      "Attempting to Steal Data (Data Exfiltration)"
     ];
 
     return {
-      title: titles[stageIdx] || `Step ${stageIdx + 1}: Attempting to Execute Intrusion Phase`,
-      narrative: narratives[stageIdx] || "The attacker is executing this stage of the simulated attack. Defensive controls are checking system activity."
+      title: titles[stageIdx] || `Step ${stageIdx + 1}`,
+      attackerDoing,
+      attackerWhy,
+      whatNext,
+      securityResponse
     };
   };
 
   const getFriendlyStageInfo = (idx: number) => {
     const list = [
       {
-        title: "Step 1: Attempting to Scan Network Boundaries",
+        title: "Looking for Weak Points (Reconnaissance)",
         description: "The attacker scans the network to find active computers and open entry points."
       },
       {
-        title: "Step 2: Attempting to Gain Initial Entry",
+        title: "Trying to Get In (Initial Access)",
         description: "The attacker establishes a silent foothold in the network, bypassing outer defenses."
       },
       {
-        title: "Step 3: Attempting to Steal Passwords",
+        title: "Trying to Steal Passwords (Credential Access)",
         description: "The attacker searches local system memory to harvest administrative login credentials."
       },
       {
-        title: "Step 4: Attempting to Move Deeper into the Network",
+        title: "Moving Through the Network (Lateral Movement)",
         description: "Using stolen credentials, the attacker pivots deeper into the core servers."
       },
       {
-        title: "Step 5: Attempting to Gain Administrator Control",
+        title: "Taking Control (Privilege Escalation)",
         description: "The attacker elevates permissions, gaining administrative access to network controllers."
       },
       {
-        title: "Step 6: Attempting to Access the Target Database",
+        title: "Attempting to Steal Data (Data Exfiltration)",
         description: "The attacker copies database records out of the network and triggers the final disruptive payload."
       }
     ];
@@ -1068,24 +1102,46 @@ export default function AttackViewerPage() {
                 </span>
                 <span className="text-[9px] font-mono text-slate-400">STEP 0{currentStageIdx + 1}/06</span>
               </div>
-              <div className="space-y-4">
-                <div className="text-sm font-bold text-white uppercase tracking-wider font-mono">
-                  {getStoryboardEvent(currentStageIdx, campaign.stages[currentStageIdx].status, campaign.attackType).title}
-                </div>
-                <p className="text-xs text-slate-350 leading-relaxed font-sans min-h-[75px]">
-                  {getStoryboardEvent(currentStageIdx, campaign.stages[currentStageIdx].status, campaign.attackType).narrative}
-                </p>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="text-[8px] font-mono text-slate-500 uppercase">Action Result:</span>
-                  <span className={`px-2 py-0.5 rounded text-[8px] font-mono font-bold uppercase ${
-                    campaign.stages[currentStageIdx].status === "blocked" 
-                      ? "text-cyber-green border border-cyber-green/30 bg-cyber-green/10" 
-                      : "text-cyber-red border border-cyber-red/30 bg-cyber-red/10"
-                  }`}>
-                    {campaign.stages[currentStageIdx].status === "blocked" ? "🚨 Stopped by Defenses" : "⚠ Succeeded"}
-                  </span>
-                </div>
-              </div>
+              {(() => {
+                const event = getStoryboardEvent(currentStageIdx, campaign.stages[currentStageIdx].status, campaign.attackType);
+                return (
+                  <div className="space-y-4 font-sans text-xs">
+                    <div className="text-sm font-bold text-white uppercase tracking-wider font-mono border-b border-cyber-cyan/10 pb-2">
+                      {event.title}
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <span className="text-cyber-cyan font-mono text-[9px] uppercase tracking-wider block font-bold">🕵️ What is the attacker doing?</span>
+                        <p className="text-slate-350 mt-0.5">{event.attackerDoing}</p>
+                      </div>
+                      <div>
+                        <span className="text-cyber-cyan font-mono text-[9px] uppercase tracking-wider block font-bold">🎯 Why are they doing it?</span>
+                        <p className="text-slate-350 mt-0.5">{event.attackerWhy}</p>
+                      </div>
+                      <div>
+                        <span className="text-cyber-cyan font-mono text-[9px] uppercase tracking-wider block font-bold">🔮 What could happen next?</span>
+                        <p className="text-slate-350 mt-0.5">{event.whatNext}</p>
+                      </div>
+                      <div>
+                        <span className="text-cyber-cyan font-mono text-[9px] uppercase tracking-wider block font-bold">🛡️ How did security respond?</span>
+                        <p className="text-slate-350 mt-0.5">{event.securityResponse}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 mt-4 pt-2 border-t border-cyber-cyan/10">
+                      <span className="text-[8px] font-mono text-slate-500 uppercase">Action Result:</span>
+                      <span className={`px-2 py-0.5 rounded text-[8px] font-mono font-bold uppercase ${
+                        campaign.stages[currentStageIdx].status === "blocked" 
+                          ? "text-cyber-green border border-cyber-green/30 bg-cyber-green/10" 
+                          : "text-cyber-red border border-cyber-red/30 bg-cyber-red/10"
+                      }`}>
+                        {campaign.stages[currentStageIdx].status === "blocked" ? "🚨 Stopped by Defenses" : "⚠ Succeeded"}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Live Terminal Log Panel with Translation */}
@@ -1146,7 +1202,7 @@ export default function AttackViewerPage() {
             >
               <div className="flex items-center gap-2">
                 <Layers className="w-3.5 h-3.5 text-cyber-cyan animate-pulse" />
-                <span>{isTechnicalExpanded ? "[-] Hide Technical Details" : "[+] View Technical Details"}</span>
+                <span>{isTechnicalExpanded ? "[-] Hide Advanced Cybersecurity Concepts (Technical Reference)" : "[+] View Advanced Cybersecurity Concepts (Technical Reference)"}</span>
               </div>
               <span className="text-cyber-cyan font-bold">{isTechnicalExpanded ? "CLOSE" : "EXPAND"}</span>
             </button>
@@ -1163,13 +1219,13 @@ export default function AttackViewerPage() {
                   {/* Threat Intelligence Metadata */}
                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 font-mono text-[10px]">
                     <div className="bg-black/40 p-4 rounded-xl border border-cyber-border bg-black/40">
-                      <div className="text-cyber-cyan text-[8px] uppercase tracking-wider">Threat Actor Group</div>
+                      <div className="text-cyber-cyan text-[8px] uppercase tracking-wider">Who is behind the attack (Threat Actor)</div>
                       <div className="text-white font-bold mt-1.5 uppercase">
                         {getActorName(campaign.threatActor, true)}
                       </div>
                     </div>
                     <div className="bg-black/40 p-4 rounded-xl border border-cyber-border bg-black/40">
-                      <div className="text-cyber-cyan text-[8px] uppercase tracking-wider">Attack Vector (MITRE)</div>
+                      <div className="text-cyber-cyan text-[8px] uppercase tracking-wider">How the attack starts (Attack Vector)</div>
                       <div className="text-white font-bold mt-1.5 uppercase">
                         {getAttackName(campaign.attackType, true)}
                       </div>
@@ -1230,7 +1286,7 @@ export default function AttackViewerPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* MITRE Card */}
                     <div className="bg-cyber-surface/40 border border-cyber-border p-5 rounded-xl">
-                      <div className="text-cyber-cyan font-mono text-[10px] uppercase font-bold mb-4">MITRE ATT&CK Mapping</div>
+                      <div className="text-cyber-cyan font-mono text-[10px] uppercase font-bold mb-4">Technical Reference (MITRE ATT&CK Mapping)</div>
                       <div className="space-y-2.5 font-mono text-[9px]">
                         {mitreTechniques.map((tech) => (
                           <div key={tech.id} className="flex justify-between items-center bg-black/40 p-2.5 border border-cyber-border/40 rounded">
