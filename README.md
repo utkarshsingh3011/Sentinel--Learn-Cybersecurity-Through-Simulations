@@ -1,221 +1,100 @@
 # 🛡️ Sentinel
 
-### Interactive Cyber Attack Simulation & Defense Learning Platform
+### Learn Cybersecurity by Watching Attacks Unfold
 
-> Learn. Simulate. Defend.
+🌐 **Live Demo:** https://sentinel-cyberlabs.vercel.app
 
-Sentinel is an educational cybersecurity platform that transforms complex cyber attacks into visual, interactive simulations.
-
-Instead of reading about phishing campaigns, ransomware incidents, or supply-chain attacks in lengthy reports, users can explore how attacks unfold, understand why defenses fail, and learn how organizations can strengthen their security posture.
-
-Built using modern web technologies and inspired by real-world threat intelligence methodologies, Sentinel provides a safe environment for understanding attacker behavior, security operations, and cyber defense strategies.
+⭐ **If you find this project interesting, consider starring the repository.**
 
 ---
 
-## Why Sentinel Exists
+## Overview
 
-Cybersecurity is often taught through theory.
+Sentinel is an educational cybersecurity simulation platform built to help students and beginners understand how modern cyber attacks work inside real-world environments.
 
-Attack chains, threat actors, and security frameworks can feel abstract when they exist only in slides, documentation, or classroom discussions.
+Instead of reading static theory, users can interact with attack scenarios, visualize attack progression, explore MITRE ATT&CK techniques, and understand how defensive strategies reduce risk.
 
-Sentinel was built to bridge that gap.
-
-The platform enables users to visualize cyber attacks, explore defensive controls, analyze security outcomes, and understand how modern organizations respond to security incidents.
-
-Rather than memorizing concepts, users experience them.
+The project focuses on making cybersecurity concepts easier to learn through visual and interactive experiences.
 
 ---
 
-# Platform Preview
-
-## Landing Experience
-
-The platform introduces users to cybersecurity through an interactive attack simulation console inspired by modern Security Operations Centers.
+## Landing Page
 
 ![Landing Page](public/landing-page.png)
 
 ---
 
-## Attack Simulation Builder
+## Key Features
 
-Configure environments, attacker profiles, attack techniques, and security strength levels to observe how different defenses impact attack outcomes.
+* Interactive Attack Simulation Builder
+* AI Security Analyst Console
+* Security Insights Dashboard
+* MITRE ATT&CK Mapping
+* Visual Attack Progression Workflow
+* Multiple Industry Scenarios
+* Educational Learning Experience
+* Modern Cybersecurity Interface
+
+---
+
+## Attack Simulation Builder
 
 ![Simulation Builder](public/simulation-builder.png)
 
----
-
-## Security Analyst Console
-
-After every simulation, Sentinel generates a detailed threat briefing explaining attacker behavior, attack progression, business impact, and defensive recommendations.
-
-![AI Analyst Console](public/ai-analyst.png)
+Configure attack scenarios, select attacker profiles, define security strengths, and observe how different defenses impact attack outcomes.
 
 ---
 
-## Security Insights Dashboard
-
-Visualize attack trends, security posture, defensive effectiveness, risk exposure, and MITRE ATT&CK coverage through a dedicated analytics dashboard.
+## Security Dashboard
 
 ![Security Dashboard](public/security-dashboard.png)
 
----
-
-# Core Capabilities
-
-### Attack Simulations
-
-Explore realistic cyber attack scenarios inspired by modern threat campaigns.
-
-Users can follow each stage of an attack chain and understand how compromise occurs.
-
-### Threat Intelligence Reporting
-
-Generate educational security reports covering:
-
-* Attack objectives
-* Threat actor behavior
-* Security weaknesses
-* Risk assessment
-* Mitigation strategies
-
-### Security Analytics
-
-Monitor:
-
-* Overall Security Score
-* Attack Success Rates
-* Defensive Coverage
-* Industry Target Distribution
-* Risk Exposure Metrics
-
-### Educational Learning Environment
-
-Sentinel is designed for:
-
-* Students
-* Cybersecurity beginners
-* Security enthusiasts
-* Academic demonstrations
-* Portfolio projects
-* Cyber awareness programs
-
-The focus is always on education and defense.
+Analyze simulated attack results, identify risks, and understand how security controls influence the attack lifecycle.
 
 ---
 
-# Key Features
+## AI Security Analyst
 
-* Interactive Cyber Attack Simulations
-* Dynamic Threat Scenarios
-* AI-Assisted Threat Analysis
-* Executive Security Reports
-* MITRE ATT&CK Inspired Workflows
-* Security Insights Dashboard
-* Threat Actor Profiling
-* Defensive Coverage Metrics
-* Responsive Modern Interface
-* Real-Time Scenario Configuration
+![AI Analyst](public/ai-analyst.png)
+
+An AI-powered analyst interface designed to explain attacks, security concepts, and mitigation strategies in a student-friendly way.
 
 ---
 
-# Simulation Workflow
-
-```text
-Target Environment
-        ↓
-Attacker Profile
-        ↓
-Attack Scenario
-        ↓
-Security Controls
-        ↓
-Attack Execution
-        ↓
-Threat Analysis
-        ↓
-Risk Assessment
-        ↓
-Security Recommendations
-```
-
----
-
-# Technology Stack
-
-### Frontend
+## Built With
 
 * Next.js
 * TypeScript
 * Tailwind CSS
 * Framer Motion
-
-### Intelligence Layer
-
-* Gemini API
-* Dynamic Threat Report Generation
-
-### Security Concepts
-
-* MITRE ATT&CK Framework
-* Threat Intelligence Principles
-* Security Operations Workflows
-* Risk Assessment Methodologies
-
-### Deployment
-
 * Vercel
 
 ---
 
-# Design Philosophy
+## Why This Project?
 
-Most cybersecurity learning resources explain attacks.
+Cybersecurity can feel overwhelming when concepts are only explained through text.
 
-Sentinel demonstrates them.
+Sentinel was built to make attack paths, attacker behavior, and defensive strategies easier to visualize and understand through interactive simulations.
 
-The project was designed around a simple idea:
+The goal is simple:
 
-> Complex security concepts become easier to understand when people can see them unfold.
-
-Every simulation, dashboard, and report is intended to transform abstract cybersecurity concepts into practical learning experiences.
+> Make cybersecurity learning more practical, visual, and engaging.
 
 ---
 
-# Future Roadmap
+## About Me
 
-Planned improvements include:
+I'm Utkarsh Singh, an ECE student at JIIT Noida with a growing interest in cybersecurity and related fields.
 
-* Additional attack scenarios
-* Expanded threat actor profiles
-* Security architecture simulations
-* Blue Team training modules
-* Threat hunting exercises
-* SOC investigation workflows
-* Advanced analytics dashboards
-* Multi-stage attack campaigns
+Sentinel is one of my projects focused on combining learning, visualization, and cybersecurity education into a single platform.
 
 ---
 
-# Educational Disclaimer
+### Live Website
 
-Sentinel is an educational cybersecurity project.
+🌐 https://sentinel-cyberlabs.vercel.app
 
-All attack scenarios are simulated and operate within a controlled learning environment.
+### Repository
 
-The platform does not provide tools, instructions, or capabilities for conducting unauthorized activities against real-world systems.
-
-Its sole purpose is cybersecurity education, awareness, and defensive learning.
-
----
-
-# About The Project
-
-Sentinel was built as an exploration of how cybersecurity concepts can be taught through visualization, simulation, and interactive user experiences.
-
-By combining modern web technologies with cybersecurity learning principles, the project aims to make attack chains, defensive controls, and security decision-making easier to understand for learners at every level.
-
----
-
-## Sentinel
-
-Learn • Simulate • Defend
+📂 https://github.com/utkarshsingh3011/SENTINEL
