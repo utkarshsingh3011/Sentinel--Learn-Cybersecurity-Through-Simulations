@@ -34,41 +34,108 @@ export interface SaveCampaignInput {
 }
 
 // Helpers to resolve names from IDs
-export const getActorName = (id: string): string => {
+export const getActorName = (id: string, includeTechnical: boolean = false): string => {
   const map: Record<string, string> = {
-    APT29: "APT29 (CozyBear)",
+    APT29: "Data Spy",
+    Lazarus: "Financial Criminal",
+    LockBit: "Ransomware Operator",
+    Anonymous: "Hacktivist",
+    FIN7: "Insider Threat",
+  };
+  const emojiMap: Record<string, string> = {
+    APT29: "🎭",
+    Lazarus: "💰",
+    LockBit: "🔒",
+    Anonymous: "📢",
+    FIN7: "🕵",
+  };
+  const techMap: Record<string, string> = {
+    APT29: "APT29",
     Lazarus: "Lazarus Group",
     LockBit: "LockBit 3.0",
-    FIN7: "FIN7",
     Anonymous: "Anonymous",
+    FIN7: "FIN7",
   };
-  return map[id] || id;
+  const emoji = emojiMap[id] || "";
+  const name = map[id] || id;
+  const tech = techMap[id] || "";
+  
+  if (includeTechnical && tech) {
+    return `${emoji} ${name} (${tech})`;
+  }
+  return emoji ? `${emoji} ${name}` : name;
 };
 
-export const getAttackName = (id: string): string => {
+export const getAttackName = (id: string, includeTechnical: boolean = false): string => {
   const map: Record<string, string> = {
-    Phishing: "Spearphishing Link",
-    Ransomware: "Data Encrypted",
-    DDoS: "Volumetric Exhaustion",
-    "Supply Chain": "Dependency Poisoning",
-    "SQL Injection": "Blind SQL Injection",
+    Phishing: "Fake Email Scam",
+    Ransomware: "File Encryption Attack",
+    DDoS: "Traffic Overload Attack",
+    "Supply Chain": "Malicious Software Installation",
+    "SQL Injection": "Database Attack",
   };
-  return map[id] || id;
+  const emojiMap: Record<string, string> = {
+    Phishing: "📧",
+    Ransomware: "🔒",
+    DDoS: "🌐",
+    "Supply Chain": "🧩",
+    "SQL Injection": "💉",
+  };
+  const techMap: Record<string, string> = {
+    Phishing: "MITRE T1566.002",
+    Ransomware: "MITRE T1486",
+    DDoS: "MITRE T1498",
+    "Supply Chain": "MITRE T1195.002",
+    "SQL Injection": "MITRE T1190",
+  };
+  const emoji = emojiMap[id] || "";
+  const name = map[id] || id;
+  const tech = techMap[id] || "";
+  
+  if (includeTechnical && tech) {
+    return `${emoji} ${name} (${tech})`;
+  }
+  return emoji ? `${emoji} ${name}` : name;
 };
 
 export const getFriendlySimulationName = (attackType: string): string => {
   const map: Record<string, string> = {
-    Phishing: "Phishing Attack Simulation",
-    Ransomware: "Ransomware Attack Simulation",
-    DDoS: "Denial of Service (DDoS) Simulation",
-    "Supply Chain": "Software Dependency Supply Chain Attack Simulation",
-    "SQL Injection": "Database Command Injection (SQL Injection) Simulation",
+    Phishing: "Fake Email Scam Simulation",
+    Ransomware: "File Encryption Attack Simulation",
+    DDoS: "Traffic Overload Attack Simulation",
+    "Supply Chain": "Malicious Software Installation Simulation",
+    "SQL Injection": "Database Attack Simulation",
   };
   return map[attackType] || `${attackType} Simulation`;
 };
 
 export const getIndustryName = (id: string): string => {
-  return id; // IDs are same as names for industries
+  const map: Record<string, string> = {
+    Healthcare: "🏥 Hospital System",
+    Banking: "🏦 Online Banking Platform",
+    Government: "🏛 Government Portal",
+    University: "🎓 University Network",
+    Startup: "🚀 Startup Infrastructure",
+  };
+  return map[id] || id;
+};
+
+export const getSecurityLevelName = (level: string): string => {
+  const map: Record<string, string> = {
+    Low: "Basic Protection",
+    Medium: "Standard Protection",
+    High: "Advanced Protection",
+    Enterprise: "Enterprise Security",
+  };
+  const emojiMap: Record<string, string> = {
+    Low: "🟥",
+    Medium: "🟨",
+    High: "🟩",
+    Enterprise: "💎",
+  };
+  const emoji = emojiMap[level] || "";
+  const name = map[level] || level;
+  return emoji ? `${emoji} ${name}` : name;
 };
 
 // Seed initial history if empty

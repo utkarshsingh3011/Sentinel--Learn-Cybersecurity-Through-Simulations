@@ -18,6 +18,7 @@ export default function CommandCenterPage() {
   const [selectedCampaign, setSelectedCampaign] = useState<StoredCampaign | null>(null);
   const [currentTime, setCurrentTime] = useState("");
   const [activeTab, setActiveTab] = useState<"all" | "blocked" | "successful">("all");
+  const [showAdvancedAnalytics, setShowAdvancedAnalytics] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
@@ -119,40 +120,40 @@ export default function CommandCenterPage() {
     if (successfulPhishing) {
       recs.push({
         id: "REC-PHISH",
-        title: "Enforce Hardware MFA Keys",
-        description: "Spearphishing simulations bypassed gateway boundaries. Upgrade authentication nodes to FIDO2 WebAuthn credentials to eliminate session hijacking vectors.",
+        title: "Require Multi-Factor Authentication (MFA)",
+        description: "Simulations show that attackers bypassed password security. Enforcing physical security keys or authenticator apps blocks 99% of phishing and password-theft attempts.",
         severity: "critical",
       });
     }
     if (successfulRansomware) {
       recs.push({
         id: "REC-RANSOM",
-        title: "Immutable Backup Vaults",
-        description: "Active directory token theft allowed ransomware propagation. Deploy off-site immutable backup policies and restrict local host write operations on system share directories.",
+        title: "Secure Off-site Backup Vaults",
+        description: "Attackers successfully encrypted data and systems. Creating secure, read-only backups that are physically separated from the network prevents ransom leverage and enables quick recovery.",
         severity: "critical",
       });
     }
     if (successfulSQLi) {
       recs.push({
         id: "REC-SQLI",
-        title: "Deploy API Gateway WAF",
-        description: "SQL Injection emulations successfully targeted core databases. Mandate parameterized query standards across build segments and enable WAF blocking rules.",
+        title: "Deploy a Web Application Firewall (WAF)",
+        description: "Database vulnerabilities allowed attackers to run unauthorized queries. Setting up a firewall prevents malicious database commands from reaching your servers.",
         severity: "high",
       });
     }
     if (successfulDDoS) {
       recs.push({
         id: "REC-DDOS",
-        title: "Buffer rate-limiting & CDN caching",
-        description: "DDoS floods caused memory exhaustions on router nodes. Apply traffic scrubbers and enable client rate-limiting on border edge components.",
+        title: "Enable Traffic Limiters & CDN Caching",
+        description: "Simulated traffic overloads crashed the network. Restricting how many requests a user can make at once keeps your website accessible during high-traffic surges.",
         severity: "medium",
       });
     }
     if (successfulSupplyChain) {
       recs.push({
         id: "REC-SUPPLY",
-        title: "Checksum Pinning & Package Scanners",
-        description: "Supply chain simulations injected unverified payloads. Mandate sha256 checksum verification on node packages and run static analyzers on builds.",
+        title: "Scan Third-Party Software Packages",
+        description: "Attackers injected malicious code into standard developer dependencies. Scanning and verifying third-party packages before installing them ensures no backdoors are introduced.",
         severity: "high",
       });
     }
@@ -160,8 +161,8 @@ export default function CommandCenterPage() {
     if (recs.length === 0) {
       recs.push({
         id: "REC-OK",
-        title: "Continuous Posture Auditing",
-        description: "All simulations successfully mitigated. Continue regular red-team schedules and run EDR zero-trust compliance posture audits weekly.",
+        title: "Regular Cybersecurity Audits",
+        description: "All simulations were successfully defended! Keep running regular test attacks and update software regularly to maintain this strong posture.",
         severity: "low",
       });
     }
@@ -228,16 +229,16 @@ export default function CommandCenterPage() {
         <div className="mb-8 p-5 rounded bg-cyber-surface/60 border border-cyber-border/80 text-xs text-slate-300 leading-relaxed max-w-4xl relative overflow-hidden space-y-3">
           <div className="absolute top-0 left-0 bottom-0 w-[3px] bg-cyber-cyan" />
           <div>
-            <strong className="text-white block mb-0.5">What is this?</strong>
-            A dashboard gathering aggregated statistics and logs from all simulations run on the platform.
+            <strong className="text-white block mb-0.5">Welcome to Mission Control</strong>
+            This panel aggregates data from all attack simulations run on SENTINEL. It acts as an educational dashboard designed to show how different defense strategies stand up to simulated hackers in real time.
           </div>
           <div>
-            <strong className="text-white block mb-0.5">Why does it matter?</strong>
-            It offers a bird&apos;s-eye view of your overall network defense health, attacker trends, and security gaps.
+            <strong className="text-white block mb-0.5">How this helps you</strong>
+            Whether you are a student, recruiter, or professor, you can instantly see which threat types (like Phishing or Ransomware) successfully penetrated our systems and which defense levels (from Basic to Enterprise) stopped them.
           </div>
           <div>
-            <strong className="text-white block mb-0.5">What can I do here?</strong>
-            Track the overall defense health score, review block rates for each attack type, and browse past simulation records.
+            <strong className="text-white block mb-0.5">Key Insights to Gain</strong>
+            Monitor the overall Security Health Score, inspect plain-English story cards for completed simulations, and apply dynamically recommended security improvements.
           </div>
         </div>
 
@@ -245,11 +246,14 @@ export default function CommandCenterPage() {
         <div className="mb-12 max-w-4xl">
           <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase mb-4">
             <Terminal className="w-3.5 h-3.5 text-cyber-cyan" />
-            Security Insights Dashboard: security-insights.exe
+            Cybersecurity Mission Control: mission-control.exe
           </div>
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase">
-            Security Insights Dashboard
+            Cybersecurity Mission Control
           </h1>
+          <p className="text-sm text-slate-400 mt-2 font-mono">
+            See how your simulated organization performs against cyberattacks and track your overall learning progress.
+          </p>
         </div>
 
         {/* Layout Grid */}
@@ -267,7 +271,7 @@ export default function CommandCenterPage() {
 
               <div className="w-full text-left">
                 <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-2">
-                  [01] OVERALL SECURITY SCORE
+                  [01] SECURITY HEALTH SCORE
                 </span>
               </div>
 
@@ -317,7 +321,7 @@ export default function CommandCenterPage() {
                   {statusInfo.label}
                 </div>
                 <p className="text-[10px] text-slate-400 font-sans mt-3 leading-relaxed text-left">
-                  <strong>Overall Security Score</strong>: Measures the percentage of attacks successfully blocked. A higher score indicates stronger overall defense.
+                  <strong>Security Health Score</strong>: The percentage of simulated attacks that were successfully blocked. A higher score means a more secure network.
                 </p>
               </div>
             </motion.div>
@@ -334,7 +338,7 @@ export default function CommandCenterPage() {
                 <div className="flex justify-between items-start">
                   <div>
                     <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      TOTAL RUNS
+                      Total Simulations Completed
                     </span>
                     <h3 className="text-4xl font-extrabold font-mono text-white mt-2">
                       <AnimatedCounter value={totalSimulations} />
@@ -345,7 +349,7 @@ export default function CommandCenterPage() {
                   </div>
                 </div>
                 <p className="text-[10px] text-slate-400 font-sans mt-4 border-t border-cyber-border/40 pt-4 leading-relaxed">
-                  Aggregated number of completed threat simulations across all configurations.
+                  The total number of cybersecurity simulations launched to test our systems.
                 </p>
               </motion.div>
 
@@ -359,7 +363,7 @@ export default function CommandCenterPage() {
                 <div className="flex justify-between items-start">
                   <div>
                     <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      HIGH RISK SIMULATIONS
+                      High Threat Scenarios Checked
                     </span>
                     <h3 className="text-4xl font-extrabold font-mono text-cyber-red mt-2">
                       <AnimatedCounter value={criticalThreats} />
@@ -370,7 +374,7 @@ export default function CommandCenterPage() {
                   </div>
                 </div>
                 <p className="text-[10px] text-slate-400 font-sans mt-4 border-t border-cyber-border/40 pt-4 leading-relaxed">
-                  <strong>Risk Score</strong>: Calculated based on attack severity, defense configurations, and potential business impact. Scores over 70% represent critical exposures.
+                  Simulations where the attack was highly dangerous due to the combination of threat severity and vulnerability.
                 </p>
               </motion.div>
 
@@ -384,7 +388,7 @@ export default function CommandCenterPage() {
                 <div className="flex justify-between items-start">
                   <div>
                     <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      SUCCESSFULLY STOPPED ATTACKS
+                      Defended Attacks
                     </span>
                     <h3 className="text-4xl font-extrabold font-mono text-cyber-green mt-2">
                       <AnimatedCounter value={blockedAttacks} />
@@ -395,7 +399,7 @@ export default function CommandCenterPage() {
                   </div>
                 </div>
                 <p className="text-[10px] text-slate-400 font-sans mt-4 border-t border-cyber-border/40 pt-4 leading-relaxed">
-                  <strong>Blocked Attacks</strong>: Simulations where SENTINEL's security configurations detected and stopped the intrusion path before the final target was reached.
+                  Attacks where our security systems successfully detected and stopped the intruder before they could reach critical data.
                 </p>
               </motion.div>
 
@@ -409,7 +413,7 @@ export default function CommandCenterPage() {
                 <div className="flex justify-between items-start">
                   <div>
                     <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      ATTACKS THAT BYPASSED SECURITY
+                      Bypassed Attacks
                     </span>
                     <h3 className="text-4xl font-extrabold font-mono text-cyber-red mt-2">
                       <AnimatedCounter value={successfulAttacks} />
@@ -420,157 +424,15 @@ export default function CommandCenterPage() {
                   </div>
                 </div>
                 <p className="text-[10px] text-slate-400 font-sans mt-4 border-t border-cyber-border/40 pt-4 leading-relaxed">
-                  <strong>Successful Attacks</strong>: Attacks that bypassed defenses to reach the final asset. These point to security policy vulnerabilities that need patching.
+                  Attacks that managed to break through our defenses. These reveal key security weaknesses that need to be fixed.
                 </p>
               </motion.div>
             </div>
           </div>
 
-          {/* Row 2: Heatmap & MITRE Coverage */}
+          {/* Row 2: Campaign History Narrative Cards & Recommendations */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-            {/* Industry Heatmap (5 cols) */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="lg:col-span-5 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
-            >
-              <div>
-                <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-4">
-                  [02] ATTACKED INDUSTRIES DISTRIBUTION
-                </span>
-                <p className="text-xs text-slate-400 mb-6 font-mono">
-                  Distribution tracking industry sector targeting frequency.
-                </p>
-
-                <div className="space-y-4">
-                  {industryCounts.map((ind) => {
-                    const percentage = maxIndustryCount > 0 ? (ind.count / maxIndustryCount) * 100 : 0;
-
-                    const getBarColor = (cnt: number) => {
-                      if (cnt >= 3) return "bg-cyber-red";
-                      if (cnt >= 1) return "bg-electric-blue";
-                      return "bg-slate-800";
-                    };
-
-                    const getIntensityLabel = (cnt: number) => {
-                      if (cnt >= 3) return "HIGH INTENSITY";
-                      if (cnt >= 1) return "TARGETED";
-                      return "MONITORED";
-                    };
-
-                    const getIntensityColor = (cnt: number) => {
-                      if (cnt >= 3) return "text-cyber-red border-cyber-red/20 bg-cyber-red/5";
-                      if (cnt >= 1) return "text-electric-blue border-electric-blue/20 bg-electric-blue/5";
-                      return "text-slate-500 border-slate-800 bg-slate-950/20";
-                    };
-
-                    return (
-                      <div key={ind.name} className="space-y-2">
-                        <div className="flex justify-between items-center text-[10px] font-mono">
-                          <span className="text-white font-bold uppercase">{ind.name}</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-slate-400">{ind.count} {ind.count === 1 ? "Attack" : "Attacks"}</span>
-                            <span className={`px-1 rounded border text-[8px] font-bold ${getIntensityColor(ind.count)}`}>
-                              {getIntensityLabel(ind.count)}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="h-2 bg-slate-950 border border-cyber-border rounded-full overflow-hidden">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${percentage}%` }}
-                            transition={{ duration: 0.8, ease: "easeOut" }}
-                            className={`h-full ${getBarColor(ind.count)}`}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="text-[9px] font-mono text-slate-500 uppercase mt-6 pt-4 border-t border-cyber-border/40">
-                ACTIVE FOCUS: DATABASE DIGITAL TWIN HOST TELEMETRY
-              </div>
-            </motion.div>
-
-            {/* MITRE ATT&CK Coverage (7 cols) */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="lg:col-span-7 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
-            >
-              <div>
-                <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-4">
-                  [03] ATTACK TECHNIQUES USED (MITRE ATT&CK)
-                </span>
-                <p className="text-xs text-slate-400 mb-6 font-mono">
-                  Technique block rate calculated across historical attack scenario simulations.
-                </p>
-
-                <motion.div
-                  className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-                  variants={containerVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                >
-                  {techniqueCoverage.map((tech) => {
-                    const getCoverageBadge = (cov: number) => {
-                      if (cov >= 75) return { text: "MITIGATED", style: "text-cyber-green border-cyber-green/30 bg-cyber-green/5" };
-                      if (cov >= 35) return { text: "MONITORED", style: "text-amber-500 border-amber-500/30 bg-amber-500/5" };
-                      return { text: "VULNERABLE", style: "text-cyber-red border-cyber-red/30 bg-cyber-red/5" };
-                    };
-
-                    const badge = getCoverageBadge(tech.coverage);
-
-                    return (
-                      <motion.div key={tech.code} variants={cardVariants} className="bg-black/35 p-3 rounded border border-cyber-border flex flex-col justify-between text-left font-mono">
-                        <div>
-                          <div className="flex justify-between items-start">
-                            <span className="text-cyber-cyan text-[10px] font-bold">{tech.code}</span>
-                            <span className={`px-1.5 py-0.5 rounded border text-[8px] font-bold ${badge.style}`}>
-                              {badge.text}
-                            </span>
-                          </div>
-                          <h4 className="text-white text-xs font-bold mt-2 uppercase truncate">{tech.name}</h4>
-                          <span className="text-slate-500 text-[8px] uppercase tracking-wider block mt-1">{tech.category}</span>
-                        </div>
-
-                        <div className="mt-4 space-y-1">
-                          <div className="flex justify-between text-[9px] text-slate-400">
-                            <span>Defensive Coverage</span>
-                            <span>{tech.coverage}%</span>
-                          </div>
-                          <div className="h-1 bg-slate-900 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full ${tech.coverage >= 75
-                                ? "bg-cyber-green"
-                                : tech.coverage >= 35
-                                  ? "bg-amber-500"
-                                  : "bg-cyber-red"
-                                }`}
-                              style={{ width: `${tech.coverage}%` }}
-                            />
-                          </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </motion.div>
-              </div>
-
-              <div className="text-[10px] text-slate-400 font-sans mt-6 pt-4 border-t border-cyber-border/40 leading-relaxed text-left">
-                <strong>Attack Coverage</strong>: Measures defensive readiness against specific attack patterns mapped to the MITRE ATT&CK framework. It shows the percentage of simulations blocked for each attack type.
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Row 3: Campaign History Table & Recommendations */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-            {/* Campaign Table (8 cols) */}
+            {/* Campaign History Cards (8 cols) */}
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
@@ -580,7 +442,7 @@ export default function CommandCenterPage() {
               <div>
                 <div className="flex justify-between items-center border-b border-cyber-border/40 pb-4 mb-6">
                   <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                    [04] PAST SIMULATION RECORDS
+                    [04] SIMULATION HISTORY & OUTCOMES
                   </span>
 
                   {/* Filters */}
@@ -595,82 +457,83 @@ export default function CommandCenterPage() {
                       onClick={() => setActiveTab("blocked")}
                       className={`px-2 py-0.5 rounded cursor-pointer ${activeTab === "blocked" ? "bg-cyber-green text-black font-bold" : "text-slate-400 hover:text-white"}`}
                     >
-                      BLOCKED
+                      DEFENDED
                     </button>
                     <button
                       onClick={() => setActiveTab("successful")}
                       className={`px-2 py-0.5 rounded cursor-pointer ${activeTab === "successful" ? "bg-cyber-red text-white" : "text-slate-400 hover:text-white"}`}
                     >
-                      SUCCESSFUL
+                      BYPASSED
                     </button>
                   </div>
                 </div>
 
-                <div className="overflow-x-auto w-full">
-                  <table className="w-full text-left font-mono text-[10px]">
-                    <thead>
-                      <tr className="border-b border-cyber-border/50 text-slate-500 text-[9px]">
-                        <th className="pb-3 uppercase tracking-wider">Simulation ID</th>
-                        <th className="pb-3 uppercase tracking-wider">Timestamp</th>
-                        <th className="pb-3 uppercase tracking-wider">Attacker Profile</th>
-                        <th className="pb-3 uppercase tracking-wider">Target Environment</th>
-                        <th className="pb-3 uppercase tracking-wider">Attack Scenario</th>
-                        <th className="pb-3 uppercase tracking-wider text-center">Risk Score</th>
-                        <th className="pb-3 uppercase tracking-wider text-right">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-cyber-border/20">
-                      {filteredHistory.length === 0 ? (
-                        <tr>
-                          <td colSpan={7} className="py-8 text-center text-slate-500 uppercase">
-                            No simulations recorded matching filter parameters.
-                          </td>
-                        </tr>
-                      ) : (
-                        filteredHistory.map((camp) => (
-                          <tr
-                            key={camp.id}
-                            onClick={() => setSelectedCampaign(camp)}
-                            className="hover:bg-slate-900/40 transition-colors cursor-pointer group"
-                          >
-                            <td className="py-3 text-cyber-cyan font-bold flex items-center gap-1">
-                              {camp.id}
-                              <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-cyber-cyan" />
-                            </td>
-                            <td className="py-3 text-slate-400">
-                              {new Date(camp.timestamp).toLocaleDateString()} {new Date(camp.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </td>
-                            <td className="py-3 text-slate-300 font-bold uppercase">{getActorName(camp.threatActor)}</td>
-                            <td className="py-3 text-slate-300 font-semibold uppercase">{camp.industry}</td>
-                            <td className="py-3 text-slate-400 uppercase truncate max-w-[120px]">{getAttackName(camp.attackType)}</td>
-                            <td className="py-3 text-center">
-                              <span className={`font-bold ${camp.riskScore >= 70 ? "text-cyber-red" : camp.riskScore >= 45 ? "text-amber-500" : "text-cyber-green"}`}>
+                <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
+                  {filteredHistory.length === 0 ? (
+                    <div className="py-8 text-center text-slate-500 uppercase font-mono text-[10px]">
+                      No simulations recorded matching filter parameters.
+                    </div>
+                  ) : (
+                    filteredHistory.map((camp) => {
+                      const isBlocked = camp.status === "Blocked";
+                      const dateStr = new Date(camp.timestamp).toLocaleDateString();
+                      const timeStr = new Date(camp.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                      return (
+                        <div
+                          key={camp.id}
+                          onClick={() => setSelectedCampaign(camp)}
+                          className="group border border-cyber-border hover:border-cyber-cyan/50 bg-black/35 hover:bg-slate-900/40 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer transition-all duration-200"
+                        >
+                          <div className="flex items-start md:items-center gap-3">
+                            <span className="text-lg mt-0.5 md:mt-0 select-none">
+                              {isBlocked ? "🟢" : "🔴"}
+                            </span>
+                            <div>
+                              <p className="text-xs text-white font-medium leading-relaxed">
+                                <span className="font-bold text-cyber-cyan group-hover:underline font-mono">
+                                  {camp.id}
+                                </span>{" "}
+                                — {getActorName(camp.threatActor)} targeted the{" "}
+                                <span className="font-semibold text-slate-200 uppercase">{camp.industry}</span> sector using a{" "}
+                                <span className="font-semibold text-slate-200 uppercase">{getAttackName(camp.attackType)}</span> attempt.
+                              </p>
+                              <div className="flex items-center gap-2 mt-1.5 text-[9px] text-slate-500 font-mono flex-wrap">
+                                <span>{dateStr} {timeStr}</span>
+                                <span>•</span>
+                                <span>Defense Level: <span className="text-slate-400 font-bold uppercase">{camp.securityLevel}</span></span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3 justify-between md:justify-end border-t md:border-t-0 border-cyber-border/20 pt-2 md:pt-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[9px] text-slate-500 font-mono uppercase">Risk Score:</span>
+                              <span className={`font-bold font-mono text-xs ${camp.riskScore >= 70 ? "text-cyber-red" : camp.riskScore >= 45 ? "text-amber-500" : "text-cyber-green"}`}>
                                 {camp.riskScore}%
                               </span>
-                            </td>
-                            <td className="py-3 text-right">
-                              <span className={`px-2 py-0.5 rounded border text-[8px] font-bold uppercase inline-block ${camp.status === "Blocked"
-                                ? "border-cyber-green/30 bg-cyber-green/10 text-cyber-green"
-                                : "border-cyber-red/30 bg-cyber-red/10 text-cyber-red"
-                                }`}>
-                                {camp.status}
-                              </span>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
+                            </div>
+                            <span className={`px-2 py-0.5 rounded border text-[8px] font-bold uppercase ${isBlocked
+                              ? "border-cyber-green/30 bg-cyber-green/10 text-cyber-green"
+                              : "border-cyber-red/30 bg-cyber-red/10 text-cyber-red"
+                              }`}>
+                              {isBlocked ? "Defended" : "Bypassed"}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </div>
 
               <div className="flex justify-between items-center text-[9px] font-mono text-slate-500 mt-6 pt-4 border-t border-cyber-border/40">
-                <span>SELECT ROW TO VIEW TIMELINE & REMEDIATION STAGES</span>
+                <span>SELECT A CARD TO VIEW THE ATTACK STORY & PREVENTION STEPS</span>
                 <button
                   onClick={refreshHistory}
-                  className="flex items-center gap-1 hover:text-white cursor-pointer transition-colors uppercase"
+                  className="flex items-center gap-1 hover:text-white cursor-pointer transition-colors uppercase font-bold"
                 >
-                  <RefreshCw className="w-3 h-3" />
+                  <RefreshCw className="w-3.5 h-3.5" />
                   Reload Records
                 </button>
               </div>
@@ -685,11 +548,11 @@ export default function CommandCenterPage() {
             >
               <div>
                 <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-4">
-                  [05] SECURITY RECOMMENDATIONS BRIEF
+                  [05] CRITICAL DEFENSE RECOMMENDATIONS
                 </span>
 
                 <motion.div
-                  className="space-y-4 max-h-[360px] overflow-y-auto pr-1"
+                  className="space-y-4 max-h-[480px] overflow-y-auto pr-1"
                   variants={containerVariants}
                   initial="hidden"
                   whileInView="visible"
@@ -711,7 +574,7 @@ export default function CommandCenterPage() {
                           <span className="text-[9px] text-slate-600 font-bold">{rec.id}</span>
                         </div>
                         <h4 className="text-white text-xs font-bold uppercase">{rec.title}</h4>
-                        <p className="text-[10px] text-slate-400 mt-2 leading-relaxed">
+                        <p className="text-[10px] text-slate-400 mt-2 leading-relaxed font-sans">
                           {rec.description}
                         </p>
                       </motion.div>
@@ -721,10 +584,175 @@ export default function CommandCenterPage() {
               </div>
 
               <div className="text-[9px] font-mono text-slate-500 uppercase mt-6 pt-4 border-t border-cyber-border/40">
-                TELEMETRY-BASED ADAPTIVE RECOMMENDATIONS
+                DYNAMIC ACTIONS GENERATED FROM SIMULATION RESULTS
               </div>
             </motion.div>
           </div>
+
+          {/* Advanced Analytics Toggle Button */}
+          <div className="flex justify-center pt-4">
+            <button
+              onClick={() => setShowAdvancedAnalytics(!showAdvancedAnalytics)}
+              className="flex items-center gap-2 px-6 py-3 rounded-xl border border-cyber-cyan/40 bg-cyber-cyan/5 hover:bg-cyber-cyan/15 text-cyber-cyan text-xs font-bold uppercase transition-all duration-300 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)] cursor-pointer"
+            >
+              <span>{showAdvancedAnalytics ? "Hide" : "View"} Advanced Threat & Industry Metrics</span>
+              <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${showAdvancedAnalytics ? "rotate-90" : "rotate-0"}`} />
+            </button>
+          </div>
+
+          {/* Collapsible Advanced Analytics Container */}
+          <AnimatePresence>
+            {showAdvancedAnalytics && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch pt-4">
+                  {/* Industry Heatmap (5 cols) */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="lg:col-span-5 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
+                  >
+                    <div>
+                      <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-4">
+                        [02] TARGET SECTORS & ATTACK FREQUENCY
+                      </span>
+                      <p className="text-xs text-slate-400 mb-6 font-mono">
+                        Tracks how often different industry sectors were targeted in simulations.
+                      </p>
+
+                      <div className="space-y-4">
+                        {industryCounts.map((ind) => {
+                          const percentage = maxIndustryCount > 0 ? (ind.count / maxIndustryCount) * 100 : 0;
+
+                          const getBarColor = (cnt: number) => {
+                            if (cnt >= 3) return "bg-cyber-red";
+                            if (cnt >= 1) return "bg-electric-blue";
+                            return "bg-slate-800";
+                          };
+
+                          const getIntensityLabel = (cnt: number) => {
+                            if (cnt >= 3) return "HIGH INTENSITY";
+                            if (cnt >= 1) return "TARGETED";
+                            return "MONITORED";
+                          };
+
+                          const getIntensityColor = (cnt: number) => {
+                            if (cnt >= 3) return "text-cyber-red border-cyber-red/20 bg-cyber-red/5";
+                            if (cnt >= 1) return "text-electric-blue border-electric-blue/20 bg-electric-blue/5";
+                            return "text-slate-500 border-slate-800 bg-slate-950/20";
+                          };
+
+                          return (
+                            <div key={ind.name} className="space-y-2">
+                              <div className="flex justify-between items-center text-[10px] font-mono">
+                                <span className="text-white font-bold uppercase">{ind.name}</span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-slate-400">{ind.count} {ind.count === 1 ? "Attack" : "Attacks"}</span>
+                                  <span className={`px-1 rounded border text-[8px] font-bold ${getIntensityColor(ind.count)}`}>
+                                    {getIntensityLabel(ind.count)}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="h-2 bg-slate-950 border border-cyber-border rounded-full overflow-hidden">
+                                <motion.div
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${percentage}%` }}
+                                  transition={{ duration: 0.8, ease: "easeOut" }}
+                                  className={`h-full ${getBarColor(ind.count)}`}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="text-[9px] font-mono text-slate-500 uppercase mt-6 pt-4 border-t border-cyber-border/40">
+                      ACTIVE FOCUS: DATABASE DIGITAL TWIN HOST TELEMETRY
+                    </div>
+                  </motion.div>
+
+                  {/* MITRE ATT&CK Coverage (7 cols) */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                    className="lg:col-span-7 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
+                  >
+                    <div>
+                      <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-4">
+                        [03] DEFENSIVE READINESS BREAKDOWN
+                      </span>
+                      <p className="text-xs text-slate-400 mb-6 font-mono">
+                        The success rate of our defensive configurations against specific attack types.
+                      </p>
+
+                      <motion.div
+                        className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                        variants={containerVariants}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                      >
+                        {techniqueCoverage.map((tech) => {
+                          const getCoverageBadge = (cov: number) => {
+                            if (cov >= 75) return { text: "MITIGATED", style: "text-cyber-green border-cyber-green/30 bg-cyber-green/5" };
+                            if (cov >= 35) return { text: "MONITORED", style: "text-amber-500 border-amber-500/30 bg-amber-500/5" };
+                            return { text: "VULNERABLE", style: "text-cyber-red border-cyber-red/30 bg-cyber-red/5" };
+                          };
+
+                          const badge = getCoverageBadge(tech.coverage);
+
+                          return (
+                            <motion.div key={tech.code} variants={cardVariants} className="bg-black/35 p-3 rounded border border-cyber-border flex flex-col justify-between text-left font-mono">
+                              <div>
+                                <div className="flex justify-between items-start">
+                                  <span className="text-cyber-cyan text-[10px] font-bold">{tech.code}</span>
+                                  <span className={`px-1.5 py-0.5 rounded border text-[8px] font-bold ${badge.style}`}>
+                                    {badge.text}
+                                  </span>
+                                </div>
+                                <h4 className="text-white text-xs font-bold mt-2 uppercase truncate">{tech.name}</h4>
+                                <span className="text-slate-500 text-[8px] uppercase tracking-wider block mt-1">{tech.category}</span>
+                              </div>
+
+                              <div className="mt-4 space-y-1">
+                                <div className="flex justify-between text-[9px] text-slate-400">
+                                  <span>Defensive Coverage</span>
+                                  <span>{tech.coverage}%</span>
+                                </div>
+                                <div className="h-1 bg-slate-900 rounded-full overflow-hidden">
+                                  <div
+                                    className={`h-full ${tech.coverage >= 75
+                                      ? "bg-cyber-green"
+                                      : tech.coverage >= 35
+                                        ? "bg-amber-500"
+                                        : "bg-cyber-red"
+                                      }`}
+                                    style={{ width: `${tech.coverage}%` }}
+                                  />
+                                </div>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                      </motion.div>
+                    </div>
+
+                    <div className="text-[10px] text-slate-400 font-sans mt-6 pt-4 border-t border-cyber-border/40 leading-relaxed text-left">
+                      <strong>Attack Coverage</strong>: Measures defensive readiness against specific attack patterns mapped to the MITRE ATT&CK framework. It shows the percentage of simulations blocked for each attack type.
+                    </div>
+                  </motion.div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </motion.div>
 
@@ -755,7 +783,7 @@ export default function CommandCenterPage() {
                     <Database className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-white font-bold text-sm uppercase">Simulation Details</h3>
+                    <h3 className="text-white font-bold text-sm uppercase">Simulation Summary</h3>
                     <span className="text-[9px] text-slate-500 font-bold uppercase">{selectedCampaign.id}</span>
                   </div>
                 </div>
@@ -819,8 +847,11 @@ export default function CommandCenterPage() {
                 {/* Simulation movie stages */}
                 <div className="space-y-4">
                   <span className="text-[9px] text-slate-500 uppercase tracking-widest block font-bold">
-                    [ STAGES TIMELINE TELEMETRY ]
+                    [ ATTACK STORY TIMELINE ]
                   </span>
+                  <p className="text-[10px] text-slate-400 -mt-2 leading-relaxed">
+                    A step-by-step breakdown of how the attack unfolded and where defenses reacted.
+                  </p>
 
                   <div className="border-l border-cyber-border pl-4 space-y-4 ml-2 text-[10px]">
                     {selectedCampaign.stages.map((stage, idx) => (
@@ -853,10 +884,10 @@ export default function CommandCenterPage() {
                 <div className="border-t border-cyber-border/50 pt-6">
                   <div className="flex items-center gap-2 text-cyber-cyan text-[10px] uppercase font-bold mb-3">
                     <Brain className="w-3.5 h-3.5" />
-                    Gemini AI Remediation Analysis
+                    Gemini AI Prevention Guide
                   </div>
-                  <p className="text-[10px] text-slate-400 leading-relaxed mb-4">
-                    Synthesize simulation logs using Gemini&apos;s AI model to compile a customized mitigation plan. Automatically generates command-line scripts to secure your virtual system.
+                  <p className="text-[10px] text-slate-400 leading-relaxed mb-4 font-sans">
+                    Generate a plain-English explanation of this attack and receive a step-by-step prevention guide using Gemini AI.
                   </p>
 
                   <Link
@@ -864,10 +895,10 @@ export default function CommandCenterPage() {
                     className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded border border-cyber-cyan bg-cyber-cyan/15 hover:bg-cyber-cyan/25 text-cyber-cyan text-xs font-bold uppercase transition-all duration-300 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)] text-center cursor-pointer"
                   >
                     <Brain className="w-4 h-4 text-cyber-cyan animate-pulse" />
-                    Analyze Simulation (Gemini AI)
+                    Generate AI Prevention Guide (Gemini)
                   </Link>
                   <span className="text-[8px] text-cyber-green text-center block mt-2 font-semibold">
-                    ACTIVE TELEMETRY READY - CLICK TO EXECUTE ANALYSIS
+                    AI ANALYSIS READY - CLICK TO VIEW GUIDE
                   </span>
                 </div>
               </div>
