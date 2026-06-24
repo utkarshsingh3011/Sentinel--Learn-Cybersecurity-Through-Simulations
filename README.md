@@ -73,20 +73,6 @@ The goal is education and awareness, not offensive security.
 * Tailwind CSS
 * Framer Motion
 * GSAP
-* Vercel
-
----
-
-## What I Learned
-
-Building Sentinel helped me strengthen my understanding of:
-
-* Cybersecurity fundamentals
-* Threat modeling concepts
-* Frontend architecture
-* UI/UX design
-* Interactive learning systems
-* React and TypeScript development
 
 ---
 
