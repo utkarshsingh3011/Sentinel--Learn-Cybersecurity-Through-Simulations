@@ -57,7 +57,7 @@ const FEATURES = [
         <div className="space-y-1">
           <div className="text-[8px] text-slate-500">ASSET INGESTION</div>
           <div className="text-white flex items-center gap-1">
-            <Cpu className="w-3 h-3 text-cyber-green" /> 1,420 Active Nodes
+            <Cpu className="w-3 h-3 text-cyber-green" /> 15 Active Virtual Nodes
           </div>
         </div>
         <div className="px-2 py-1 rounded bg-cyber-green/5 border border-cyber-green/30 text-cyber-green font-bold text-[8px]">

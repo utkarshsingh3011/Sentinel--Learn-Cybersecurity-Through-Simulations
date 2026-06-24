@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import JourneyStepper from "../../components/JourneyStepper";
 import {
   ArrowLeft, Brain, ShieldAlert, Layers, AlertTriangle,
   FileText, Download, Printer, ChevronRight, TrendingUp, Shield,
@@ -650,9 +651,9 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
             </span>
           </span>
           <div className="space-y-1">
-            <div className="font-extrabold text-white uppercase tracking-[0.12em]">AI Threat Analysis Active</div>
+            <div className="font-extrabold text-white uppercase tracking-[0.12em]">Threat Review Processing</div>
             <div className="text-[9px] text-slate-500 uppercase tracking-widest leading-relaxed">
-            Querying Gemini Security Telemetry nodes & compiling TTP brief...
+            Consulting security mentor & compiling review...
             </div>
           </div>
         </div>
@@ -695,7 +696,7 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
             className="inline-flex items-center gap-2 text-slate-400 hover:text-white uppercase transition-colors group"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-            Command Center
+            Learning Journal
           </Link>
 
           <div className="flex items-center gap-4 text-slate-400 tracking-wider">
@@ -704,21 +705,22 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-cyan opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-cyber-cyan"></span>
               </span>
-              AI Security Assistant
+              Security Mentor Review
             </span>
-            <LiveClock />
           </div>
         </div>
+
+        <JourneyStepper currentStep={3} />
 
         {/* Title Header - print:hidden */}
         <div className="mb-10 max-w-4xl print:hidden flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase font-bold">
               <Brain className="w-3.5 h-3.5 text-cyber-cyan animate-pulse" />
-              Interactive Cybersecurity Walkthrough
+              Security Mentor Review
             </div>
             <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase font-sans">
-              Simulation Results
+              Simulation Review
             </h1>
             <p className="text-sm text-slate-400 max-w-2xl leading-relaxed font-sans">
               See how the attack unfolded, what impact it had, and how security defenses responded.
@@ -799,226 +801,267 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
           </div>
         </div>
 
-        {/* Unified Single-Column Flow Layou        {/* Unified Single-Column Flow Layout */}
+        {/* Unified Single-Column Flow        {/* Unified Single-Column Flow Layout */}
         <div className="space-y-10 max-w-5xl mx-auto">
           
-          {/* Panel 1: Simulation Verdict & AI Explanation */}
+          {/* 1. What Happened? */}
           <motion.section
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative"
           >
             <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent" />
-            
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-cyber-border/40 pb-4 mb-6">
-              <div className="flex items-center gap-2">
-                <Brain className="w-4 h-4 text-cyber-cyan" />
-                <h3 className="text-white font-bold text-xs uppercase tracking-widest font-mono">
-                  Simulation Outcome & Verdict
-                </h3>
-              </div>
-              <div>
-                {reportData.status === "Blocked" ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded border border-cyber-green/40 bg-cyber-green/10 text-cyber-green text-xs font-mono font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.15)]">
-                    🟢 Attack Contained
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded border border-cyber-red/40 bg-cyber-red/10 text-cyber-red text-xs font-mono font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(244,63,94,0.15)]">
-                    🔴 System Compromised
-                  </span>
-                )}
-              </div>
+            <div className="flex items-center gap-2 border-b border-cyber-border/40 pb-4 mb-6">
+              <span className="text-cyber-cyan font-mono text-[10px] uppercase font-bold tracking-wider">🕵️ 1. What Happened?</span>
             </div>
-
             <div className="space-y-4 font-sans text-xs leading-relaxed text-slate-300">
+              <p className="text-slate-200 text-sm font-semibold leading-relaxed">
+                {attackAttempt} {finalOutcome}
+              </p>
               <div className="p-4 rounded-lg bg-cyber-surface/40 border border-cyber-border/60">
-                <strong className="text-white font-mono text-[9px] uppercase tracking-wider block mb-1 text-cyber-cyan">AI Mentor Analysis</strong>
-                <p className="text-slate-200 text-sm font-semibold leading-relaxed">
-                  {reportData.executiveSummary}
-                </p>
+                <strong className="text-white font-mono text-[9px] uppercase tracking-wider block mb-1 text-cyber-cyan">Scenario Overview</strong>
+                <p className="text-slate-300">{reportData.executiveSummary}</p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[10px] font-mono text-slate-400">
+              {/* Milestones timeline embedded here */}
+              <div className="mt-6">
+                <span className="text-slate-500 font-mono text-[9px] uppercase tracking-widest block font-bold mb-4">Progression Milestones</span>
+                {(() => {
+                  const stages = reportData.stages;
+                  const isStep1Blocked = stages[0]?.status === "blocked" || stages[1]?.status === "blocked";
+                  const isStep2Blocked = !isStep1Blocked && (stages[2]?.status === "blocked" || stages[3]?.status === "blocked" || stages[4]?.status === "blocked");
+                  const isStep3Blocked = !isStep1Blocked && !isStep2Blocked && (stages[5]?.status === "blocked");
+
+                  const milestones = [
+                    {
+                      title: "Milestone 1: Looking for Entry (Ingress)",
+                      desc: `Attacker performed network scans and delivered payloads via ${reportData.vectorName}.`,
+                      status: isStep1Blocked ? "Stopped" : "Successful"
+                    },
+                    {
+                      title: "Milestone 2: Pivoting Inside (Lateral Movement & Escalation)",
+                      desc: "Attacker searched memory for credentials and pivoted lateral to secure server zones.",
+                      status: isStep1Blocked ? "Unreached" : isStep2Blocked ? "Stopped" : "Successful"
+                    },
+                    {
+                      title: "Milestone 3: Data Target (Exfiltration & System Ransom)",
+                      desc: "Attacker reached the target directory to copy files and lock system directories.",
+                      status: (isStep1Blocked || isStep2Blocked) ? "Unreached" : isStep3Blocked ? "Stopped" : "Successful"
+                    }
+                  ];
+
+                  return (
+                    <div className="relative border-l border-cyber-border/80 pl-6 space-y-4 ml-3">
+                      {milestones.map((milestone, idx) => {
+                        const stepStatus = milestone.status;
+                        return (
+                          <div key={idx} className={`relative transition-all duration-300 ${stepStatus === "Unreached" ? "opacity-30" : "opacity-100"}`}>
+                            <span className={`absolute -left-[31px] top-1.5 w-4.5 h-4.5 rounded-full border flex items-center justify-center font-mono text-[8px] font-bold ${
+                              stepStatus === "Stopped"
+                                ? "bg-black border-cyber-green text-cyber-green shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                                : stepStatus === "Successful"
+                                  ? "bg-cyber-red border-cyber-red text-black"
+                                  : "bg-slate-950 border-slate-800 text-slate-650"
+                            }`}>
+                              {idx + 1}
+                            </span>
+                            <div className="p-3.5 rounded-lg bg-cyber-surface/30 border border-cyber-border/40 flex justify-between items-center gap-4">
+                              <div className="font-sans text-xs">
+                                <h5 className="font-bold text-white font-mono uppercase tracking-wide text-[10px]">{milestone.title}</h5>
+                                <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">{milestone.desc}</p>
+                              </div>
+                              <div className="shrink-0 font-mono text-[8px] font-bold uppercase tracking-wider">
+                                {stepStatus === "Stopped" && <span className="text-cyber-green">🟢 Stopped</span>}
+                                {stepStatus === "Successful" && <span className="text-cyber-red">🔴 Succeeded</span>}
+                                {stepStatus === "Unreached" && <span className="text-slate-500">⚪ Unreached</span>}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[10px] font-mono text-slate-400 pt-4">
                 <div className="bg-black/35 p-3 rounded border border-cyber-border">
-                  <span className="text-slate-505 uppercase block text-[8px] text-slate-500">TARGET ENVIRONMENT</span>
+                  <span className="text-slate-500 uppercase block text-[8px]">TARGET ENVIRONMENT</span>
                   <span className="text-white font-bold block mt-1 uppercase">{reportData.industryName} ({reportData.targetName})</span>
                 </div>
                 <div className="bg-black/35 p-3 rounded border border-cyber-border">
-                  <span className="text-slate-505 uppercase block text-[8px] text-slate-500">ATTACKER GROUP</span>
+                  <span className="text-slate-500 uppercase block text-[8px]">ATTACKER GROUP</span>
                   <span className="text-white font-bold block mt-1 uppercase">{reportData.actorName}</span>
                 </div>
                 <div className="bg-black/35 p-3 rounded border border-cyber-border">
-                  <span className="text-slate-505 uppercase block text-[8px] text-slate-500">ENTRY METHOD</span>
+                  <span className="text-slate-500 uppercase block text-[8px]">ENTRY METHOD</span>
                   <span className="text-white font-bold block mt-1 uppercase">{reportData.vectorName}</span>
                 </div>
               </div>
             </div>
           </motion.section>
 
-          {/* Panel 2: Simulation Impact & Prevention Index */}
-          <motion.section
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
-          >
-            {/* Financial Card */}
-            <div className="glassmorphism-card rounded-xl p-4 border border-cyber-border flex flex-col justify-between h-[115px]">
-              <div>
-                <span className="text-slate-505 font-mono text-[9px] uppercase tracking-wider block font-bold text-slate-500">💰 Financial Liability</span>
-                <div className="text-cyber-red text-sm font-extrabold mt-1 uppercase font-mono">
-                  {reportData.financialLoss.includes("(") ? reportData.financialLoss.split(" ")[0] : reportData.financialLoss}
-                </div>
-              </div>
-              <p className="text-slate-400 text-[9px] leading-tight">
-                Potential remediation & recovery fees.
-              </p>
-            </div>
-
-            {/* Downtime Card */}
-            <div className="glassmorphism-card rounded-xl p-4 border border-cyber-border flex flex-col justify-between h-[115px]">
-              <div>
-                <span className="text-slate-505 font-mono text-[9px] uppercase tracking-wider block font-bold text-slate-500">⏱️ Operational Downtime</span>
-                <div className="text-cyber-cyan text-sm font-extrabold mt-1 uppercase font-mono">
-                  {reportData.downtime}
-                </div>
-              </div>
-              <p className="text-slate-400 text-[9px] leading-tight">
-                Infrastructure restoration delay duration.
-              </p>
-            </div>
-
-            {/* Recommended Fix Card */}
-            <div className="glassmorphism-card rounded-xl p-4 border border-cyber-border flex flex-col justify-between h-[115px]">
-              <div>
-                <span className="text-slate-505 font-mono text-[9px] uppercase tracking-wider block font-bold text-slate-500">🛡️ Recommended Fix</span>
-                <div className="text-white text-[11px] font-bold mt-1 uppercase truncate font-mono" title={
-                  reportData.mitigations && reportData.mitigations.length > 0
-                    ? reportData.mitigations[0].split(":")[0]
-                    : getPreventionSuite(reportData.vectorId)[0].title
-                }>
-                  {
-                    reportData.mitigations && reportData.mitigations.length > 0
-                      ? reportData.mitigations[0].split(":")[0]
-                      : getPreventionSuite(reportData.vectorId)[0].title
-                  }
-                </div>
-              </div>
-              <p className="text-slate-400 text-[9px] leading-tight truncate">
-                {
-                  reportData.mitigations && reportData.mitigations.length > 0
-                    ? reportData.mitigations[0].split(":").slice(1).join(":")
-                    : getPreventionSuite(reportData.vectorId)[0].why
-                }
-              </p>
-            </div>
-
-            {/* Risk Reduction Card */}
-            <div className="glassmorphism-card rounded-xl p-4 border border-cyber-green/30 bg-cyber-green/5 flex flex-col justify-between h-[115px]">
-              <div>
-                <span className="text-cyber-green font-mono text-[9px] uppercase tracking-wider block font-bold">⚡ Risk Mitigated</span>
-                <div className="text-cyber-green text-sm font-extrabold mt-1 font-mono">
-                  +{reportData.riskReduction}% Security
-                </div>
-              </div>
-              <p className="text-slate-400 text-[9px] leading-tight">
-                Current Risk: {reportData.currentRisk}% → Projected: {reportData.projectedRisk}%
-              </p>
-            </div>
-          </motion.section>
-
-          {/* Panel 3: Simplified 3-Step Timeline */}
+          {/* 2. Why Was It Successful/Blocked? */}
           <motion.section
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative"
           >
             <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent" />
-            <div className="flex items-center justify-between border-b border-cyber-border/40 pb-3 mb-6">
-              <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-cyber-cyan animate-pulse" />
-                <h3 className="text-white font-bold text-xs uppercase tracking-widest font-mono">
-                  Simulation Progression Timeline
-                </h3>
-              </div>
-              <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Condensed Milestones</span>
+            <div className="flex items-center gap-2 border-b border-cyber-border/40 pb-4 mb-6">
+              <span className="text-cyber-cyan font-mono text-[10px] uppercase font-bold tracking-wider">🛡️ 2. Why Was It Successful or Blocked?</span>
             </div>
+            <div className="space-y-4 font-sans text-xs leading-relaxed text-slate-300">
+              <p className="text-slate-200 text-sm font-semibold leading-relaxed">
+                {defenseResponse}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                <div className="bg-black/35 p-4 rounded border border-cyber-border">
+                  <span className="text-slate-500 uppercase block font-mono text-[8px] font-bold">Defensive Posture Level</span>
+                  <span className="text-cyber-cyan font-extrabold block mt-1 uppercase text-sm font-mono">
+                    {getSecurityLevelName(reportData.securityLevel)} Protection
+                  </span>
+                  <p className="text-slate-400 text-[10px] mt-1.5 leading-normal">
+                    This setting governs which alert policies, block triggers, and verification checkpoints were enabled during the simulation.
+                  </p>
+                </div>
+                <div className="bg-black/35 p-4 rounded border border-cyber-border">
+                  <span className="text-slate-500 uppercase block font-mono text-[8px] font-bold">Compromise Vulnerability</span>
+                  <span className={`font-extrabold block mt-1 uppercase text-sm font-mono ${reportData.status === "Blocked" ? "text-cyber-green" : "text-cyber-red"}`}>
+                    {reportData.status === "Blocked" ? "Fully Protected" : "Exposed Vulnerabilities"}
+                  </span>
+                  <p className="text-slate-400 text-[10px] mt-1.5 leading-normal">
+                    {reportData.status === "Blocked" 
+                      ? "The defense mechanisms successfully matched threat behavior patterns and immediately isolated the host." 
+                      : "Unsecured paths or lack of strict access rules allowed the adversary payload to bypass endpoint monitoring."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.section>
 
-            {(() => {
-              const stages = reportData.stages;
-              const isStep1Blocked = stages[0]?.status === "blocked" || stages[1]?.status === "blocked";
-              const isStep2Blocked = !isStep1Blocked && (stages[2]?.status === "blocked" || stages[3]?.status === "blocked" || stages[4]?.status === "blocked");
-              const isStep3Blocked = !isStep1Blocked && !isStep2Blocked && (stages[5]?.status === "blocked");
+          {/* 3. What Was The Impact? */}
+          <motion.section
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative"
+          >
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent" />
+            <div className="flex items-center gap-2 border-b border-cyber-border/40 pb-4 mb-6">
+              <span className="text-cyber-cyan font-mono text-[10px] uppercase font-bold tracking-wider">💰 3. What Was The Impact?</span>
+            </div>
+            
+            <div className="space-y-6">
+              {/* Metrics row */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-black/35 p-4 rounded border border-cyber-border">
+                  <span className="text-slate-500 font-mono text-[8px] uppercase tracking-wider block font-bold">💰 Financial Liability</span>
+                  <div className="text-cyber-red text-base font-extrabold mt-1 font-mono">
+                    {reportData.financialLoss.includes("(") ? reportData.financialLoss.split(" ")[0] : reportData.financialLoss}
+                  </div>
+                  <span className="text-slate-400 text-[9px] block mt-1 leading-tight">Estimated forensic & penalty costs.</span>
+                </div>
+                <div className="bg-black/35 p-4 rounded border border-cyber-border">
+                  <span className="text-slate-500 font-mono text-[8px] uppercase tracking-wider block font-bold">⏱️ Operational Downtime</span>
+                  <div className="text-cyber-cyan text-base font-extrabold mt-1 font-mono">
+                    {reportData.downtime}
+                  </div>
+                  <span className="text-slate-400 text-[9px] block mt-1 leading-tight">Critical business system recovery duration.</span>
+                </div>
+                <div className="bg-black/35 p-4 rounded border border-cyber-green/30 bg-cyber-green/5">
+                  <span className="text-cyber-green font-mono text-[8px] uppercase tracking-wider block font-bold">⚡ Risk Mitigated</span>
+                  <div className="text-cyber-green text-base font-extrabold mt-1 font-mono">
+                    +{reportData.riskReduction}% Security
+                  </div>
+                  <span className="text-slate-400 text-[9px] block mt-1 leading-tight">Projected risk index reduction rate.</span>
+                </div>
+              </div>
 
-              const milestones = [
-                {
-                  title: "Milestone 1: Looking for Entry (Ingress Attempt)",
-                  desc: `Attacker performed scanning and executed initial entry payloads via ${reportData.vectorName}.`,
-                  status: isStep1Blocked ? "Stopped" : "Successful"
-                },
-                {
-                  title: "Milestone 2: Pivoting Inside (Lateral Movement & Escalation)",
-                  desc: "Attacker attempted credential harvesting, host token manipulation, and lateral pivots to secure server zones.",
-                  status: isStep1Blocked ? "Unreached" : isStep2Blocked ? "Stopped" : "Successful"
-                },
-                {
-                  title: "Milestone 3: Data Target (Exfiltration & System Ransom)",
-                  desc: "Attacker targeted core operational files to compress databases for exfiltration and execute locking scripts.",
-                  status: (isStep1Blocked || isStep2Blocked) ? "Unreached" : isStep3Blocked ? "Stopped" : "Successful"
-                }
-              ];
+              {/* Assessment details */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-sans">
+                <div className="p-3.5 rounded bg-cyber-surface/30 border border-cyber-border/40">
+                  <h5 className="font-bold text-white font-mono uppercase text-[9px] tracking-wide text-cyber-cyan mb-1">Operational Assessment</h5>
+                  <p className="text-slate-300 leading-relaxed text-[11px]">{reportData.operationalImpact}</p>
+                </div>
+                <div className="p-3.5 rounded bg-cyber-surface/30 border border-cyber-border/40">
+                  <h5 className="font-bold text-white font-mono uppercase text-[9px] tracking-wide text-cyber-cyan mb-1">Financial Assessment</h5>
+                  <p className="text-slate-300 leading-relaxed text-[11px]">{reportData.financialLoss}</p>
+                </div>
+              </div>
+            </div>
+          </motion.section>
 
-              return (
-                <div className="relative border-l border-cyber-border/80 pl-6 space-y-6 ml-3">
-                  {milestones.map((milestone, idx) => {
-                    const stepStatus = milestone.status;
-                    return (
-                      <div key={idx} className={`relative transition-all duration-300 ${stepStatus === "Unreached" ? "opacity-30" : "opacity-100"}`}>
-                        <span className={`absolute -left-[31px] top-1.5 w-4.5 h-4.5 rounded-full border flex items-center justify-center font-mono text-[8px] font-bold ${
-                          stepStatus === "Stopped"
-                            ? "bg-black border-cyber-green text-cyber-green shadow-[0_0_10px_rgba(16,185,129,0.3)]"
-                            : stepStatus === "Successful"
-                              ? "bg-cyber-red border-cyber-red text-black"
-                              : "bg-slate-955 border-slate-800 text-slate-600"
-                        }`}>
-                          {idx + 1}
-                        </span>
-
-                        <div className="p-4 rounded-lg bg-cyber-surface/30 border border-cyber-border/40 flex flex-wrap md:flex-nowrap gap-4 justify-between items-center">
-                          <div className="space-y-1 font-sans text-xs flex-grow">
-                            <h4 className="text-xs font-bold text-white font-mono uppercase tracking-wide">{milestone.title}</h4>
-                            <p className="text-[11px] text-slate-400 leading-relaxed font-sans">{milestone.desc}</p>
-                          </div>
-
-                          <div className="shrink-0 pt-0.5 font-mono">
-                            {stepStatus === "Stopped" && (
-                              <span className="px-2 py-0.5 rounded border border-cyber-green/30 bg-cyber-green/10 text-cyber-green text-[8px] font-bold uppercase tracking-wider">
-                                🟢 Stopped
-                              </span>
-                            )}
-                            {stepStatus === "Successful" && (
-                              <span className="px-2 py-0.5 rounded border border-cyber-red/30 bg-cyber-red/10 text-cyber-red text-[8px] font-bold uppercase tracking-wider">
-                                🔴 Successful
-                              </span>
-                            )}
-                            {stepStatus === "Unreached" && (
-                              <span className="px-2 py-0.5 rounded border border-slate-800 bg-slate-900/50 text-slate-500 text-[8px] font-bold uppercase tracking-wider">
-                                ⚪ Unreached
-                              </span>
-                            )}
-                          </div>
+          {/* 4. What Could Have Prevented It? */}
+          <motion.section
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative"
+          >
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent" />
+            <div className="flex items-center gap-2 border-b border-cyber-border/40 pb-4 mb-6">
+              <span className="text-cyber-cyan font-mono text-[10px] uppercase font-bold tracking-wider">🛑 4. What Could Have Prevented It?</span>
+            </div>
+            
+            <div className="space-y-4">
+              <p className="text-[11px] text-slate-405 font-sans leading-relaxed">
+                Applying the following security controls would have blocked the vectors simulated during this simulation:
+              </p>
+              
+              <div className="space-y-3">
+                {reportData.mitigations.map((mitigation, idx) => {
+                  const parts = mitigation.split(":");
+                  const title = parts[0] || "Security Control";
+                  const desc = parts.slice(1).join(":") || mitigation;
+                  return (
+                    <div key={idx} className="p-3.5 rounded bg-cyber-surface/30 border border-cyber-border/40 flex items-start gap-3">
+                      <div className="pt-0.5 shrink-0">
+                        <div className="w-4.5 h-4.5 rounded border border-cyber-cyan/40 bg-cyber-cyan/5 flex items-center justify-center font-bold text-cyber-cyan text-[9px]">
+                          ✓
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              );
-            })()}
+                      <div className="font-sans text-xs">
+                        <strong className="text-white font-mono text-[10px] uppercase tracking-wider block">{title}</strong>
+                        <p className="text-slate-400 text-[11px] mt-0.5 leading-normal">{desc}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.section>
+
+          {/* 5. What Should You Learn? */}
+          <motion.section
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative"
+          >
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent" />
+            <div className="flex items-center gap-2 border-b border-cyber-border/40 pb-4 mb-6">
+              <span className="text-cyber-cyan font-mono text-[10px] uppercase font-bold tracking-wider">🎓 5. What Should You Learn?</span>
+            </div>
+            
+            <div className="space-y-4 font-sans text-xs leading-relaxed text-slate-300">
+              <div className="p-4 rounded bg-cyber-surface/40 border border-cyber-border/60">
+                <span className="text-white font-mono text-[9px] uppercase tracking-wider block font-bold text-cyber-cyan mb-1">Key Takeaway</span>
+                <p className="text-slate-200 text-[12px] font-semibold leading-relaxed">
+                  {getWhatYouLearnedSummary(reportData.vectorId)}
+                </p>
+              </div>
+
+              <div className="p-4 rounded bg-cyber-cyan/5 border border-cyber-cyan/20">
+                <span className="text-cyber-cyan font-mono text-[9px] uppercase tracking-wider block font-bold mb-1">Lab Learning Outcome</span>
+                <p className="text-slate-300 text-[11px] leading-relaxed">
+                  {getEstimatedLearningOutcome(reportData.vectorId)}
+                </p>
+              </div>
+            </div>
           </motion.section>
 
           {/* Section 6 & 7: Collapsible Technical Threat Intelligence */}
           <div className="w-full">
             <div className="p-5 rounded-lg border border-cyber-border bg-cyber-surface/30 mb-4 text-left print:hidden">
-              <h4 className="text-white font-mono text-xs uppercase font-bold tracking-wider">Advanced Cybersecurity Concepts (Technical Reference)</h4>
+              <h4 className="text-white font-mono text-xs uppercase font-bold tracking-wider">Advanced Technical Details</h4>
               <p className="text-[10px] text-slate-400 mt-1 font-sans">
                 For cybersecurity learners, analysts, and recruiters interested in deeper technical details.
               </p>
@@ -1027,7 +1070,7 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
                 className="mt-3 py-2 px-4 rounded border border-cyber-cyan/35 bg-cyber-cyan/10 hover:bg-cyber-cyan/20 text-cyber-cyan hover:text-white flex items-center gap-2 font-mono text-[9px] uppercase tracking-wider transition-all duration-300 hover:cursor-pointer font-bold"
               >
                 <Layers className="w-3.5 h-3.5 text-cyber-cyan animate-pulse" />
-                <span>{isTechnicalExpanded ? "Hide Advanced Cybersecurity Concepts (Technical Reference)" : "View Advanced Cybersecurity Concepts (Technical Reference)"}</span>
+                <span>{isTechnicalExpanded ? "[-] Hide Advanced Technical Details" : "[+] View Advanced Technical Details"}</span>
               </button>
             </div>
 
@@ -1215,15 +1258,15 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyber-cyan/20 to-transparent" />
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-500 tracking-wider uppercase">
           <div>
-            <span className="text-white font-bold tracking-[0.2em]">SENTINEL PLATFORM</span>
-            <span className="ml-2">© {new Date().getFullYear()} Sentinel Cyber Inc.</span>
+            <span className="text-white font-bold tracking-[0.2em]">SENTINEL</span>
+            <span className="ml-2">Student Project | EEE Lab</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-green opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-cyber-green"></span>
             </span>
-            <span>INTEL ENCRYPT SYNC: COMPLETED</span>
+            <span>LEARNING SYSTEM ACTIVE</span>
           </div>
         </div>
       </footer>

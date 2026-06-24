@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { saveCampaignToHistory, getFriendlySimulationName, getActorName, getAttackName, getIndustryName, getSecurityLevelName } from "../../components/campaignStore";
+import JourneyStepper from "../../components/JourneyStepper";
 import AnimatedCounter from "../../components/AnimatedCounter";
 import {
   Play, Pause, RotateCcw, ArrowLeft, Terminal,
@@ -329,59 +330,73 @@ export default function AttackViewerPage() {
   const getStoryboardEvent = (stageIdx: number, status?: "blocked" | "evaded" | "alerted", attackType?: string) => {
     const isBlocked = status === "blocked";
     
-    let attackerDoing = "";
-    let attackerWhy = "";
-    let whatNext = "";
+    let whatHappened = "";
+    let whyItHappened = "";
+    let howItSpread = "";
+    let whatAttackerWanted = "";
     let securityResponse = "";
+    let howPrevented = "";
 
     switch (stageIdx) {
       case 0:
-        attackerDoing = "Scanning network boundaries to identify active computers and open ports.";
-        attackerWhy = "To locate open doors and map the network layout before launching an exploit.";
-        whatNext = "The attacker will attempt to deliver a malicious payload to gain entry.";
+        whatHappened = "The attacker scanned the public network endpoints of the system.";
+        whyItHappened = "Public-facing ports or configuration details were left open, allowing automated discovery scripts to log response codes.";
+        howItSpread = "The scan stayed on the perimeter, searching for service versions and unpatched entry routes.";
+        whatAttackerWanted = "To locate an active network interface or misconfigured port that could be exploited.";
         securityResponse = isBlocked
-          ? "The firewall immediately detected the scan patterns, flagged the attacker's IP, and blocked all further requests."
-          : "The perimeter checks failed to flag the scan, allowing the attacker to map the target network segment successfully.";
+          ? "The firewall immediately detected the aggressive scan patterns, logged the attacker's IP, and blocked further probes."
+          : "Perimeter monitoring failed to flag the scan, leaving the map of target network segments visible to the threat actor.";
+        howPrevented = "Regular external security assessments, closing unused ports, and setting up automated block rules for rapid scanning behavior.";
         break;
       case 1:
-        attackerDoing = `Attempting to gain entry using the attack method (${attackType}).`;
-        attackerWhy = "To establish an active connection inside the network and bypass outer perimeter controls.";
-        whatNext = "The attacker will attempt to harvest passwords and authentication keys from memory.";
+        whatHappened = `The attacker attempted to gain entry using the selected attack method (${attackType}).`;
+        whyItHappened = "Defensive gateway filters did not flag the malicious input vector or email payload before it reached its target.";
+        howItSpread = "The malicious package or connection script successfully executed, establishing a reverse terminal channel.";
+        whatAttackerWanted = "To establish an active connection inside the network and bypass outer perimeter controls.";
         securityResponse = isBlocked
           ? "The security gateway intercepted the malicious traffic or email link, blocking execution and terminating the connection."
           : "The security filters failed to block the payload, allowing the attacker to establish a silent connection inside the system.";
+        howPrevented = "Deploying multi-factor authentication, email filters, and strict application control lists to block unrecognized executables.";
         break;
       case 2:
-        attackerDoing = "Searching system memory (e.g. LSASS dumps) for active login passwords and session keys.";
-        attackerWhy = "To steal administrator credentials, making it easy to masquerade as a legitimate user.";
-        whatNext = "The attacker will use the stolen passwords to move to other servers on the network.";
+        whatHappened = "The attacker searched system memory (e.g., LSASS dumps) for active login passwords and session keys.";
+        whyItHappened = "Local memory protection was not hardened, allowing processes running on the machine to read credentials of logged-in accounts.";
+        howItSpread = "Harvested administrative tokens were saved locally to impersonate legitimate network operators.";
+        whatAttackerWanted = "To steal administrator credentials, making it easy to masquerade as a legitimate user.";
         securityResponse = isBlocked
           ? "Local endpoint protection detected the memory dumping attempt and immediately terminated the hostile process."
-          : "Local protections failed, and the attacker successfully dumped system memory to harvest plain-text admin passwords.";
+          : "Local protections failed, and the attacker successfully dumped system memory to harvest admin credentials.";
+        howPrevented = "Enabling Credential Guard, disabling storage of plaintext passwords in memory, and monitoring administrative tool calls.";
         break;
       case 3:
-        attackerDoing = "Connecting from the first compromised computer to other critical servers deep in the network.";
-        attackerWhy = "To locate and access key database storage arrays containing sensitive data.";
-        whatNext = "The attacker will attempt to elevate their user permissions to gain full control.";
+        whatHappened = "The attacker connected from the first compromised computer to other critical servers deep in the network.";
+        whyItHappened = "Internal network zones were unsegmented, allowing free communication between guest subnets and database zones.";
+        howItSpread = "Stolen credentials were used to authenticate with internal network shares and remote desktop hosts.";
+        whatAttackerWanted = "To locate and access key database storage arrays containing sensitive data.";
         securityResponse = isBlocked
           ? "Internal network firewalls blocked the unauthorized server-to-server traffic, isolating the threat."
           : "Unsegmented network paths allowed the attacker to pivot directly from the workstation to the database gateway.";
+        howPrevented = "Implementing network microsegmentation, separating administrative hosts, and restricting internal port access.";
         break;
       case 4:
-        attackerDoing = "Manipulating active security tokens to elevate permissions from a standard user to a system administrator.";
-        attackerWhy = "To gain unrestricted access and bypass database write locks and security rules.";
-        whatNext = "The attacker will access target databases to lock or extract records.";
+        whatHappened = "The attacker manipulated active security tokens to elevate permissions from a standard user to a system administrator.";
+        whyItHappened = "System policies allowed standard users to trigger installer services or exploit legacy kernel versions.";
+        howItSpread = "The process was restarted with full system/administrator permissions, bypassing access restrictions.";
+        whatAttackerWanted = "To gain unrestricted access and bypass database write locks and security rules.";
         securityResponse = isBlocked
           ? "Access controllers flagged the token manipulation attempt and revoked the account's credentials."
           : "Loose configuration settings allowed the attacker to hijack admin tokens, granting them master control.";
+        howPrevented = "Adhering to the Principle of Least Privilege, enforcing app-locker policies, and patching operating system privilege gaps.";
         break;
       case 5:
-        attackerDoing = "Accessing target database directories to copy files and deploy disruptive payloads.";
-        attackerWhy = "To exfiltrate sensitive files out of the network and encrypt databases to demand ransom payment.";
-        whatNext = "The attack is complete. System administrators must initiate recovery, notify regulators, and repair endpoints.";
+        whatHappened = "The attacker accessed target database directories to copy files and deploy disruptive payloads.";
+        whyItHappened = "Data-loss prevention monitoring did not alert on large outbound data transfers, and volume access was not locked.";
+        howItSpread = "Files were compressed and transferred over secure ports to an external command-and-control server.";
+        whatAttackerWanted = "To exfiltrate sensitive files out of the network and encrypt databases to demand ransom payment.";
         securityResponse = isBlocked
           ? "Automated database triggers and write locks immediately isolated the target files, preventing all exfiltration."
           : "Defenses failed to halt database operations, allowing the attacker to copy sensitive customer files and encrypt the system.";
+        howPrevented = "Deploying data loss prevention (DLP) systems, setting up immutable databases, and enabling aggressive anomaly detection.";
         break;
     }
 
@@ -396,10 +411,12 @@ export default function AttackViewerPage() {
 
     return {
       title: titles[stageIdx] || `Step ${stageIdx + 1}`,
-      attackerDoing,
-      attackerWhy,
-      whatNext,
-      securityResponse
+      whatHappened,
+      whyItHappened,
+      howItSpread,
+      whatAttackerWanted,
+      securityResponse,
+      howPrevented
     };
   };
 
@@ -668,9 +685,11 @@ export default function AttackViewerPage() {
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-cyber-cyan/30 bg-cyber-cyan/10 text-cyber-cyan hover:bg-cyber-cyan/20 transition-all duration-300 hover:shadow-[0_0_15px_rgba(6,182,212,0.25)] hover:border-cyber-cyan/60"
           >
             <Activity className="w-3.5 h-3.5 animate-pulse" />
-            Open Command Center
+            Open Learning Journal
           </Link>
         </div>
+
+        <JourneyStepper currentStep={2} />
 
         {/* What You'll Learn Panel */}
         <div className="mb-8 p-5 rounded-lg bg-cyber-surface/60 border border-cyber-border/80 text-xs leading-relaxed max-w-4xl relative overflow-hidden">
@@ -1112,20 +1131,28 @@ export default function AttackViewerPage() {
                     
                     <div className="space-y-3">
                       <div>
-                        <span className="text-cyber-cyan font-mono text-[9px] uppercase tracking-wider block font-bold">🕵️ What is the attacker doing?</span>
-                        <p className="text-slate-350 mt-0.5">{event.attackerDoing}</p>
+                        <span className="text-cyber-cyan font-mono text-[9px] uppercase tracking-wider block font-bold">🕵️ What Happened?</span>
+                        <p className="text-slate-350 mt-0.5">{event.whatHappened}</p>
                       </div>
                       <div>
-                        <span className="text-cyber-cyan font-mono text-[9px] uppercase tracking-wider block font-bold">🎯 Why are they doing it?</span>
-                        <p className="text-slate-350 mt-0.5">{event.attackerWhy}</p>
+                        <span className="text-cyber-cyan font-mono text-[9px] uppercase tracking-wider block font-bold">🎯 Why It Happened?</span>
+                        <p className="text-slate-350 mt-0.5">{event.whyItHappened}</p>
                       </div>
                       <div>
-                        <span className="text-cyber-cyan font-mono text-[9px] uppercase tracking-wider block font-bold">🔮 What could happen next?</span>
-                        <p className="text-slate-350 mt-0.5">{event.whatNext}</p>
+                        <span className="text-cyber-cyan font-mono text-[9px] uppercase tracking-wider block font-bold">🧬 How It Spread?</span>
+                        <p className="text-slate-350 mt-0.5">{event.howItSpread}</p>
                       </div>
                       <div>
-                        <span className="text-cyber-cyan font-mono text-[9px] uppercase tracking-wider block font-bold">🛡️ How did security respond?</span>
+                        <span className="text-cyber-cyan font-mono text-[9px] uppercase tracking-wider block font-bold">🎯 What The Attacker Wanted?</span>
+                        <p className="text-slate-350 mt-0.5">{event.whatAttackerWanted}</p>
+                      </div>
+                      <div>
+                        <span className="text-cyber-cyan font-mono text-[9px] uppercase tracking-wider block font-bold">🛡️ How Defenses Responded?</span>
                         <p className="text-slate-350 mt-0.5">{event.securityResponse}</p>
+                      </div>
+                      <div>
+                        <span className="text-cyber-cyan font-mono text-[9px] uppercase tracking-wider block font-bold">🛑 How It Could Be Prevented?</span>
+                        <p className="text-slate-350 mt-0.5">{event.howPrevented}</p>
                       </div>
                     </div>
 
@@ -1149,7 +1176,7 @@ export default function AttackViewerPage() {
               <div className="bg-cyber-surface px-4 py-2 border-b border-cyber-border flex items-center justify-between text-[10px] font-mono text-slate-400">
                 <span className="flex items-center gap-1.5 uppercase font-bold">
                   <Terminal className="w-3.5 h-3.5 text-cyber-cyan" />
-                  live-activity-telemetry.log
+                  simulation-progress-feed.log
                 </span>
                 <span className="text-cyber-cyan animate-pulse">STREAM ACTIVE</span>
               </div>
@@ -1202,7 +1229,7 @@ export default function AttackViewerPage() {
             >
               <div className="flex items-center gap-2">
                 <Layers className="w-3.5 h-3.5 text-cyber-cyan animate-pulse" />
-                <span>{isTechnicalExpanded ? "[-] Hide Advanced Cybersecurity Concepts (Technical Reference)" : "[+] View Advanced Cybersecurity Concepts (Technical Reference)"}</span>
+                <span>{isTechnicalExpanded ? "[-] Hide Advanced Technical Details" : "[+] View Advanced Technical Details"}</span>
               </div>
               <span className="text-cyber-cyan font-bold">{isTechnicalExpanded ? "CLOSE" : "EXPAND"}</span>
             </button>
@@ -1374,10 +1401,10 @@ export default function AttackViewerPage() {
 
       {/* Footer Info */}
       <footer className="max-w-7xl mx-auto px-6 w-full text-slate-650 font-mono text-[9px] tracking-wider border-t border-cyber-border/20 pt-6 mt-12 flex justify-between items-center z-10">
-        <div>CORE PLATFORM: attack-viewer.sentinel.local</div>
+        <div>CORE PLATFORM: sentinel-learning-lab</div>
         <div className="flex items-center gap-2">
           <Activity className="w-3.5 h-3.5 text-cyber-cyan animate-pulse" />
-          <span>SYS_TELEMETRY: TIMELINE INTRUSION WALKTHROUGH ACTIVE</span>
+          <span>SIMULATION WALKTHROUGH ACTIVE</span>
         </div>
       </footer>
 

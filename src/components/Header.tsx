@@ -10,7 +10,6 @@ import Image from "next/image";
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
-  const [currentTime, setCurrentTime] = useState("");
   const router = useRouter();
   const pathname = usePathname();
 
@@ -19,24 +18,10 @@ export default function Header() {
       setScrolled(window.scrollY > 20);
     };
 
-    const updateTime = () => {
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString("en-US", {
-        hour12: false,
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
-      setCurrentTime(timeStr);
-    };
-
     window.addEventListener("scroll", handleScroll);
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      clearInterval(interval);
     };
   }, []);
 
@@ -138,14 +123,12 @@ export default function Header() {
         {/* Right side controls */}
         <div className="flex items-center gap-6">
           {/* Status Indicator */}
-          <div className="hidden lg:flex items-center gap-3 px-3 py-1.5 rounded-full bg-cyber-surface/60 border border-cyber-border/40 font-mono text-[10px] tracking-wider text-slate-400">
+          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyber-surface/60 border border-cyber-border/40 font-mono text-[10px] tracking-wider text-slate-400">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-green opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-cyber-green"></span>
             </span>
-            <span className="text-slate-300 uppercase">SYS: OPERATIONAL</span>
-            <span className="text-slate-600">|</span>
-            <span className="text-cyber-cyan">{currentTime || "00:00:00"} UTC</span>
+            <span className="text-slate-300 uppercase font-semibold">INTERACTIVE LABS AVAILABLE</span>
           </div>
 
           {/* Launch Console button */}

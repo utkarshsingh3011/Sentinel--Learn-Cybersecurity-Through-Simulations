@@ -8,6 +8,7 @@ import {
   Terminal, Bot, Layers, Play, CheckCircle2,
   ArrowLeft, RefreshCw, Cpu, Database, Network, ArrowRight
 } from "lucide-react";
+import JourneyStepper from "../../components/JourneyStepper";
 
 // Types matching the architectural requirements
 interface CampaignStage {
@@ -55,14 +56,13 @@ const ATTACK_TYPES = [
 ];
 
 const SECURITY_LEVELS = [
-  { id: "Low", name: "🟥 Basic Protection", desc: "Minimal security controls.", detection: "10% Block Chance", difficulty: "Very Easy", level: 1 },
-  { id: "Medium", name: "🟨 Standard Protection", desc: "Common security measures enabled.", detection: "45% Block Chance", difficulty: "Moderate", level: 2 },
-  { id: "High", name: "🟩 Advanced Protection", desc: "Multiple layers of modern cybersecurity defenses.", detection: "78% Block Chance", difficulty: "Hard", level: 3 },
-  { id: "Enterprise", name: "💎 Enterprise Security", desc: "Automated response playbooks, hardware security keys, and 24/7 security team.", detection: "95% Block Chance", difficulty: "Extreme", level: 4 },
+  { id: "Low", name: "Basic Setup", desc: "Minimal security controls.", detection: "10% Block Chance", difficulty: "Very Easy", level: 1 },
+  { id: "Medium", name: "Standard Setup", desc: "Common security measures enabled.", detection: "45% Block Chance", difficulty: "Moderate", level: 2 },
+  { id: "High", name: "Advanced Setup", desc: "Multiple layers of modern cybersecurity defenses.", detection: "78% Block Chance", difficulty: "Hard", level: 3 },
+  { id: "Enterprise", name: "Enterprise Setup", desc: "Automated response configurations, hardware security keys, and active monitoring.", detection: "95% Block Chance", difficulty: "Extreme", level: 4 },
 ];
 
 // Helper to dynamically build campaign data configs based on parameters
-// Extensible for future Gemini API scenario synthesizer integration
 const compileCampaignConfig = (
   industry: string,
   actor: string,
@@ -119,42 +119,42 @@ const compileCampaignConfig = (
       {
         title: "Looking for Weak Points (Reconnaissance)",
         description: `Attacker ${actor} initiated active scans mapping the target subnets for ${chosenIndustry.name}.`,
-        log: `[RECON] Mapping subnets on segment 10.0.4.x. Found open ports: 443, 8080. EDR status: ${status1 === "blocked" ? "BLOCKED" : "EVADED"}`,
+        log: `[RECON] Mapping subnets on segment 10.0.4.x. Found open ports: 443, 8080. Defense Check: ${status1 === "blocked" ? "BLOCKED" : "BYPASSED"}`,
         status: status1,
         severity: "low",
       },
       {
         title: "Trying to Get In (Initial Access)",
         description: `Foothold vector established using ${chosenAttack.name} to bypass gateway filtering.`,
-        log: `[INGRESS] Entry payload dispatched. Channel established with target client. EDR status: ${status2 === "blocked" ? "BLOCKED" : "EVADED"}`,
+        log: `[INGRESS] Entry payload dispatched. Channel established with target client. Defense Check: ${status2 === "blocked" ? "BLOCKED" : "BYPASSED"}`,
         status: status2,
         severity: "medium",
       },
       {
         title: "Trying to Steal Passwords (Credential Access)",
         description: `Searching local memory dumps and active directory tables for active session tokens and admin keys.`,
-        log: `[CREDENTIALS] LSASS memory dump initiated / credential extraction requested. EDR status: ${status3 === "blocked" ? "BLOCKED" : "EVADED"}`,
+        log: `[CREDENTIALS] LSASS memory dump initiated / credential extraction requested. Defense Check: ${status3 === "blocked" ? "BLOCKED" : "BYPASSED"}`,
         status: status3,
         severity: "medium",
       },
       {
         title: "Moving Through the Network (Lateral Movement)",
         description: `Pivoting from compromised host endpoints to servers. Internal target segment reached: ${chosenIndustry.target}.`,
-        log: `[LATERAL] Remote session hijacked to cross network subnets. Target node reached: ${chosenIndustry.target}. EDR status: ${status4 === "blocked" ? "BLOCKED" : "EVADED"}`,
+        log: `[LATERAL] Remote session hijacked to cross network subnets. Target node reached: ${chosenIndustry.target}. Defense Check: ${status4 === "blocked" ? "BLOCKED" : "BYPASSED"}`,
         status: status4,
         severity: "high",
       },
       {
         title: "Taking Control (Privilege Escalation)",
         description: `Attempting admin privilege elevation via token impersonation on Active Directory controller nodes.`,
-        log: `[ESCALATION] Token impersonation executed. Root credentials retrieved. EDR status: ${status5 === "blocked" ? "BLOCKED" : "EVADED"}`,
+        log: `[ESCALATION] Token impersonation executed. Root credentials retrieved. Defense Check: ${status5 === "blocked" ? "BLOCKED" : "BYPASSED"}`,
         status: status5,
         severity: "high",
       },
       {
         title: "Attempting to Steal Data (Data Exfiltration)",
         description: `Executing final payload actions on database target ${chosenIndustry.target}. Archiving core customer tables.`,
-        log: `[EXFILTRATION] Compressing database files. Transmitting out of band over port 443. EDR status: ${status6 === "blocked" ? "BLOCKED" : "EVADED"}`,
+        log: `[EXFILTRATION] Compressing database files. Transmitting out of band over port 443. Defense Check: ${status6 === "blocked" ? "BLOCKED" : "BYPASSED"}`,
         status: status6,
         severity: "critical",
       },
@@ -192,35 +192,35 @@ export default function SimulatePage() {
       case "Low":
         return {
           likelihood: 85,
-          rating: "CRITICAL RISK",
+          rating: "HIGH EXPOSURE CHANCE",
           color: "text-rose-500 border-rose-500/30 bg-rose-500/5",
           barColor: "bg-rose-500",
-          prediction: "Defenses are minimal. The attacker will easily compromise credentials, move laterally through network subnets, and successfully encrypt/exfiltrate core database tables without triggering alerts."
+          prediction: "Defenses are minimal. The threat actor is expected to bypass the perimeter, Swiping credentials, moving laterally across networks, and exfiltrating core database files without block triggers."
         };
       case "Medium":
         return {
           likelihood: 55,
-          rating: "MODERATE RISK",
+          rating: "MODERATE EXPOSURE CHANCE",
           color: "text-amber-500 border-amber-500/30 bg-amber-500/5",
           barColor: "bg-amber-500",
-          prediction: "Defenses will flag the initial port scanning and credential swipe, but lacking network segmentation, the attacker is likely to establish lateral channels and complete exfiltration."
+          prediction: "Defenses will flag initial port scans and credential activity, but without internal network segment locks, the threat actor is likely to pivot to core systems."
         };
       case "High":
         return {
           likelihood: 25,
-          rating: "LOW RISK",
+          rating: "LOW EXPOSURE CHANCE",
           color: "text-emerald-500 border-emerald-500/30 bg-emerald-500/5",
           barColor: "bg-emerald-500",
-          prediction: "Zero Trust architecture and multi-factor authentication are highly likely to contain the threat. The attack is expected to be intercepted during credential access or lateral movement."
+          prediction: "Robust security rules and strict authentication setups are highly likely to contain the threat. The attack is expected to be stopped early during the movement phase."
         };
       case "Enterprise":
       default:
         return {
           likelihood: 5,
-          rating: "NEGLIGIBLE RISK",
+          rating: "NEGLIGIBLE EXPOSURE CHANCE",
           color: "text-cyan-400 border-cyan-400/30 bg-cyan-400/5",
           barColor: "bg-cyan-400",
-          prediction: "Automated response playbooks, hardware security keys, and active monitoring will immediately contain the threat. The intrusion attempt will be blocked at the perimeter before any foothold is established."
+          prediction: "Automated security setups, strict token keys, and active monitoring will immediately contain the threat. The intrusion is blocked at the perimeter before any foothold."
         };
     }
   };
@@ -248,20 +248,20 @@ export default function SimulatePage() {
       "Supply Chain": "malicious software installation"
     };
     const defenseMap: Record<string, string> = {
-      Low: "basic protection",
-      Medium: "standard protection",
-      High: "advanced protection",
-      Enterprise: "enterprise security"
+      Low: "basic setup",
+      Medium: "standard setup",
+      High: "advanced setup",
+      Enterprise: "enterprise setup"
     };
 
     const targetName = targetMap[industry] || "target environment";
     const actorName = actorMap[actor] || "attacker";
     const attackName = attackMap[attack] || "cyberattack";
-    const defenseName = defenseMap[security] || "standard protection";
+    const defenseName = defenseMap[security] || "standard setup";
 
     const aAn = ["a", "e", "i", "o", "u"].includes(actorName.charAt(0)) ? "An" : "A";
 
-    return `${aAn} ${actorName} is attempting a ${attackName} against a ${targetName} protected by ${defenseName}.`;
+    return `${aAn} ${actorName} is attempting a ${attackName} against a ${targetName} configured with a ${defenseName}.`;
   };
 
   const handleGenerate = () => {
@@ -280,14 +280,14 @@ export default function SimulatePage() {
     }
 
     const compileLogs = [
-      `[SYS] Initializing Sentinel Sandbox Environment...`,
-      `[INFO] Preparing the target environment...`,
-      `[INFO] Analyzing attacker behavior...`,
-      `[INFO] Attempting initial access...`,
-      `[INFO] Security systems are responding...`,
-      `[INFO] Evaluating attack impact...`,
-      `[INFO] Generating simulation results...`,
-      `[SUCCESS] Simulation compiled successfully. Launching viewer...`
+      `[PREPARE] Initializing Educational Simulation Environment...`,
+      `[PREPARE] Choosing target environment...`,
+      `[PREPARE] Setting threat actor profile...`,
+      `[PREPARE] Establishing attack method...`,
+      `[PREPARE] Configuring security setup...`,
+      `[PREPARE] Preparing walkthrough details...`,
+      `[PREPARE] Building simulation...`,
+      `[SUCCESS] Simulation built successfully! Loading walkthrough...`
     ];
 
     compileLogs.forEach((log, index) => {
@@ -335,62 +335,61 @@ export default function SimulatePage() {
           Return to Home Page
         </Link>
 
+        {/* Journey Progress Indicator */}
+        <JourneyStepper currentStep={1} />
+
         {/* Header */}
         <div className="mb-10 max-w-4xl mx-auto text-center flex flex-col items-center justify-center">
           <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase mb-4 font-bold">
             <Terminal className="w-3.5 h-3.5 text-cyber-cyan animate-pulse" />
-            Security Learning Hub: Simulation Builder
+            Simulation Builder
           </div>
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase">
-            Build Your Cyber Attack Scenario
+            Build Your Simulation Scenario
           </h1>
           <p className="mt-4 text-slate-400 text-sm md:text-base leading-relaxed font-sans max-w-2xl mx-auto">
-            Choose a target, attacker, and defense level to see how a cyberattack might unfold in the real world.
+            Choose a target, threat actor, attack method, and security setup to see how the threat behaves and how defenses respond.
           </p>
         </div>
 
-        {/* How It Works - Centered Onboarding Card */}
+        {/* How It Works - Onboarding */}
         {simState === "idle" && (
           <div className="mb-12 mx-auto max-w-[850px] w-full p-6 md:p-8 rounded-xl bg-cyber-surface/40 border border-cyber-cyan/30 shadow-[0_0_20px_rgba(6,182,212,0.1)] relative overflow-hidden backdrop-blur-sm">
-            {/* Top accent line */}
             <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyber-cyan to-transparent animate-pulse" />
-            {/* Ambient glows */}
-            <div className="absolute -top-12 -left-12 w-48 h-48 bg-cyber-cyan/5 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-electric-blue/5 rounded-full blur-3xl pointer-events-none" />
             
             <h2 className="text-white text-center text-sm md:text-base font-bold font-mono tracking-wider uppercase mb-6 flex items-center justify-center gap-2">
               <Layers className="w-4 h-4 text-cyber-cyan animate-pulse" />
-              How It Works
+              Scenario Setup Guide
             </h2>
             
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-              <div className="p-3.5 rounded-lg bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-2 min-h-[100px] group">
-                <span className="text-2xl group-hover:scale-110 transition-transform duration-200">🏥</span>
-                <div className="text-[10px] text-white font-mono font-bold uppercase tracking-wider">1. Pick a Target</div>
-                <span className="text-[9px] text-slate-450 leading-tight font-sans">Select which system to defend</span>
+              <div className="p-3 rounded bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-1.5 min-h-[90px] group">
+                <span className="text-xl group-hover:scale-110 transition-transform duration-200">🏥</span>
+                <div className="text-[9px] text-white font-mono font-bold uppercase tracking-wider">1. Pick Target</div>
+                <span className="text-[8px] text-slate-450 leading-tight">Identify environment</span>
               </div>
               
-              <div className="p-3.5 rounded-lg bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-2 min-h-[100px] group">
-                <span className="text-2xl group-hover:scale-110 transition-transform duration-200">🕵️</span>
-                <div className="text-[10px] text-white font-mono font-bold uppercase tracking-wider">2. Pick an Attacker</div>
-                <span className="text-[9px] text-slate-450 leading-tight font-sans">Choose who is behind the attack</span>
+              <div className="p-3 rounded bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-1.5 min-h-[90px] group">
+                <span className="text-xl group-hover:scale-110 transition-transform duration-200">🕵️</span>
+                <div className="text-[9px] text-white font-mono font-bold uppercase tracking-wider">2. Pick Threat Actor</div>
+                <span className="text-[8px] text-slate-450 leading-tight">Choose threat profile</span>
               </div>
               
-              <div className="p-3.5 rounded-lg bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-2 min-h-[100px] group">
-                <span className="text-2xl group-hover:scale-110 transition-transform duration-200">📧</span>
-                <div className="text-[10px] text-white font-mono font-bold uppercase tracking-wider">3. Pick an Attack</div>
-                <span className="text-[9px] text-slate-450 leading-tight font-sans">Choose how the attack starts</span>
+              <div className="p-3 rounded bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-1.5 min-h-[90px] group">
+                <span className="text-xl group-hover:scale-110 transition-transform duration-200">📧</span>
+                <div className="text-[9px] text-white font-mono font-bold uppercase tracking-wider">3. Pick Method</div>
+                <span className="text-[8px] text-slate-450 leading-tight">Choose attack vector</span>
               </div>
               
-              <div className="p-3.5 rounded-lg bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-2 min-h-[100px] group">
-                <span className="text-2xl group-hover:scale-110 transition-transform duration-200">🛡️</span>
-                <div className="text-[10px] text-white font-mono font-bold uppercase tracking-wider">4. Choose Protection</div>
-                <span className="text-[9px] text-slate-450 leading-tight font-sans">Configure defense strength levels</span>
+              <div className="p-3 rounded bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-1.5 min-h-[90px] group">
+                <span className="text-xl group-hover:scale-110 transition-transform duration-200">🛡️</span>
+                <div className="text-[9px] text-white font-mono font-bold uppercase tracking-wider">4. Security Setup</div>
+                <span className="text-[8px] text-slate-450 leading-tight">Configure defense settings</span>
               </div>
             </div>
             
-            <div className="text-center mt-6 font-mono text-[9px] text-cyber-cyan uppercase tracking-widest animate-pulse">
-              ▲ Configure the parameters below and run the simulation to see the results ▲
+            <div className="text-center mt-5 font-mono text-[8px] text-cyber-cyan uppercase tracking-widest animate-pulse">
+              ▲ Configure settings below and run the simulation to review results ▲
             </div>
           </div>
         )}
@@ -398,7 +397,7 @@ export default function SimulatePage() {
         {/* Main Work Area */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-          {/* Left Column: Parameter Selection Forms (8 cols) */}
+          {/* Left Column: Parameter Selection Forms */}
           <div className="lg:col-span-8 space-y-8">
 
             <AnimatePresence mode="wait">
@@ -409,12 +408,10 @@ export default function SimulatePage() {
                   exit={{ opacity: 0, y: -15 }}
                   className="space-y-8"
                 >
-                  {/* Parameter Selection Cards */}
-
                   {/* 1. Environment Segment */}
                   <div className="space-y-4">
                     <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      Step 1: Pick a Target
+                      Step 1: Choose Target Environment
                     </span>
                     <motion.div
                       className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
@@ -445,7 +442,7 @@ export default function SimulatePage() {
                   {/* 2. Attacker Profile */}
                   <div className="space-y-4">
                     <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      Step 2: Pick an Attacker
+                      Step 2: Choose Threat Actor
                     </span>
                     <motion.div
                       className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
@@ -476,7 +473,7 @@ export default function SimulatePage() {
                   {/* 3. Attack Type */}
                   <div className="space-y-4">
                     <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      Step 3: Pick an Attack
+                      Step 3: Choose Attack Method
                     </span>
                     <motion.div
                       className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
@@ -504,10 +501,10 @@ export default function SimulatePage() {
                     </motion.div>
                   </div>
 
-                  {/* 4. Security Level */}
+                  {/* 4. Security Setup */}
                   <div className="space-y-4">
                     <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      Step 4: Choose Protection Level
+                      Step 4: Choose Security Setup
                     </span>
                     <motion.div
                       className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"
@@ -547,8 +544,8 @@ export default function SimulatePage() {
                                           : lvl.id === "Medium"
                                           ? "bg-amber-500"
                                           : lvl.id === "High"
-                                          ? "bg-emerald-500"
-                                          : "bg-cyan-400"
+                                          ? "bg-cyber-green"
+                                          : "bg-cyber-cyan"
                                         : "bg-slate-800"
                                     }`}
                                   />
@@ -557,7 +554,7 @@ export default function SimulatePage() {
                               <span className={`text-[8px] font-bold font-mono ${
                                 lvl.id === "Low" ? "text-rose-500" :
                                 lvl.id === "Medium" ? "text-amber-500" :
-                                lvl.id === "High" ? "text-emerald-500" : "text-cyan-455"
+                                lvl.id === "High" ? "text-emerald-500" : "text-cyan-400"
                               }`}>
                                 {lvl.difficulty}
                               </span>
@@ -584,10 +581,10 @@ export default function SimulatePage() {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-cyan opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-cyber-cyan"></span>
                       </span>
-                      <span className="text-[10px] font-mono text-slate-500 ml-1">sentinel-simulation-daemon.sh</span>
+                      <span className="text-[10px] font-mono text-slate-500 ml-1">simulation-setup-wizard</span>
                     </div>
                     <div className="text-[9px] font-mono text-cyber-cyan border border-cyber-cyan/30 px-2 py-0.5 rounded bg-cyber-cyan/5">
-                      {simState === "compiling" ? "PREPARING RUNTIME..." : "READY"}
+                      {simState === "compiling" ? "BUILDING SCENARIO..." : "READY"}
                     </div>
                   </div>
 
@@ -609,7 +606,7 @@ export default function SimulatePage() {
                       {simState === "compiling" && (
                         <div className="flex items-center gap-1.5 text-cyber-cyan text-[11px] font-bold mt-2">
                           <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                          Streaming environment matrices...
+                          Applying setup configuration...
                         </div>
                       )}
                     </div>
@@ -623,9 +620,9 @@ export default function SimulatePage() {
                         <div className="flex items-center gap-3">
                           <CheckCircle2 className="w-8 h-8 text-cyber-green flex-shrink-0" />
                           <div>
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">Attack Simulation Ready</h4>
+                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">Simulation Ready</h4>
                             <p className="text-[10px] text-slate-500 mt-1 font-sans">
-                              Scenario settings successfully applied. Redirecting to visualization screen.
+                              Scenario settings successfully applied. Redirecting to walkthrough screen.
                             </p>
                           </div>
                         </div>
@@ -637,7 +634,6 @@ export default function SimulatePage() {
                             Reset
                           </button>
 
-                          {/* Ready to route to future /attack-viewer page */}
                           <Link
                             href="/attack-viewer"
                             className="px-4 py-2 rounded bg-electric-blue hover:bg-blue-600 text-[10px] font-mono text-white uppercase tracking-widest flex items-center gap-1.5 hover:shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all duration-300"
@@ -650,10 +646,10 @@ export default function SimulatePage() {
                     )}
                   </div>
 
-                  {/* Console footer SSL info */}
+                  {/* Console footer info */}
                   <div className="bg-cyber-surface/70 px-4 py-2 border-t border-cyber-border text-[9px] font-mono text-slate-650 flex justify-between">
-                    <div>COMPILER_NODE: build-srv-77.sentinel.local</div>
-                    <div className="text-cyber-green">● AUTH_SSL_ESTABLISHED</div>
+                    <div>JOURNEY STATUS: BUILD SPECIFICATION</div>
+                    <div className="text-cyber-green">● READY TO EXPLORE</div>
                   </div>
                 </motion.div>
               )}
@@ -661,17 +657,17 @@ export default function SimulatePage() {
 
           </div>
 
-          {/* Right Column: Scenario Setup Sidebar Summary (4 cols) */}
+          {/* Right Column: Scenario Setup Sidebar Summary */}
           <div className="lg:col-span-4">
             <div className="glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between relative overflow-hidden">
               <div className="absolute top-0 right-0 w-8 h-8 border-b border-l border-cyber-border pointer-events-none" />
 
               <div className="border-b border-cyber-border/40 pb-4 mb-6">
                 <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                  YOUR SCENARIO
+                  YOUR LEARNING SCENARIO
                 </span>
                 <span className="text-[8px] font-mono text-slate-600 uppercase mt-0.5 block">
-                  ACTIVE SPECIFICATION STATE
+                  CURRENT SELECTIONS
                 </span>
                 <div className="mt-4 p-3 rounded bg-cyber-cyan/5 border border-cyber-cyan/35 text-xs text-white leading-relaxed font-sans shadow-[0_0_10px_rgba(6,182,212,0.05)] border-l-2">
                   {getDynamicSummarySentence()}
@@ -698,7 +694,7 @@ export default function SimulatePage() {
                     <Bot className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <div className="text-slate-500 text-[9px] uppercase">Attacker</div>
+                    <div className="text-slate-500 text-[9px] uppercase">Threat Actor</div>
                     <div className="text-white font-bold uppercase mt-0.5">
                       {ACTORS.find(a => a.id === actor)?.name.split(" ").slice(1).join(" ") || actor}
                     </div>
@@ -710,7 +706,7 @@ export default function SimulatePage() {
                     <Network className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <div className="text-slate-500 text-[9px] uppercase">Attack Type</div>
+                    <div className="text-slate-500 text-[9px] uppercase">Attack Method</div>
                     <div className="text-white font-bold uppercase mt-0.5">
                       {ATTACK_TYPES.find(t => t.id === attack)?.name.split(" ").slice(1).join(" ") || attack}
                     </div>
@@ -722,7 +718,7 @@ export default function SimulatePage() {
                     <Layers className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <div className="text-slate-500 text-[9px] uppercase">Protection Level</div>
+                    <div className="text-slate-500 text-[9px] uppercase">Security Setup</div>
                     <div className="text-white font-bold uppercase mt-0.5">
                       {SECURITY_LEVELS.find(l => l.id === security)?.name.split(" ").slice(1).join(" ") || security}
                     </div>
@@ -737,14 +733,14 @@ export default function SimulatePage() {
                   <div className={`p-4 rounded-lg border ${getExpectedOutcome(security).color} font-sans mb-6`}>
                     <div className="flex justify-between items-center border-b border-white/10 pb-2 mb-2">
                       <span className="text-[9px] font-mono uppercase tracking-wider font-bold">Expected Outcome</span>
-                      <span className="text-[8px] font-mono px-1.5 py-0.5 rounded border border-current font-bold uppercase">
+                      <span className="text-[8px] font-mono px-1.5 py-0.5 rounded border border-current font-bold uppercase text-[7px]">
                         {getExpectedOutcome(security).rating}
                       </span>
                     </div>
                     <div className="flex items-center gap-3 mb-2">
                       <div className="text-lg font-bold font-mono text-white">{getExpectedOutcome(security).likelihood}%</div>
                       <div className="flex-grow">
-                        <div className="text-[8px] font-mono uppercase text-slate-550">Attack Success Chance</div>
+                        <div className="text-[8px] font-mono uppercase text-slate-550">Attack Exposure Chance</div>
                         <div className="w-full h-1.5 bg-slate-950 border border-white/5 rounded-full overflow-hidden mt-1">
                           <div 
                             className={`h-full ${getExpectedOutcome(security).barColor}`} 
@@ -763,10 +759,10 @@ export default function SimulatePage() {
                     className="w-full py-3.5 rounded bg-electric-blue hover:bg-blue-650 text-white font-bold font-mono text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all duration-300 cursor-pointer border border-electric-blue/40"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
-                    ▶ Run Simulation
+                    ▶ Build & Run Simulation
                   </button>
                   <p className="text-[8px] text-center text-slate-500 font-mono uppercase tracking-wider mt-3 leading-relaxed">
-                    Compiles environment parameters and threat logic.
+                    Prepares the step-by-step educational walk-through.
                   </p>
                 </div>
               )}
@@ -778,12 +774,12 @@ export default function SimulatePage() {
 
       </div>
 
-      {/* Retro-futuristic Status Info Bar */}
-      <footer className="max-w-7xl mx-auto px-6 w-full text-slate-650 font-mono text-[9px] tracking-wider border-t border-cyber-border/20 pt-6 mt-12 flex justify-between items-center z-10">
-        <div>NODE: simulation-studio.sentinel.local</div>
+      {/* Footer */}
+      <footer className="max-w-7xl mx-auto px-6 w-full text-slate-600 font-mono text-[9px] tracking-wider border-t border-cyber-border/20 pt-6 mt-12 flex justify-between items-center z-10">
+        <div>SENTINEL CYBERSECURITY LEARNING PLATFORM</div>
         <div className="flex items-center gap-2">
           <Cpu className="w-3.5 h-3.5 text-cyber-cyan" />
-          <span>STATUS: SECURE STANDBY</span>
+          <span>LEARNING LAB STANDBY</span>
         </div>
       </footer>
 

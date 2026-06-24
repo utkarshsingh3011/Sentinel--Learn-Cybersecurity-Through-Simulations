@@ -1,20 +1,62 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useRef } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Terminal, Shield, Play, Loader, CheckCircle2, ChevronRight } from "lucide-react";
+import { Shield, ChevronRight, Database, User, ShieldAlert, ShieldCheck, Play, BarChart3 } from "lucide-react";
 
-const SIMULATION_CAMPAIGNS = [
-  { id: "apt29", name: "Phishing Attack Simulation", actor: "Based on APT29 Techniques", technique: "MITRE ATT&CK T1566 (Spearphishing)" },
-  { id: "ransomware", name: "Ransomware Attack Simulation", actor: "Based on LockBit 3.0 Techniques", technique: "MITRE ATT&CK T1486 (Data Encrypted)" },
-  { id: "zero-day", name: "Supply Chain Attack Simulation", actor: "Based on SolarWinds Compromise", technique: "MITRE ATT&CK T1195 (Compromise Pipeline)" },
+const FLOW_STEPS = [
+  {
+    id: "target",
+    title: "1. Choose Target",
+    desc: "Select which network environment to test (e.g., Hospital, Bank, or Startup).",
+    icon: Database,
+    color: "text-blue-500",
+    glow: "shadow-[0_0_15px_rgba(59,130,246,0.2)]",
+  },
+  {
+    id: "attacker",
+    title: "2. Choose Threat Actor",
+    desc: "Choose the threat actor profile to simulate their specific style and techniques.",
+    icon: User,
+    color: "text-cyber-cyan",
+    glow: "shadow-[0_0_15px_rgba(6,182,212,0.2)]",
+  },
+  {
+    id: "attack",
+    title: "3. Choose Attack Method",
+    desc: "Pick an attack vector (e.g., Phishing, SQL Injection, or Ransomware).",
+    icon: ShieldAlert,
+    color: "text-amber-500",
+    glow: "shadow-[0_0_15px_rgba(245,158,11,0.2)]",
+  },
+  {
+    id: "defense",
+    title: "4. Choose Security Setup",
+    desc: "Configure the security strength from Basic Protection up to Enterprise Security.",
+    icon: ShieldCheck,
+    color: "text-cyber-green",
+    glow: "shadow-[0_0_15px_rgba(16,185,129,0.2)]",
+  },
+  {
+    id: "run",
+    title: "5. Run Simulation",
+    desc: "Launch the scenario to watch the attack path and security responses in real time.",
+    icon: Play,
+    color: "text-indigo-500",
+    glow: "shadow-[0_0_15px_rgba(99,102,241,0.2)]",
+  },
+  {
+    id: "results",
+    title: "6. View Results",
+    desc: "Read the AI Security Report, check standard mappings, and learn prevention strategies.",
+    icon: BarChart3,
+    color: "text-rose-500",
+    glow: "shadow-[0_0_15px_rgba(244,63,94,0.2)]",
+  },
 ];
 
 export default function Hero() {
-  const [selectedCampaign, setSelectedCampaign] = useState(SIMULATION_CAMPAIGNS[0].id);
-  const [simulationState, setSimulationState] = useState<"idle" | "running" | "success">("idle");
-  const [logs, setLogs] = useState<string[]>([]);
   const heroRef = useRef<HTMLElement>(null);
 
   // Set up scroll for parallax shifts
@@ -24,37 +66,6 @@ export default function Hero() {
   const yText = useTransform(scrollY, [0, 800], [0, 100]);
   const yCard = useTransform(scrollY, [0, 800], [0, -50]);
   const opacityFade = useTransform(scrollY, [0, 600], [1, 0]);
-
-  const startSimulation = () => {
-    if (simulationState !== "idle") return;
-
-    setSimulationState("running");
-    setLogs([]);
-
-    const steps = [
-      `Initializing SENTINEL educational simulation engine...`,
-      `Mapping virtual network topology (endpoints, servers, and firewall)...`,
-      `Injecting simulated attack via ${SIMULATION_CAMPAIGNS.find(c => c.id === selectedCampaign)?.technique}...`,
-      `Checking firewall rules and network port statuses...`,
-      `Attacker moved to internal server: Admin credentials targeted.`,
-      `Compiling educational defense guidelines...`,
-      `Simulation completed. Security analysis report ready.`
-    ];
-
-    steps.forEach((step, index) => {
-      setTimeout(() => {
-        setLogs(prev => [...prev, `[${new Date().toLocaleTimeString("en-US", { hour12: false })}] ${step}`]);
-        if (index === steps.length - 1) {
-          setSimulationState("success");
-        }
-      }, (index + 1) * 800);
-    });
-  };
-
-  const resetSimulation = () => {
-    setSimulationState("idle");
-    setLogs([]);
-  };
 
   return (
     <section
@@ -75,17 +86,17 @@ export default function Hero() {
       <div className="absolute bottom-12 left-12 w-6 h-6 border-b border-l border-slate-700 pointer-events-none" />
       <div className="absolute bottom-12 right-12 w-6 h-6 border-b border-r border-slate-700 pointer-events-none" />
 
-      {/* Pulsing command center radar rings behind the terminal */}
+      {/* Pulsing command center radar rings behind the timeline */}
       <div className="absolute right-[10%] top-[30%] w-[450px] h-[450px] pointer-events-none z-0 hidden lg:block">
         <motion.div
           animate={{ scale: [1, 1.8], opacity: [0.15, 0] }}
           transition={{ repeat: Infinity, duration: 4, ease: "easeOut" }}
-          className="absolute inset-0 border border-cyber-cyan/30 rounded-full"
+          className="absolute inset-0 border border-cyber-cyan/35 rounded-full"
         />
         <motion.div
           animate={{ scale: [1, 1.8], opacity: [0.1, 0] }}
           transition={{ repeat: Infinity, duration: 4, delay: 2, ease: "easeOut" }}
-          className="absolute inset-0 border border-electric-blue/30 rounded-full"
+          className="absolute inset-0 border border-electric-blue/35 rounded-full"
         />
         <div className="absolute inset-0 border border-slate-800/20 rounded-full" />
       </div>
@@ -135,7 +146,7 @@ export default function Hero() {
             SENTINEL generates real-time, step-by-step attack simulations inside a safe virtual network. Select an attack scenario, watch how it spreads, and learn how to configure security rules to protect network systems.
           </motion.p>
 
-          {/* Project Purpose Section */}
+          {/* Why I Built Sentinel Section */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -143,8 +154,8 @@ export default function Hero() {
             className="mt-6 p-4 rounded bg-cyber-surface/60 border border-cyber-border/80 text-xs text-slate-300 leading-relaxed max-w-xl relative overflow-hidden"
           >
             <div className="absolute top-0 left-0 bottom-0 w-[3px] bg-cyber-cyan" />
-            <span className="font-mono text-[9px] uppercase tracking-widest text-cyber-cyan font-bold block mb-1">Project Purpose</span>
-            SENTINEL is an educational cybersecurity simulation platform that helps students, beginners, and security enthusiasts understand how modern cyberattacks work and how organizations defend against them.
+            <span className="font-mono text-[9px] uppercase tracking-widest text-cyber-cyan font-bold block mb-1">Why I Built Sentinel</span>
+            I created SENTINEL as a student project at Jaypee Institute of Information Technology, Noida (Electronics & Communication Engineering) to make cybersecurity concepts visual and accessible. It translates complex attack methods into a step-by-step learning journey, helping beginners and fellow students understand how attacks propagate and how defense setups block them.
           </motion.div>
 
           <motion.div
@@ -157,7 +168,7 @@ export default function Hero() {
               href="#workflow"
               className="px-6 py-3 rounded bg-white hover:bg-slate-200 text-black text-xs font-mono tracking-widest uppercase transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
             >
-              View Security Report
+              How It Works
             </a>
             <Link
               href="/simulate"
@@ -168,139 +179,63 @@ export default function Hero() {
           </motion.div>
         </motion.div>
 
-        {/* Cinematic Command Center Simulation Console */}
+        {/* Visual Simulation Lifecycle Flow Diagram */}
         <motion.div
           style={{ y: yCard }}
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="lg:col-span-6 w-full"
+          className="lg:col-span-6 w-full relative"
         >
-          <div className="glassmorphism-card rounded-lg overflow-hidden border border-cyber-border glow-blue">
-            {/* Console Header Bar */}
-            <div className="bg-cyber-surface/90 px-4 py-3 border-b border-cyber-border flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-red-500/80" />
-                <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
-                <span className="w-3 h-3 rounded-full bg-green-500/80" />
-                <span className="text-[10px] font-mono text-slate-500 ml-2">sentinel-simulation-console.sh</span>
-              </div>
-              <div className="flex items-center gap-1 font-mono text-[9px] text-cyber-cyan border border-cyber-cyan/20 px-1.5 py-0.5 rounded bg-cyber-cyan/5">
-                <Terminal className="w-2.5 h-2.5" />
-                SHELL v1.4
-              </div>
+          <div className="glassmorphism-card rounded-2xl p-6 md:p-8 border border-cyber-border/60 bg-cyber-surface/40 backdrop-blur-md relative overflow-hidden shadow-[0_0_40px_rgba(6,182,212,0.04)]">
+            {/* Corner decorations */}
+            <span className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-cyber-cyan/40" />
+            <span className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-cyber-cyan/40" />
+            <span className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-cyber-cyan/40" />
+            <span className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-cyber-cyan/40" />
+
+            <div className="mb-6">
+              <span className="font-mono text-[9px] uppercase tracking-widest text-cyber-cyan font-bold block mb-1">Execution Guide</span>
+              <h3 className="text-white text-lg font-bold font-sans">Simulation Workflow</h3>
+              <p className="text-slate-400 text-xs mt-1 font-sans leading-relaxed">
+                Follow these six steps to construct, run, and learn from a simulated cybersecurity threat sequence.
+              </p>
             </div>
 
-            {/* Console Body */}
-            <div className="p-5 bg-black/70 font-mono text-xs text-slate-300 min-h-[280px] flex flex-col justify-between">
-              {simulationState === "idle" && (
-                <div className="flex flex-col gap-4">
-                  <div className="text-slate-400">
-                    <span className="text-cyber-green">$</span> choose attack scenario to run:
-                  </div>
+            {/* Vertical Flow Steps */}
+            <div className="relative space-y-3">
+              {/* Connector Line */}
+              <div className="absolute left-[22px] top-6 bottom-6 w-[1.5px] bg-gradient-to-b from-blue-500 via-cyber-cyan to-rose-500 opacity-20" />
 
-                  <div className="grid grid-cols-1 gap-2.5">
-                    {SIMULATION_CAMPAIGNS.map((campaign) => (
-                      <button
-                        key={campaign.id}
-                        onClick={() => setSelectedCampaign(campaign.id)}
-                        className={`p-3 rounded text-left border flex items-center justify-between transition-all duration-300 ${selectedCampaign === campaign.id
-                          ? "bg-electric-blue/15 border-electric-blue text-white"
-                          : "bg-cyber-surface/40 border-cyber-border hover:border-slate-700 text-slate-400 hover:text-slate-200"
-                          }`}
-                      >
-                        <div>
-                          <div className="text-xs font-bold font-mono">{campaign.name}</div>
-                          <div className="text-[10px] opacity-60 mt-0.5">{campaign.actor} <span className="text-slate-600">|</span> {campaign.technique}</div>
-                        </div>
-                        <div
-                          className={`w-4 h-4 rounded-full border flex items-center justify-center ${selectedCampaign === campaign.id
-                            ? "border-cyber-cyan bg-cyber-cyan/10"
-                            : "border-slate-600"
-                            }`}
-                        >
-                          {selectedCampaign === campaign.id && (
-                            <span className="w-2 h-2 rounded-full bg-cyber-cyan" />
-                          )}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-
-                  <button
-                    onClick={startSimulation}
-                    className="w-full mt-2 py-3 rounded bg-electric-blue hover:bg-blue-600 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all duration-300 cursor-pointer"
-                  >
-                    <Play className="w-3.5 h-3.5 fill-current" />
-                    Start Attack Simulation
-                  </button>
-                </div>
-              )}
-
-              {simulationState === "running" && (
-                <div className="flex flex-col h-full justify-between gap-4">
-                  <div className="flex flex-col gap-2 flex-grow overflow-y-auto max-h-[220px]">
-                    <div className="text-slate-400 flex items-center gap-2">
-                      <Loader className="w-3.5 h-3.5 text-cyber-cyan animate-spin" />
-                      <span>Simulating attack sequence...</span>
-                    </div>
-                    {logs.map((log, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="text-[11px] text-slate-400 leading-relaxed font-mono"
-                      >
-                        {log}
-                      </motion.div>
-                    ))}
-                  </div>
-                  <div className="text-[10px] text-cyber-cyan/70 animate-pulse border-t border-cyber-border pt-2 text-right uppercase tracking-wider">
-                    Execution in progress...
-                  </div>
-                </div>
-              )}
-
-              {simulationState === "success" && (
-                <div className="flex flex-col gap-4 text-center justify-center py-6">
+              {FLOW_STEPS.map((step, idx) => {
+                const Icon = step.icon;
+                return (
                   <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="flex justify-center"
+                    key={step.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: idx * 0.1 }}
+                    whileHover={{ scale: 1.01 }}
+                    className="relative flex gap-4 p-2.5 rounded-xl border border-transparent hover:border-cyber-border/40 hover:bg-black/25 transition-all duration-300 group"
                   >
-                    <CheckCircle2 className="w-12 h-12 text-cyber-green" />
+                    {/* Circle icon */}
+                    <div className={`relative z-10 shrink-0 w-11 h-11 rounded-lg border border-cyber-border bg-black/40 flex items-center justify-center text-slate-400 group-hover:text-white transition-all duration-300 group-hover:${step.glow} group-hover:border-cyber-cyan/50`}>
+                      <Icon className={`w-5 h-5 ${step.color} transition-transform duration-300 group-hover:scale-110`} />
+                    </div>
+
+                    {/* Step descriptions */}
+                    <div className="space-y-0.5">
+                      <h4 className="text-xs font-bold text-white font-mono uppercase tracking-wider group-hover:text-cyber-cyan transition-colors duration-300 flex items-center gap-1.5">
+                        {step.title}
+                        {idx < 5 && <ChevronRight className="w-3.5 h-3.5 text-slate-650 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />}
+                      </h4>
+                      <p className="text-slate-400 text-[11px] leading-relaxed font-sans group-hover:text-slate-300 transition-colors duration-300">
+                        {step.desc}
+                      </p>
+                    </div>
                   </motion.div>
-
-                  <div>
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">Simulation Completed</h3>
-                    <p className="text-[11px] text-slate-400 mt-2 max-w-sm mx-auto">
-                      The attack was successfully simulated and mapped to prevention guidelines. The virtual network model has been updated.
-                    </p>
-                  </div>
-
-                  <div className="flex gap-2.5 mt-2 justify-center">
-                    <button
-                      onClick={resetSimulation}
-                      className="px-4 py-2 rounded bg-cyber-surface hover:bg-cyber-surface-brighter border border-cyber-border text-[10px] uppercase font-mono text-slate-300 tracking-wider transition-all duration-300"
-                    >
-                      Reset Console
-                    </button>
-                    <a
-                      href="#preview"
-                      className="px-4 py-2 rounded bg-electric-blue hover:bg-blue-600 text-[10px] uppercase font-mono text-white tracking-wider flex items-center gap-1.5 hover:shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all duration-300"
-                    >
-                      View Simulation Playback
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Console Footer Info */}
-            <div className="bg-cyber-surface px-4 py-2 border-t border-cyber-border flex items-center justify-between text-[9px] font-mono text-slate-500">
-              <div>HOST: twin-core-01.sentinel.local</div>
-              <div className="text-cyber-green animate-pulse">● SECURE SSL CONSOLE</div>
+                );
+              })}
             </div>
           </div>
         </motion.div>

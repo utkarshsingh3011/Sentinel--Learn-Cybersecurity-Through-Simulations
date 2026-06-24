@@ -12,6 +12,7 @@ import {
   getAttackName
 } from "../../components/campaignStore";
 import AnimatedCounter from "../../components/AnimatedCounter";
+import JourneyStepper from "../../components/JourneyStepper";
 
 export default function CommandCenterPage() {
   const [history, setHistory] = useState<StoredCampaign[]>([]);
@@ -312,26 +313,27 @@ export default function CommandCenterPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-cyan opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-cyber-cyan"></span>
               </span>
-              SYS MONITOR ACTIVE
+              LEARNING JOURNAL ACTIVE
             </span>
-            <span className="text-cyber-cyan">{currentTime || "00:00:00"} UTC</span>
           </div>
         </div>
+
+        <JourneyStepper currentStep={4} />
 
         {/* Top Human-Readable Explanation */}
         <div className="mb-8 p-5 rounded bg-cyber-surface/60 border border-cyber-border/80 text-xs text-slate-300 leading-relaxed max-w-4xl relative overflow-hidden space-y-3">
           <div className="absolute top-0 left-0 bottom-0 w-[3px] bg-cyber-cyan" />
           <div>
-            <strong className="text-white block mb-0.5">Welcome to Mission Control</strong>
-            This panel aggregates data from all attack simulations run on SENTINEL. It acts as an educational dashboard designed to show how different defense strategies stand up to simulated hackers in real time.
+            <strong className="text-white block mb-0.5">Welcome to your Learning Journal</strong>
+            This panel aggregates data from all attack simulations you have built and run on SENTINEL. It serves as your personal progress dashboard to track how different security configurations stood up to simulated threat actors.
           </div>
           <div>
-            <strong className="text-white block mb-0.5">How this helps you</strong>
-            Whether you are a student, recruiter, or professor, you can instantly see which threat types (like Phishing or Ransomware) successfully penetrated our systems and which defense levels (from Basic to Enterprise) stopped them.
+            <strong className="text-white block mb-0.5">Track your achievements</strong>
+            Monitor your overall Learning Progress Index, view summaries of previous explorations, and see which threat models you have fully defended.
           </div>
           <div>
-            <strong className="text-white block mb-0.5">Key Insights to Gain</strong>
-            Monitor the overall Security Health Score, inspect plain-English story cards for completed simulations, and apply dynamically recommended security improvements.
+            <strong className="text-white block mb-0.5">Apply security mitigations</strong>
+            Review recommended fixes generated dynamically from successful breaches to learn how security engineers prevent real-world incidents.
           </div>
         </div>
 
@@ -339,13 +341,13 @@ export default function CommandCenterPage() {
         <div className="mb-12 max-w-4xl">
           <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase mb-4">
             <Terminal className="w-3.5 h-3.5 text-cyber-cyan" />
-            SENTINEL Learning Center: command-center.exe
+            SENTINEL Learning Center: learning-journal.exe
           </div>
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase tracking-tight">
-            COMMAND CENTER
+            Learning Progress Journal
           </h1>
           <p className="text-sm text-slate-400 mt-2 font-mono">
-            Cybersecurity Learning & Progress Dashboard
+            Your personal record of completed simulations, defenses tested, and security achievements.
           </p>
         </div>
 
@@ -414,7 +416,7 @@ export default function CommandCenterPage() {
                   {statusInfo.label}
                 </div>
                 <p className="text-[10px] text-slate-400 font-sans mt-3 leading-relaxed text-left">
-                  <strong>Learning Progress Snapshot</strong>: The percentage of simulated attacks that were successfully defended. A higher index indicates stronger defensive design.
+                  <strong>Learning Progress Snapshot</strong>: The percentage of simulated attacks that you have successfully defended. A higher index indicates you are building more resilient security setups.
                 </p>
               </div>
             </motion.div>
@@ -431,7 +433,7 @@ export default function CommandCenterPage() {
                 <div className="flex justify-between items-start">
                   <div>
                     <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      Total Simulations Completed
+                      Simulations Launched
                     </span>
                     <h3 className="text-4xl font-extrabold font-mono text-white mt-2">
                       <AnimatedCounter value={totalSimulations} />
@@ -445,7 +447,7 @@ export default function CommandCenterPage() {
                   The total number of cybersecurity simulations launched to test our systems.
                 </p>
               </motion.div>
-
+ 
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -456,7 +458,7 @@ export default function CommandCenterPage() {
                 <div className="flex justify-between items-start">
                   <div>
                     <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      High Threat Scenarios Checked
+                      High Risk Scenarios Tested
                     </span>
                     <h3 className="text-4xl font-extrabold font-mono text-cyber-red mt-2">
                       <AnimatedCounter value={criticalThreats} />
@@ -470,7 +472,7 @@ export default function CommandCenterPage() {
                   Simulations where the attack was highly dangerous due to the combination of threat severity and vulnerability.
                 </p>
               </motion.div>
-
+ 
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -481,7 +483,7 @@ export default function CommandCenterPage() {
                 <div className="flex justify-between items-start">
                   <div>
                     <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      Defended Attacks
+                      Defensive Successes
                     </span>
                     <h3 className="text-4xl font-extrabold font-mono text-cyber-green mt-2">
                       <AnimatedCounter value={blockedAttacks} />
@@ -495,7 +497,7 @@ export default function CommandCenterPage() {
                   Attacks where our security systems successfully detected and stopped the intruder before they could reach critical data.
                 </p>
               </motion.div>
-
+ 
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -506,7 +508,7 @@ export default function CommandCenterPage() {
                 <div className="flex justify-between items-start">
                   <div>
                     <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      Bypassed Attacks
+                      Bypasses Identified
                     </span>
                     <h3 className="text-4xl font-extrabold font-mono text-cyber-red mt-2">
                       <AnimatedCounter value={successfulAttacks} />
@@ -708,7 +710,7 @@ export default function CommandCenterPage() {
             >
               <div>
                 <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-4">
-                  [05] CRITICAL DEFENSE RECOMMENDATIONS
+                  [05] What Could Have Prevented These Attacks?
                 </span>
 
                 <motion.div
@@ -744,7 +746,7 @@ export default function CommandCenterPage() {
               </div>
 
               <div className="text-[9px] font-mono text-slate-500 uppercase mt-6 pt-4 border-t border-cyber-border/40">
-                DYNAMIC ACTIONS GENERATED FROM SIMULATION RESULTS
+                EDUCATIONAL MITIGATIONS COMPILED FROM HISTORY
               </div>
             </motion.div>
           </div>
@@ -834,7 +836,7 @@ export default function CommandCenterPage() {
                     </div>
 
                     <div className="text-[9px] font-mono text-slate-500 uppercase mt-6 pt-4 border-t border-cyber-border/40">
-                      ACTIVE FOCUS: DATABASE DIGITAL TWIN HOST TELEMETRY
+                      LEARNING JOURNAL INSIGHTS
                     </div>
                   </motion.div>
 
@@ -1072,15 +1074,15 @@ export default function CommandCenterPage() {
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyber-cyan/20 to-transparent" />
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-500 font-mono text-[9px] tracking-wider uppercase">
           <div>
-            <span className="text-white font-bold tracking-[0.2em]">SENTINEL PLATFORM COMMAND</span>
-            <span className="ml-2">© {new Date().getFullYear()} SENTINEL Cyber Inc.</span>
+            <span className="text-white font-bold tracking-[0.2em]">SENTINEL</span>
+            <span className="ml-2">Student Project | EEE Lab</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-green opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-cyber-green"></span>
             </span>
-            <span>SECURE CONSOLE LINK STATUS: OPERATIONAL</span>
+            <span>LEARNING SYSTEM ACTIVE</span>
           </div>
         </div>
       </footer>
