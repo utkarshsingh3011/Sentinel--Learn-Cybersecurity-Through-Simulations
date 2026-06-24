@@ -32,7 +32,7 @@ Instead of reading isolated cybersecurity concepts, learners can follow complete
 
 <img src="./public/attack-storyboard.png" width="100%">
 
-### Learning Review
+### Simulation Review
 
 <img src="./public/learning-review.png" width="100%">
 
