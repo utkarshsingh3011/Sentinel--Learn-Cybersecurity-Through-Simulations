@@ -1,34 +1,67 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+
   "compilerOptions": {
+    /* ==========================================
+       JavaScript & Language
+    ========================================== */
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
+    "jsx": "react-jsx",
+
+    /* ==========================================
+       Module Resolution
+    ========================================== */
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "react-jsx",
+    "esModuleInterop": true,
+
+    /* ==========================================
+       Type Safety
+    ========================================== */
+    "strict": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+
+    /* ==========================================
+       Build
+    ========================================== */
+    "noEmit": true,
     "incremental": true,
+
+    /* ==========================================
+       Next.js
+    ========================================== */
     "plugins": [
       {
         "name": "next"
       }
     ],
+
+    /* ==========================================
+       Path Aliases
+    ========================================== */
     "paths": {
       "@/*": ["./src/*"]
     }
   },
+
+  /* ==========================================
+     Project Files
+  ========================================== */
+
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "**/*.mts",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+
+  "exclude": [
+    "node_modules"
+  ]
 }
