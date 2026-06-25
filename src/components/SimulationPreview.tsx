@@ -157,7 +157,7 @@ export default function SimulationPreview() {
             Interactive Attack Simulation
           </h2>
           <p className="mt-4 text-slate-400 text-sm md:text-base leading-relaxed">
-            Watch how simulated attacks spread step-by-step and see how security rules can block them.
+            See how an attack progresses across a virtual network while learning how security controls respond.
           </p>
         </div>
 
@@ -187,7 +187,7 @@ export default function SimulationPreview() {
                   <RotateCcw className="w-4 h-4" />
                 </button>
                 <span className="text-xs font-mono font-bold tracking-widest text-slate-400 uppercase ml-2">
-                  {isPlaying ? "SIMULATOR STREAMING" : "SIMULATOR STANDBY"}
+                  {isPlaying ? "Simulation Streaming" : "Ready to Begin"}
                 </span>
               </div>
 
@@ -214,10 +214,12 @@ export default function SimulationPreview() {
             <div className="flex-grow my-6 min-h-[350px] max-h-[420px] overflow-y-auto space-y-4 pr-2">
               <AnimatePresence>
                 {eventLog.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center text-center py-20 font-mono">
-                    <ShieldCheck className="w-10 h-10 text-slate-600 mb-3 animate-pulse" />
-                    <span className="text-xs text-slate-500">CLICK PLAY TO START INTERACTIVE SIMULATION</span>
-                    <span className="text-[10px] text-slate-600 mt-1">EMULATE PHISHING ATTACK SCENARIO</span>
+                  <div className="h-full flex flex-col items-center justify-center text-center py-20 font-sans">
+                    <ShieldCheck className="w-10 h-10 text-cyber-cyan mb-3 animate-pulse" />
+                    <span className="text-xs font-bold text-white uppercase tracking-wider block">Press Play to start the simulation.</span>
+                    <span className="text-[11px] text-slate-400 mt-2 max-w-sm leading-relaxed">
+                      You'll watch each stage of the attack and learn what is happening in real time.
+                    </span>
                   </div>
                 ) : (
                   eventLog.map((event, index) => {
@@ -302,10 +304,13 @@ export default function SimulationPreview() {
             <div className="glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between relative overflow-hidden">
               <div className="absolute top-0 right-0 w-[40%] h-[40%] bg-cyber-red/5 rounded-full blur-[50px] pointer-events-none" />
               
-              <div className="flex justify-between items-center border-b border-cyber-border/40 pb-3 mb-4">
-                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+              <div className="flex flex-col border-b border-cyber-border/40 pb-3 mb-4">
+                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest flex items-center gap-1.5 font-bold">
                   <ShieldAlert className="w-3.5 h-3.5 text-cyber-red" />
-                  Attack Progress Risk Score
+                  Attack Progress
+                </span>
+                <span className="text-[9px] text-slate-500 font-sans mt-0.5">
+                  Tracks how far the simulation has progressed.
                 </span>
               </div>
 
@@ -343,7 +348,7 @@ export default function SimulationPreview() {
                       {currentRiskScore}%
                     </span>
                     <span className="text-[8px] font-mono text-slate-500 uppercase tracking-wider mt-1">
-                      Risk Score
+                      Current Network Risk
                     </span>
                   </div>
                 </div>
@@ -364,16 +369,16 @@ export default function SimulationPreview() {
               {/* Status details indicators */}
               <div className="grid grid-cols-3 gap-2.5 border-t border-cyber-border/40 pt-4 font-mono text-[9px] text-center">
                 <div className="bg-cyber-surface/40 p-2 rounded border border-cyber-border">
-                  <div className="text-slate-500 uppercase">EVADED</div>
-                  <div className="text-cyber-red text-xs font-bold mt-1">{activeEvadedCount}</div>
+                  <div className="text-slate-500 uppercase">Events Completed</div>
+                  <div className="text-cyber-cyan text-xs font-bold mt-1">{eventLog.length}</div>
                 </div>
                 <div className="bg-cyber-surface/40 p-2 rounded border border-cyber-border">
-                  <div className="text-slate-500 uppercase">BLOCKED</div>
+                  <div className="text-slate-500 uppercase">Security Alerts</div>
+                  <div className="text-amber-500 text-xs font-bold mt-1">{activeAlertedCount}</div>
+                </div>
+                <div className="bg-cyber-surface/40 p-2 rounded border border-cyber-border">
+                  <div className="text-slate-500 uppercase">Attack Blocked</div>
                   <div className="text-cyber-green text-xs font-bold mt-1">{activeBlockedCount}</div>
-                </div>
-                <div className="bg-cyber-surface/40 p-2 rounded border border-cyber-border">
-                  <div className="text-slate-500 uppercase">ALERTED</div>
-                  <div className="text-cyber-cyan text-xs font-bold mt-1">{activeAlertedCount}</div>
                 </div>
               </div>
             </div>
@@ -383,43 +388,43 @@ export default function SimulationPreview() {
               <div className="flex justify-between items-center border-b border-cyber-border/40 pb-3 mb-4">
                 <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
                   <HardDrive className="w-3.5 h-3.5 text-cyber-cyan" />
-                  System Vulnerability Chance
+                  Current Network Status
                 </span>
               </div>
 
               <div className="space-y-3 font-mono text-[10px]">
                 <div className="space-y-2">
                   <div className="flex justify-between text-slate-400">
-                    <span>HOST-102 (MARKETING)</span>
-                    <span className="text-cyber-red font-bold">VULNERABLE (88%)</span>
+                    <span>Email Server</span>
+                    <span className="text-cyber-green font-bold">Protected</span>
                   </div>
                   <div className="w-full h-1 bg-slate-900 border border-cyber-border rounded overflow-hidden">
-                    <div className="h-full bg-cyber-red w-[88%]" />
+                    <div className="h-full bg-cyber-green w-full" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-slate-400">
-                    <span>AD-SRV-01 (ACTIVE DIRECTORY)</span>
-                    <span className="text-amber-500 font-bold">EXPOSED (64%)</span>
+                    <span>Workstation</span>
+                    <span className="text-amber-500 font-bold">Suspicious Activity</span>
                   </div>
                   <div className="w-full h-1 bg-slate-900 border border-cyber-border rounded overflow-hidden">
-                    <div className="h-full bg-amber-500 w-[64%]" />
+                    <div className={`h-full bg-amber-500 transition-all duration-500 ${eventLog.length > 1 ? "w-full" : "w-[30%]"}`} />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-slate-400">
-                    <span>DB-FIN-SQL (FINANCE DB)</span>
-                    <span className="text-slate-500 font-bold">STANDBY (12%)</span>
+                    <span>File Server</span>
+                    <span className="text-cyber-cyan font-bold">Monitoring</span>
                   </div>
                   <div className="w-full h-1 bg-slate-900 border border-cyber-border rounded overflow-hidden">
-                    <div className="h-full bg-electric-blue w-[12%]" />
+                    <div className="h-full bg-cyber-cyan w-full animate-pulse" />
                   </div>
                 </div>
               </div>
 
               <div className="mt-4 p-2.5 bg-cyber-surface/50 border border-cyber-border rounded font-mono text-[8px] text-slate-500 flex items-center gap-2">
-                <Flame className="w-3.5 h-3.5 text-cyber-red animate-pulse" />
-                <span>Simulation identifies 2 security areas to improve.</span>
+                <Flame className="w-3.5 h-3.5 text-cyber-cyan animate-pulse" />
+                <span>Watch how each device changes as the simulation progresses.</span>
               </div>
             </div>
 

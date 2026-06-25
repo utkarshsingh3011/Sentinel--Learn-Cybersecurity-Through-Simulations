@@ -7,83 +7,88 @@ import { motion } from "framer-motion";
 const FEATURES = [
   {
     id: "attack-sims",
-    title: "Attack Simulations",
-    desc: "Watch interactive, step-by-step attack simulations.",
+    title: "Interactive Simulations",
+    desc: "Watch cyber attacks unfold step by step in a safe virtual environment.",
     icon: Play,
     glowColor: "group-hover:shadow-[0_0_30px_rgba(6,182,212,0.15)]",
     borderColor: "hover:border-cyan-500/50",
-    badge: "Interactive Playback",
+    badge: "Practice",
     widget: (
       <div className="mt-4 p-3 bg-black/40 rounded border border-cyber-border font-mono text-[9px] text-slate-400 space-y-2">
         <div className="flex justify-between text-[8px] text-slate-500">
-          <span>ATTACK SIMULATION</span>
-          <span className="text-cyber-cyan animate-pulse">PLAYBACK ACTIVE</span>
+          <span>Scenario</span>
+          <span className="text-white font-bold">Spear Phishing</span>
         </div>
-        <div className="w-full bg-slate-900 h-1 rounded overflow-hidden relative">
-          <div className="bg-cyber-cyan h-full w-[65%]" />
-          <div className="absolute left-[65%] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white shadow-[0_0_5px_#fff]" />
+        <div className="flex justify-between text-[8px] text-slate-500">
+          <span>Progress</span>
+          <span className="text-cyber-cyan font-bold">Step 3 of 4</span>
         </div>
-        <div className="text-center text-slate-350 text-[8px]">Step 3 of 4: Lateral Movement to Central Server</div>
+        <div className="flex justify-between text-[8px] text-slate-500">
+          <span>Status</span>
+          <span className="text-cyber-cyan animate-pulse font-bold">Simulation Running</span>
+        </div>
       </div>
     ),
   },
   {
     id: "security-insights",
-    title: "Security Insights",
-    desc: "Analyze logs, risk scores, and security findings.",
+    title: "Attack Analysis",
+    desc: "Review what happened after the simulation and understand why the attack succeeded or failed.",
     icon: BarChart3,
     glowColor: "group-hover:shadow-[0_0_30px_rgba(244,63,94,0.15)]",
     borderColor: "hover:border-rose-500/50",
-    badge: "Risk Analysis",
+    badge: "Review",
     widget: (
-      <div className="mt-4 p-3 bg-black/40 rounded border border-cyber-border font-mono text-[9px] text-slate-400 space-y-1.5">
-        <div className="text-[8px] text-slate-500">SECURITY INSIGHTS LOG</div>
-        <div className="flex justify-between items-center text-slate-300">
-          <span>Overall Security Level</span>
-          <span className="text-cyber-cyan font-bold">Standard</span>
+      <div className="mt-4 p-3 bg-black/40 rounded border border-cyber-border font-mono text-[9px] text-slate-400 space-y-2">
+        <div className="flex justify-between text-[8px] text-slate-500">
+          <span>Detection Rate</span>
+          <span className="text-cyber-green font-bold">94%</span>
         </div>
-        <div className="flex justify-between items-center text-slate-300">
-          <span>Identified Vulnerabilities</span>
-          <span className="text-amber-500 font-bold">2 At Risk</span>
+        <div className="flex justify-between text-[8px] text-slate-500">
+          <span>Weak Areas</span>
+          <span className="text-amber-500 font-bold">2 Found</span>
         </div>
       </div>
     ),
   },
   {
     id: "simulation-builder",
-    title: "Simulation Builder",
-    desc: "Create custom scenarios and configure environments.",
+    title: "Scenario Builder",
+    desc: "Customize attack scenarios by choosing the attack type, target, and security settings.",
     icon: Bot,
     glowColor: "group-hover:shadow-[0_0_30px_rgba(37,99,235,0.15)]",
     borderColor: "hover:border-blue-500/50",
-    badge: "Scenario Setup",
+    badge: "Build",
     widget: (
-      <div className="mt-4 p-3 bg-black/40 rounded border border-cyber-border font-mono text-[9px] text-slate-400 space-y-1">
-        <div className="text-[8px] text-slate-500">{"// SCENARIO CONFIG"}</div>
-        <div className="text-white">&quot;Custom Spear-Phishing Campaign&quot;</div>
-        <div className="text-[8px] text-slate-500 mt-2">{"// TARGET SYSTEM"}</div>
-        <div className="text-cyber-cyan">✓ Hospital EMR Network selected</div>
+      <div className="mt-4 p-3 bg-black/40 rounded border border-cyber-border font-mono text-[9px] text-slate-400 space-y-2">
+        <div className="flex justify-between text-[8px] text-slate-500">
+          <span>Attack</span>
+          <span className="text-white font-bold">Spear Phishing</span>
+        </div>
+        <div className="flex justify-between text-[8px] text-slate-500">
+          <span>Target</span>
+          <span className="text-cyber-cyan font-bold">Hospital Network</span>
+        </div>
       </div>
     ),
   },
   {
     id: "modules",
-    title: "Modules",
-    desc: "Learn cybersecurity concepts through structured lessons.",
+    title: "Learning Guides",
+    desc: "Read short lessons that explain cybersecurity concepts behind every simulation.",
     icon: BookOpen,
     glowColor: "group-hover:shadow-[0_0_30px_rgba(10,185,129,0.15)]",
     borderColor: "hover:border-emerald-500/50",
-    badge: "Educational Content",
+    badge: "Understand",
     widget: (
-      <div className="mt-4 p-3 bg-black/40 rounded border border-cyber-border font-mono text-[9px] text-slate-400 flex justify-between items-center gap-2">
-        <div className="space-y-0.5">
-          <div className="text-[8px] text-slate-500">ACTIVE LESSON</div>
-          <div className="text-white font-bold text-[10px]">
-            Lesson 1: Phishing Basics
-          </div>
+      <div className="mt-4 p-3 bg-black/40 rounded border border-cyber-border font-mono text-[9px] text-slate-400 space-y-2">
+        <div className="flex justify-between text-[8px] text-slate-500">
+          <span>Current Lesson</span>
+          <span className="text-white font-bold">Email Security Basics</span>
         </div>
-        <div className="px-2 py-0.5 rounded bg-cyber-green/5 border border-cyber-green/30 text-cyber-green font-bold text-[8px]">
-          Completed
+        <div className="flex justify-between text-[8px] text-slate-500">
+          <span>Estimated Time</span>
+          <span className="text-cyber-green font-bold">8 min</span>
         </div>
       </div>
     ),
@@ -130,13 +135,13 @@ export default function Features() {
           >
             <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase mb-4">
               <Cpu className="w-3.5 h-3.5 text-cyber-cyan" />
-              Platform Modules
+              Learning Workspace
             </div>
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white">
-              Core Modules
+              Everything You Need to Learn
             </h2>
             <p className="mt-4 text-slate-400 text-sm md:text-base leading-relaxed">
-              SENTINEL provides four core modules designed to help you build, run, analyze, and learn from interactive cybersecurity simulations.
+              Explore interactive tools that let you build scenarios, watch attacks, analyze results, and strengthen your cybersecurity knowledge.
             </p>
           </motion.div>
 
