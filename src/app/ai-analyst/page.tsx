@@ -1413,6 +1413,21 @@ const PrintCaseStudy = ({ reportData }: { reportData: CTIReport }) => {
                   </table>
                 </div>
 
+                {/* Educational Notice */}
+                <div className="print-section border-t border-slate-200 pt-5 mt-6" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
+                  <h2 className="text-[10px] font-bold uppercase tracking-wider text-slate-800 mb-2">
+                    Educational Notice
+                  </h2>
+                  <div className="space-y-1.5 text-[10px] text-slate-500 font-sans leading-relaxed">
+                    <p>
+                      This report was generated from a simulated cybersecurity scenario within Sentinel and is intended for educational purposes only.
+                    </p>
+                    <p>
+                      All scenarios are fictional simulations created to help users understand cybersecurity concepts in a safe learning environment.
+                    </p>
+                  </div>
+                </div>
+
               </div>
             </td>
           </tr>

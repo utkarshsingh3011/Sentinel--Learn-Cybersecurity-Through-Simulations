@@ -139,7 +139,7 @@ export default function Footer() {
             &copy; 2026 SENTINEL
           </div>
           <div className="sm:w-1/3 sm:text-center text-slate-400 font-bold uppercase tracking-widest">
-            Educational Portfolio Project
+            Educational Cybersecurity Project
           </div>
           <div className="sm:w-1/3 sm:text-right uppercase">
             Designed & Developed by Utkarsh Singh

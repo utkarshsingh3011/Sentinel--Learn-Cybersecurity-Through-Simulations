@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import {
   ArrowLeft, Lightbulb, Activity, Shield, Cpu,
-  Layers, Play, FileText, CheckCircle2
+  Layers, Play, FileText, CheckCircle2, BookOpen
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Header from "../../components/Header";
@@ -183,6 +183,30 @@ export default function AboutPage() {
                   {tech}
                 </span>
               ))}
+            </div>
+          </section>
+
+          {/* SECTION 5: Educational Purpose */}
+          <section className="space-y-6 pt-6 border-t border-cyber-border/20">
+            <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase">
+              <BookOpen className="w-3.5 h-3.5" />
+              Purpose
+            </div>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white">
+              Educational Purpose
+            </h2>
+            <div className="glassmorphism-card rounded-xl p-6 md:p-8 border border-cyber-border bg-cyber-surface/30 max-w-3xl">
+              <div className="space-y-4 text-slate-400 text-sm md:text-base leading-relaxed font-sans">
+                <p>
+                  Sentinel is an educational cybersecurity learning platform created to help students and beginners understand how cyber attacks unfold through safe, interactive simulations.
+                </p>
+                <p>
+                  Every scenario takes place inside a controlled virtual environment designed for learning. Sentinel does not interact with real systems, perform offensive security operations, or target real networks.
+                </p>
+                <p>
+                  Its purpose is to encourage cybersecurity awareness, defensive thinking, and hands-on learning through visual experiences.
+                </p>
+              </div>
             </div>
           </section>
 
