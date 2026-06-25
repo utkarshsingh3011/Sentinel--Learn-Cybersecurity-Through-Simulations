@@ -14,7 +14,6 @@ import {
   getCampaignHistory, StoredCampaign, getActorName,
   getAttackName, getIndustryName, CampaignStage, getSecurityLevelName
 } from "../../components/campaignStore";
-import Footer from "../../components/Footer";
 
 // Fallback campaign configuration
 const DEFAULT_ANALYST_CAMPAIGN: StoredCampaign = {
@@ -963,7 +962,10 @@ const getFinalThoughtPrint = (vectorId: string, status: string) => {
   if (isBlocked) {
     return "Remember that cybersecurity is not about building a single perfect wall, but about layering checks so that when one layer fails, another is ready to intercept the threat. By rate-limiting requests, segmenting servers, or filtering emails, we prevent small gaps from becoming system-wide breaches. Real security means ensuring that if one door is opened, the inner chambers remain fully locked.";
   }
-  return "Remember that a single unpatched gap or human error is often all an attacker needs to bypass perimeter firewalls. When networks lack multi-factor authentication, segmentation, or query validation, attackers can easily pivot from a user workstation to the core database. Cybersecurity requires multi-layered safeguards at every stage to ensure a single mistake cannotconst PrintCaseStudy = ({ reportData }: { reportData: CTIReport }) => {
+  return "Remember that a single unpatched gap or human error is often all an attacker needs to bypass perimeter firewalls. When networks lack multi-factor authentication, segmentation, or query validation, attackers can easily pivot from a user workstation to the core database. Cybersecurity requires multi-layered safeguards at every stage to ensure a single mistake cannot compromise the entire system.";
+};
+
+const PrintCaseStudy = ({ reportData }: { reportData: CTIReport }) => {
   const title = getCaseStudyTitle(reportData.vectorId, reportData.status);
   const summary = getScenarioSummary(reportData.vectorId, reportData.status, reportData.industryName, reportData.targetName);
   const timeline = getPrintTimeline(reportData.vectorId, reportData.stages);
@@ -974,23 +976,9 @@ const getFinalThoughtPrint = (vectorId: string, status: string) => {
   const reflection = getFinalThoughtPrint(reportData.vectorId, reportData.status);
 
   const isBlocked = reportData.status === "Blocked";
-  const totalPages = isBlocked ? 3 : 4;
-
-  const getSeverityBadge = (sev: string) => {
-    switch (sev?.toLowerCase()) {
-      case "critical":
-        return <span className="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase bg-red-100 text-red-800 border border-red-200">Critical</span>;
-      case "high":
-        return <span className="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase bg-orange-100 text-orange-850 border border-orange-250">High</span>;
-      case "medium":
-        return <span className="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase bg-yellow-100 text-yellow-800 border border-yellow-200">Medium</span>;
-      default:
-        return <span className="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase bg-blue-100 text-blue-800 border border-blue-200">Low</span>;
-    }
-  };
 
   return (
-    <div className="hidden print:block text-black bg-white font-sans text-sm max-w-[21cm] mx-auto">
+    <div className="hidden print:block text-black bg-white font-sans p-6 leading-relaxed text-sm max-w-[21cm] mx-auto">
       {/* CSS overrides to ensure clean background color and no header/footer default elements when printing */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
@@ -1000,494 +988,237 @@ const getFinalThoughtPrint = (vectorId: string, status: string) => {
           }
           @page {
             size: A4;
-            margin-top: 30px;
-            margin-bottom: 30px;
-            margin-left: 24px;
-            margin-right: 24px;
-          }
-          .print-section {
-            page-break-inside: avoid;
-            break-inside: avoid;
-            margin-bottom: 24px;
-          }
-          .page-num::after {
-            content: counter(page);
-          }
-          /* Custom table border reset */
-          table {
-            border-collapse: collapse !important;
-          }
-          tr {
-            page-break-inside: avoid;
-            break-inside: avoid;
+            margin: 1.5cm;
           }
         }
       ` }} />
 
-      {/* =========================================================
-          PAGE 1: COVER PAGE
-          ========================================================= */}
-      <div className="flex flex-col justify-between items-center text-center p-12 bg-white" style={{ pageBreakAfter: "always", minHeight: "27cm" }}>
-        {/* Top Logo & Title */}
-        <div className="mt-16 space-y-4">
-          <div className="flex justify-center items-center gap-2">
-            <div className="w-10 h-10 rounded-lg bg-black flex items-center justify-center text-white font-extrabold text-lg tracking-wider font-mono">
-              S
+      {isBlocked ? (
+        /* BLOCK SIMULATION - EXACTLY 2 PAGES */
+        <>
+          {/* PAGE 1 */}
+          <div style={{ pageBreakAfter: "always" }} className="space-y-6">
+            {/* Header */}
+            <div className="border-b-2 border-black pb-4">
+              <span className="text-[10px] font-mono tracking-widest uppercase text-slate-500 font-bold block">Cybersecurity Lab Case Study</span>
+              <h1 className="text-2xl font-bold mt-1 text-black uppercase">{title}</h1>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2 mt-4 text-xs">
+                <div><strong>Environment:</strong> {reportData.industryName} Environment ({reportData.targetName})</div>
+                <div><strong>Attack Method:</strong> {reportData.vectorName} Simulation</div>
+                <div><strong>Outcome:</strong> <span className="text-green-700 font-bold">Threat Containment Successful</span></div>
+                <div><strong>Date Generated:</strong> {new Date(reportData.timestamp).toLocaleDateString()}</div>
+              </div>
+            </div>
+
+            {/* Section 1: Simulation Overview */}
+            <div className="space-y-3">
+              <h2 className="text-base font-bold uppercase border-b border-black pb-1">1. Simulation Overview</h2>
+              <div className="space-y-2 text-xs text-slate-800">
+                <p><strong>Scenario:</strong> An emulation of the threat actor <strong>{reportData.actorName}</strong> was conducted to evaluate the defense capacity of our simulated {reportData.industryName.toLowerCase()} systems.</p>
+                <p><strong>Entry Method:</strong> The attack attempted to establish an initial foothold via <strong>{reportData.vectorName.toLowerCase()}</strong> channels, targeting the critical database server <strong>{reportData.targetName}</strong>.</p>
+                <p><strong>Outcome:</strong> Defensive controls successfully intercepted the intrusion. Active rules detected the anomalous behavior and blocked the threat before any lateral spread could occur.</p>
+                <p><strong>Summary:</strong> {summary}</p>
+              </div>
+            </div>
+
+            {/* Section 2: Attack Journey */}
+            <div className="space-y-3">
+              <h2 className="text-base font-bold uppercase border-b border-black pb-1">2. Attack Journey Timeline</h2>
+              <div className="space-y-2 text-xs">
+                {timeline.map((stage, idx) => {
+                  const isUnreached = stage.whatHappened === "This stage was not reached.";
+                  const isStageBlocked = reportData.stages[idx]?.status === "blocked";
+                  return (
+                    <div key={idx} className={`p-2.5 rounded border border-slate-300 ${isUnreached ? "bg-slate-50 text-slate-400" : isStageBlocked ? "bg-green-50 border-green-300 text-slate-850" : "bg-red-50 border-red-200 text-slate-850"}`}>
+                      <div className="flex justify-between items-center font-bold font-mono text-[10px]">
+                        <span>PHASE {idx + 1}: {stage.title.toUpperCase()}</span>
+                        <span>
+                          {isUnreached ? "⚪ UNREACHED" : isStageBlocked ? "🟢 BLOCKED" : "🔴 EVADED"}
+                        </span>
+                      </div>
+                      <p className="mt-1 leading-normal text-[11px]">
+                        <strong>Activity:</strong> {stage.whatHappened}
+                      </p>
+                      {!isUnreached && (
+                        <p className="mt-0.5 leading-normal text-[11px]">
+                          <strong>Outcome:</strong> {stage.outcome}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
-          <h1 className="text-4xl font-extrabold tracking-[0.25em] text-black font-mono uppercase mt-4">
-            SENTINEL
-          </h1>
-          <p className="text-lg font-bold text-slate-800 uppercase tracking-widest">
-            Cybersecurity Simulation Report
-          </p>
-          <p className="text-xs text-slate-500 font-sans mt-2">
-            Generated using the Sentinel Interactive Learning Platform
-          </p>
-        </div>
 
-        {/* Middle Metadata Block */}
-        <div className="w-full max-w-md bg-slate-50 border border-slate-200 rounded-lg p-6 text-left my-10 space-y-3 font-sans text-xs">
-          <div className="flex justify-between border-b border-slate-200 pb-2">
-            <span className="text-slate-500 font-mono uppercase text-[9px]">Simulation Name</span>
-            <span className="text-black font-bold text-right max-w-[220px] truncate">{title}</span>
-          </div>
-          <div className="flex justify-between border-b border-slate-200 pb-2">
-            <span className="text-slate-500 font-mono uppercase text-[9px]">Attack Type</span>
-            <span className="text-black font-bold">{reportData.vectorName}</span>
-          </div>
-          <div className="flex justify-between border-b border-slate-200 pb-2">
-            <span className="text-slate-500 font-mono uppercase text-[9px]">Target Environment</span>
-            <span className="text-black font-bold">{reportData.industryName}</span>
-          </div>
-          <div className="flex justify-between border-b border-slate-200 pb-2">
-            <span className="text-slate-500 font-mono uppercase text-[9px]">Generated Date</span>
-            <span className="text-black font-bold">{new Date(reportData.timestamp).toLocaleDateString()}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-500 font-mono uppercase text-[9px]">Generated By</span>
-            <span className="text-black font-bold">Sentinel AI Analyst Console</span>
-          </div>
-        </div>
+          {/* PAGE 2 */}
+          <div className="space-y-6">
+            {/* Section 3: Why Security Succeeded */}
+            <div className="space-y-2">
+              <h2 className="text-base font-bold uppercase border-b border-black pb-1">3. Why Security Succeeded</h2>
+              <p className="text-xs text-slate-800 leading-relaxed font-sans">{whySecurityStruggled}</p>
+            </div>
 
-        {/* Bottom Logo / Confidentiality */}
-        <div className="mb-16">
-          <div className="px-4 py-1.5 rounded border border-red-300 bg-red-50 text-red-700 text-[10px] font-mono uppercase tracking-widest font-bold">
-            Confidential Educational Report
-          </div>
-        </div>
-      </div>
+            {/* Section 4: Why This Matters */}
+            <div className="space-y-2">
+              <h2 className="text-base font-bold uppercase border-b border-black pb-1">4. Why This Matters</h2>
+              <p className="text-xs text-slate-600 mb-2">If these security defenses had not been active, the attack could have led to severe real-world consequences:</p>
+              <ul className="list-disc pl-5 text-xs text-slate-800 space-y-1.5">
+                {whyThisMatters.slice(0, 4).map((consequence, idx) => (
+                  <li key={idx}>{consequence}</li>
+                ))}
+              </ul>
+            </div>
 
-      {/* =========================================================
-          MAIN REPORT CONTAINER (WITH REPEATING HEADER/FOOTER)
-          ========================================================= */}
-      <table className="w-full border-none">
-        {/* Repeating Header */}
-        <thead>
-          <tr>
-            <td className="border-none">
-              <div className="flex justify-between items-center border-b border-slate-300 pb-2 mb-4 text-[9px] font-mono text-slate-500">
-                <div className="flex items-center gap-1 font-bold text-black uppercase tracking-wider">
-                  <span>SENTINEL</span>
-                </div>
-                <div className="uppercase font-bold max-w-sm truncate text-slate-800">
-                  Report: {title}
-                </div>
-                <div className="text-right leading-tight">
-                  ID: {reportData.id || "SENT-2026-XXXX"} | {new Date(reportData.timestamp).toLocaleDateString()}
-                </div>
+            {/* Section 5: How It Could Be Prevented */}
+            <div className="space-y-3">
+              <h2 className="text-base font-bold uppercase border-b border-black pb-1">5. Recommended Protections</h2>
+              <div className="grid grid-cols-1 gap-2.5">
+                {preventions.map((prev, idx) => (
+                  <div key={idx} className="p-3 border border-slate-300 rounded bg-slate-50 flex items-start gap-3">
+                    <span className="text-lg leading-none pt-0.5">{prev.icon}</span>
+                    <div className="text-xs">
+                      <strong className="text-black font-mono block uppercase text-[10px]">{prev.rank}: {prev.name}</strong>
+                      <p className="text-slate-700 mt-1 leading-normal">{prev.desc}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </td>
-          </tr>
-        </thead>
+            </div>
 
-        {/* Repeating Footer */}
-        <tfoot>
-          <tr>
-            <td className="border-none pt-4">
-              <div className="flex justify-between items-center border-t border-slate-200 pt-3 text-[9px] font-mono text-slate-500 uppercase tracking-wider">
-                <div>&copy; 2026 Sentinel</div>
-                <div>Interactive Cybersecurity Learning Platform</div>
-                <div>Page <span className="page-num"></span> of {totalPages}</div>
+            {/* Section 6: Key Lessons */}
+            <div className="space-y-2">
+              <h2 className="text-base font-bold uppercase border-b border-black pb-1">6. Key Lessons</h2>
+              <ul className="list-decimal pl-5 text-xs text-slate-800 space-y-1.5">
+                {lessons.slice(0, 3).map((lesson, idx) => (
+                  <li key={idx}><strong>Lesson {idx + 1}:</strong> {lesson}</li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Section 7: Student Reflection */}
+            <div className="p-4 border border-black rounded bg-slate-50 mt-4">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-black font-mono mb-1">7. Student Reflection & Conclusion</h2>
+              <p className="text-xs italic text-slate-800 leading-relaxed font-sans">
+                {reflection}
+              </p>
+            </div>
+          </div>
+        </>
+      ) : (
+        /* SUCCESSFUL (COMPLEX) SIMULATION - EXACTLY 3 PAGES */
+        <>
+          {/* PAGE 1: Overview */}
+          <div style={{ pageBreakAfter: "always" }} className="space-y-6">
+            {/* Header */}
+            <div className="border-b-2 border-black pb-4">
+              <span className="text-[10px] font-mono tracking-widest uppercase text-slate-500 font-bold block">Cybersecurity Lab Case Study</span>
+              <h1 className="text-2xl font-bold mt-1 text-black uppercase">{title}</h1>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2 mt-4 text-xs">
+                <div><strong>Environment:</strong> {reportData.industryName} Environment ({reportData.targetName})</div>
+                <div><strong>Attack Method:</strong> {reportData.vectorName} Simulation</div>
+                <div><strong>Outcome:</strong> <span className="text-red-700 font-bold">Defenses Bypassed / System Compromised</span></div>
+                <div><strong>Date Generated:</strong> {new Date(reportData.timestamp).toLocaleDateString()}</div>
               </div>
-            </td>
-          </tr>
-        </tfoot>
+            </div>
 
-        {/* Main Content Body */}
-        <tbody className="border-none">
-          {isBlocked ? (
-            /* =========================================================
-                BLOCKED SCENARIO - PAGES 2 & 3 OF REPORT
-               ========================================================= */
-            <>
-              {/* PAGE 2 */}
-              <tr className="border-none" style={{ pageBreakAfter: "always", breakAfter: "page" }}>
-                <td className="border-none p-0">
-                  <div className="space-y-6 flex flex-col justify-start">
-                    {/* Main Title Block */}
-                    <div className="border-b-2 border-black pb-4 mb-2">
-                      <span className="text-[10px] font-mono tracking-widest uppercase text-slate-500 font-bold block">Incident Report Summary</span>
-                      <h1 className="text-2xl font-bold mt-1 text-black uppercase">{title}</h1>
-                      <div className="grid grid-cols-2 gap-x-6 gap-y-2 mt-4 text-xs font-sans text-slate-700">
-                        <div><strong>Target Environment:</strong> {reportData.industryName} ({reportData.targetName})</div>
-                        <div><strong>Attack Method:</strong> {reportData.vectorName} Simulation</div>
-                        <div><strong>Outcome:</strong> <span className="text-green-700 font-bold uppercase text-[10px]">Threat Containment Successful</span></div>
-                        <div><strong>Date Generated:</strong> {new Date(reportData.timestamp).toLocaleString()}</div>
+            {/* Section 1: Simulation Overview */}
+            <div className="space-y-4">
+              <h2 className="text-base font-bold uppercase border-b border-black pb-1">1. Simulation Overview</h2>
+              <div className="space-y-3 text-xs text-slate-800 leading-relaxed">
+                <p><strong>Scenario:</strong> An attack simulation mimicking <strong>{reportData.actorName}</strong> was conducted to test the vulnerability limits of the current {reportData.industryName.toLowerCase()} setup.</p>
+                <p><strong>Entry Method:</strong> The attacker exploited weak points in the <strong>{reportData.vectorName.toLowerCase()}</strong> setup to bypass perimeter controls and connect to local endpoints.</p>
+                <p><strong>Outcome:</strong> Security controls failed to contain the intrusion. The attacker successfully escalated privileges, moved laterally through the network, and reached the target server <strong>{reportData.targetName}</strong>.</p>
+                <p><strong>Detailed Summary:</strong> {summary}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* PAGE 2: Journey & Struggles */}
+          <div style={{ pageBreakAfter: "always" }} className="space-y-6">
+            {/* Section 2: Attack Journey */}
+            <div className="space-y-3">
+              <h2 className="text-base font-bold uppercase border-b border-black pb-1">2. Attack Journey Timeline</h2>
+              <div className="space-y-2.5 text-xs">
+                {timeline.map((stage, idx) => {
+                  const isUnreached = stage.whatHappened === "This stage was not reached.";
+                  const isStageBlocked = reportData.stages[idx]?.status === "blocked";
+                  return (
+                    <div key={idx} className={`p-2.5 rounded border border-slate-300 ${isUnreached ? "bg-slate-50 text-slate-400" : isStageBlocked ? "bg-green-50 border-green-300 text-slate-850" : "bg-red-50 border-red-200 text-slate-850"}`}>
+                      <div className="flex justify-between items-center font-bold font-mono text-[10px]">
+                        <span>PHASE {idx + 1}: {stage.title.toUpperCase()}</span>
+                        <span>
+                          {isUnreached ? "UNREACHED" : isStageBlocked ? "BLOCKED" : "EVADED"}
+                        </span>
                       </div>
-                    </div>
-
-                    {/* Section 1: Executive Summary */}
-                    <div className="print-section border border-slate-200 rounded-lg p-5 bg-slate-50/20">
-                      <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-200 pb-2 mb-3">
-                        1. Executive Summary
-                      </h2>
-                      <div className="space-y-2.5 text-xs text-slate-800 leading-relaxed font-sans">
-                        <p><strong>Scenario:</strong> An emulation of the threat actor <strong>{reportData.actorName}</strong> was conducted to evaluate the defense capacity of our simulated {reportData.industryName.toLowerCase()} systems.</p>
-                        <p><strong>Entry Method:</strong> The attack attempted to establish an initial foothold via <strong>{reportData.vectorName.toLowerCase()}</strong> channels, targeting the critical database server <strong>{reportData.targetName}</strong>.</p>
-                        <p><strong>Outcome:</strong> Defensive security controls successfully intercepted the intrusion. Active rules detected the anomalous behavior and blocked the threat before any lateral spread could occur.</p>
-                        <p><strong>Analysis Summary:</strong> {summary}</p>
-                      </div>
-                    </div>
-
-                    {/* Section 2: Attack Journey Timeline */}
-                    <div className="print-section border border-slate-200 rounded-lg p-5 bg-slate-50/20">
-                      <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-200 pb-2 mb-3">
-                        2. Attack Journey Timeline
-                      </h2>
-                      <div className="space-y-3 text-xs">
-                        {timeline.map((stage, idx) => {
-                          const isUnreached = stage.whatHappened === "This stage was not reached.";
-                          const isStageBlocked = reportData.stages[idx]?.status === "blocked";
-                          const isStageAlerted = reportData.stages[idx]?.status === "alerted";
-                          const stageSeverity = reportData.stages[idx]?.severity || "medium";
-
-                          return (
-                            <div key={idx} className={`p-3 rounded-lg border ${isUnreached ? "bg-slate-50 border-slate-200 text-slate-400" : isStageBlocked ? "bg-green-50/50 border-green-200 text-slate-800" : "bg-red-50/30 border-red-200 text-slate-800"} transition-colors`}>
-                              <div className="flex justify-between items-center font-bold font-mono text-[9px] border-b border-slate-200/50 pb-1.5 mb-1.5">
-                                <span className="uppercase">PHASE {idx + 1}: {stage.title}</span>
-                                <div className="flex items-center gap-2">
-                                  {getSeverityBadge(stageSeverity)}
-                                  <span className={`px-1.5 py-0.5 rounded font-bold border ${isUnreached ? "bg-slate-100 border-slate-350 text-slate-400" : isStageBlocked ? "bg-green-100 border-green-300 text-green-800" : isStageAlerted ? "bg-blue-100 border-blue-300 text-blue-800" : "bg-red-100 border-red-300 text-red-800"}`}>
-                                    {isUnreached ? "UNREACHED" : isStageBlocked ? "BLOCKED" : isStageAlerted ? "ALERTED" : "EVADED"}
-                                  </span>
-                                </div>
-                              </div>
-                              <p className="leading-relaxed text-[11px]">
-                                <strong>Activity:</strong> {stage.whatHappened}
-                              </p>
-                              {!isUnreached && (
-                                <p className="mt-1 leading-relaxed text-[11px] text-slate-650">
-                                  <strong>Outcome:</strong> {stage.outcome}
-                                </p>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-
-              {/* PAGE 3 */}
-              <tr className="border-none">
-                <td className="border-none p-0">
-                  <div className="space-y-6 flex flex-col justify-start">
-                    {/* Section 3: Risk Assessment (Why Security Succeeded) */}
-                    <div className="print-section border border-slate-200 rounded-lg p-5 bg-slate-50/20">
-                      <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-200 pb-2 mb-3">
-                        3. Risk Assessment & Defense Analysis
-                      </h2>
-                      <p className="text-xs text-slate-800 leading-relaxed font-sans">{whySecurityStruggled}</p>
-                    </div>
-
-                    {/* Section 4: MITRE ATT&CK Mapping Table */}
-                    <div className="print-section border border-slate-200 rounded-lg p-5 bg-slate-50/20">
-                      <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-200 pb-2 mb-3">
-                        4. MITRE ATT&CK Mapping
-                      </h2>
-                      <table className="w-full border-collapse border border-slate-200 text-left text-[11px] font-sans">
-                        <thead>
-                          <tr className="bg-slate-100 border-b border-slate-200 font-bold text-slate-700">
-                            <th className="p-2 border-r border-slate-200 w-16">Phase</th>
-                            <th className="p-2 border-r border-slate-200">Stage Activity</th>
-                            <th className="p-2 border-r border-slate-200 w-24">MITRE Technique</th>
-                            <th className="p-2 border-r border-slate-200">Technique Name</th>
-                            <th className="p-2 w-20">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {reportData.stages.map((stage, idx) => {
-                            const customMapping = reportData.mitreMapping?.find((m: { stageIndex: number; code: string; name: string }) => m.stageIndex === idx);
-                            const mapping = customMapping ? customMapping : getMitreAttackMapping(reportData.vectorId, idx);
-                            const isStageBlocked = stage.status === "blocked";
-                            const isStageAlerted = stage.status === "alerted";
-                            
-                            return (
-                              <tr key={idx} className="border-b border-slate-200 odd:bg-white even:bg-slate-50/40">
-                                <td className="p-2 border-r border-slate-200 font-mono text-[10px]">Phase {idx + 1}</td>
-                                <td className="p-2 border-r border-slate-200 font-semibold">{stage.title}</td>
-                                <td className="p-2 border-r border-slate-200 font-mono text-[10px]">{mapping.code}</td>
-                                <td className="p-2 border-r border-slate-200 text-slate-650">{mapping.name}</td>
-                                <td className="p-2 font-mono text-[9px] font-bold">
-                                  {isStageBlocked ? (
-                                    <span className="px-1.5 py-0.5 rounded bg-green-50 text-green-700 border border-green-200 uppercase">Blocked</span>
-                                  ) : isStageAlerted ? (
-                                    <span className="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 uppercase">Alerted</span>
-                                  ) : (
-                                    <span className="px-1.5 py-0.5 rounded bg-red-50 text-red-700 border border-red-200 uppercase">Evaded</span>
-                                  )}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* Section 5: Recommendations */}
-                    <div className="print-section border border-slate-200 rounded-lg p-5 bg-slate-50/20">
-                      <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-200 pb-2 mb-3">
-                        5. Recommended Protections
-                      </h2>
-                      <div className="grid grid-cols-1 gap-2.5">
-                        {preventions.map((prev, idx) => (
-                          <div key={idx} className="p-3 border border-slate-200 rounded bg-slate-50/50 flex items-start gap-3">
-                            <span className="text-base leading-none pt-0.5">{prev.icon}</span>
-                            <div className="text-xs font-sans">
-                              <strong className="text-black font-mono block uppercase text-[9px]">{prev.rank}: {prev.name}</strong>
-                              <p className="text-slate-650 mt-1 leading-relaxed">{prev.desc}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Section 6: Key Lessons */}
-                    <div className="print-section border border-slate-200 rounded-lg p-5 bg-slate-50/20">
-                      <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-200 pb-2 mb-3">
-                        6. Key Lessons
-                      </h2>
-                      <ul className="list-decimal pl-5 text-xs text-slate-800 space-y-1.5 font-sans leading-relaxed">
-                        {lessons.slice(0, 3).map((lesson, idx) => (
-                          <li key={idx}><strong>Lesson {idx + 1}:</strong> {lesson}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Section 7: Reflection */}
-                    <div className="print-section border border-slate-250 rounded-lg p-4 bg-slate-50/50">
-                      <h2 className="text-[10px] font-bold uppercase tracking-wider text-black font-mono mb-1.5 border-b border-slate-200 pb-1">
-                        7. Student Reflection & Conclusion
-                      </h2>
-                      <p className="text-xs italic text-slate-700 leading-relaxed font-sans">
-                        {reflection}
+                      <p className="mt-1 leading-normal text-[11px]">
+                        <strong>Activity:</strong> {stage.whatHappened}
                       </p>
+                      {!isUnreached && (
+                        <p className="mt-0.5 leading-normal text-[11px]">
+                          <strong>Outcome:</strong> {stage.outcome}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Section 3: Why Security Struggled */}
+            <div className="space-y-2 mt-4">
+              <h2 className="text-base font-bold uppercase border-b border-black pb-1">3. Why Security Struggled</h2>
+              <p className="text-xs text-slate-850 leading-relaxed font-sans">{whySecurityStruggled}</p>
+            </div>
+          </div>
+
+          {/* PAGE 3: Impact, Preventions, Takeaways, Reflection */}
+          <div className="space-y-6">
+            {/* Section 4: Why This Matters */}
+            <div className="space-y-2">
+              <h2 className="text-base font-bold uppercase border-b border-black pb-1">4. Why This Matters</h2>
+              <p className="text-xs text-slate-600 mb-2">The successful breach represents serious real-world risks that must be addressed:</p>
+              <ul className="list-disc pl-5 text-xs text-slate-800 space-y-1.5">
+                {whyThisMatters.slice(0, 4).map((consequence, idx) => (
+                  <li key={idx}>{consequence}</li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Section 5: How It Could Be Prevented */}
+            <div className="space-y-3">
+              <h2 className="text-base font-bold uppercase border-b border-black pb-1">5. Recommended Protections</h2>
+              <div className="grid grid-cols-1 gap-2.5">
+                {preventions.map((prev, idx) => (
+                  <div key={idx} className="p-3 border border-slate-300 rounded bg-slate-50 flex items-start gap-3">
+                    <span className="text-lg leading-none pt-0.5">{prev.icon}</span>
+                    <div className="text-xs">
+                      <strong className="text-black font-mono block uppercase text-[10px]">{prev.rank}: {prev.name}</strong>
+                      <p className="text-slate-700 mt-1 leading-normal">{prev.desc}</p>
                     </div>
                   </div>
-                </td>
-              </tr>
-            </>
-          ) : (
-            /* =========================================================
-                SUCCESSFUL COMPROMISE SCENARIO - PAGES 2, 3, & 4 OF REPORT
-               ========================================================= */
-            <>
-              {/* PAGE 2 */}
-              <tr className="border-none" style={{ pageBreakAfter: "always", breakAfter: "page" }}>
-                <td className="border-none p-0">
-                  <div className="space-y-6 flex flex-col justify-start">
-                    {/* Main Title Block */}
-                    <div className="border-b-2 border-black pb-4 mb-2">
-                      <span className="text-[10px] font-mono tracking-widest uppercase text-slate-500 font-bold block">Incident Report Summary</span>
-                      <h1 className="text-2xl font-bold mt-1 text-black uppercase">{title}</h1>
-                      <div className="grid grid-cols-2 gap-x-6 gap-y-2 mt-4 text-xs font-sans text-slate-700">
-                        <div><strong>Target Environment:</strong> {reportData.industryName} ({reportData.targetName})</div>
-                        <div><strong>Attack Method:</strong> {reportData.vectorName} Simulation</div>
-                        <div><strong>Outcome:</strong> <span className="text-red-700 font-bold uppercase text-[10px]">Defenses Bypassed / System Compromised</span></div>
-                        <div><strong>Date Generated:</strong> {new Date(reportData.timestamp).toLocaleString()}</div>
-                      </div>
-                    </div>
+                ))}
+              </div>
+            </div>
 
-                    {/* Section 1: Executive Summary */}
-                    <div className="print-section border border-slate-200 rounded-lg p-5 bg-slate-50/20">
-                      <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-200 pb-2 mb-3">
-                        1. Executive Summary
-                      </h2>
-                      <div className="space-y-2.5 text-xs text-slate-800 leading-relaxed font-sans">
-                        <p><strong>Scenario:</strong> An attack simulation mimicking <strong>{reportData.actorName}</strong> was conducted to test the vulnerability limits of the current {reportData.industryName.toLowerCase()} setup.</p>
-                        <p><strong>Entry Method:</strong> The attacker exploited weak points in the <strong>{reportData.vectorName.toLowerCase()}</strong> setup to bypass perimeter controls and connect to local endpoints.</p>
-                        <p><strong>Outcome:</strong> Security controls failed to contain the intrusion. The attacker successfully escalated privileges, moved laterally through the network, and reached the target server <strong>{reportData.targetName}</strong>.</p>
-                        <p><strong>Detailed Summary:</strong> {summary}</p>
-                      </div>
-                    </div>
+            {/* Section 6: Key Takeaways */}
+            <div className="space-y-2">
+              <h2 className="text-base font-bold uppercase border-b border-black pb-1">6. Key Lessons</h2>
+              <ul className="list-decimal pl-5 text-xs text-slate-800 space-y-1.5">
+                {lessons.slice(0, 3).map((lesson, idx) => (
+                  <li key={idx}><strong>Lesson {idx + 1}:</strong> {lesson}</li>
+                ))}
+              </ul>
+            </div>
 
-                    {/* Section 2: Attack Journey Timeline */}
-                    <div className="print-section border border-slate-200 rounded-lg p-5 bg-slate-50/20">
-                      <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-200 pb-2 mb-3">
-                        2. Attack Journey Timeline
-                      </h2>
-                      <div className="space-y-3 text-xs">
-                        {timeline.map((stage, idx) => {
-                          const isUnreached = stage.whatHappened === "This stage was not reached.";
-                          const isStageBlocked = reportData.stages[idx]?.status === "blocked";
-                          const isStageAlerted = reportData.stages[idx]?.status === "alerted";
-                          const stageSeverity = reportData.stages[idx]?.severity || "medium";
-
-                          return (
-                            <div key={idx} className={`p-3 rounded-lg border ${isUnreached ? "bg-slate-50 border-slate-200 text-slate-400" : isStageBlocked ? "bg-green-50/50 border-green-200 text-slate-800" : "bg-red-50/30 border-red-200 text-slate-800"} transition-colors`}>
-                              <div className="flex justify-between items-center font-bold font-mono text-[9px] border-b border-slate-200/50 pb-1.5 mb-1.5">
-                                <span className="uppercase">PHASE {idx + 1}: {stage.title}</span>
-                                <div className="flex items-center gap-2">
-                                  {getSeverityBadge(stageSeverity)}
-                                  <span className={`px-1.5 py-0.5 rounded font-bold border ${isUnreached ? "bg-slate-100 border-slate-350 text-slate-400" : isStageBlocked ? "bg-green-100 border-green-300 text-green-800" : isStageAlerted ? "bg-blue-100 border-blue-300 text-blue-800" : "bg-red-100 border-red-300 text-red-800"}`}>
-                                    {isUnreached ? "UNREACHED" : isStageBlocked ? "BLOCKED" : isStageAlerted ? "ALERTED" : "EVADED"}
-                                  </span>
-                                </div>
-                              </div>
-                              <p className="leading-relaxed text-[11px]">
-                                <strong>Activity:</strong> {stage.whatHappened}
-                              </p>
-                              {!isUnreached && (
-                                <p className="mt-1 leading-relaxed text-[11px] text-slate-655 font-sans">
-                                  <strong>Outcome:</strong> {stage.outcome}
-                                </p>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-
-              {/* PAGE 3 */}
-              <tr className="border-none" style={{ pageBreakAfter: "always", breakAfter: "page" }}>
-                <td className="border-none p-0">
-                  <div className="space-y-6 flex flex-col justify-start">
-                    {/* Section 3: Risk Assessment (Why Security Struggled) */}
-                    <div className="print-section border border-slate-200 rounded-lg p-5 bg-slate-50/20">
-                      <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-200 pb-2 mb-3">
-                        3. Risk Assessment & Defense Analysis
-                      </h2>
-                      <p className="text-xs text-slate-800 leading-relaxed font-sans">{whySecurityStruggled}</p>
-                    </div>
-
-                    {/* Section 4: MITRE ATT&CK Mapping Table */}
-                    <div className="print-section border border-slate-200 rounded-lg p-5 bg-slate-50/20">
-                      <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-200 pb-2 mb-3">
-                        4. MITRE ATT&CK Mapping
-                      </h2>
-                      <table className="w-full border-collapse border border-slate-200 text-left text-[11px] font-sans">
-                        <thead>
-                          <tr className="bg-slate-100 border-b border-slate-200 font-bold text-slate-700">
-                            <th className="p-2 border-r border-slate-200 w-16">Phase</th>
-                            <th className="p-2 border-r border-slate-200">Stage Activity</th>
-                            <th className="p-2 border-r border-slate-200 w-24">MITRE Technique</th>
-                            <th className="p-2 border-r border-slate-200">Technique Name</th>
-                            <th className="p-2 w-20">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {reportData.stages.map((stage, idx) => {
-                            const customMapping = reportData.mitreMapping?.find((m: { stageIndex: number; code: string; name: string }) => m.stageIndex === idx);
-                            const mapping = customMapping ? customMapping : getMitreAttackMapping(reportData.vectorId, idx);
-                            const isStageBlocked = stage.status === "blocked";
-                            const isStageAlerted = stage.status === "alerted";
-                            
-                            return (
-                              <tr key={idx} className="border-b border-slate-200 odd:bg-white even:bg-slate-50/40">
-                                <td className="p-2 border-r border-slate-200 font-mono text-[10px]">Phase {idx + 1}</td>
-                                <td className="p-2 border-r border-slate-200 font-semibold">{stage.title}</td>
-                                <td className="p-2 border-r border-slate-200 font-mono text-[10px]">{mapping.code}</td>
-                                <td className="p-2 border-r border-slate-200 text-slate-650">{mapping.name}</td>
-                                <td className="p-2 font-mono text-[9px] font-bold">
-                                  {isStageBlocked ? (
-                                    <span className="px-1.5 py-0.5 rounded bg-green-50 text-green-700 border border-green-200 uppercase">Blocked</span>
-                                  ) : isStageAlerted ? (
-                                    <span className="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 uppercase">Alerted</span>
-                                  ) : (
-                                    <span className="px-1.5 py-0.5 rounded bg-red-50 text-red-700 border border-red-200 uppercase">Evaded</span>
-                                  )}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-
-              {/* PAGE 4 */}
-              <tr className="border-none">
-                <td className="border-none p-0">
-                  <div className="space-y-6 flex flex-col justify-start">
-                    {/* Section 5: Impact Analysis (Why This Matters) */}
-                    <div className="print-section border border-slate-200 rounded-lg p-5 bg-slate-50/20">
-                      <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-200 pb-2 mb-3">
-                        5. Threat Impact Analysis
-                      </h2>
-                      <p className="text-xs text-slate-655 mb-2 font-sans">The successful breach represents serious real-world risks that must be addressed:</p>
-                      <ul className="list-disc pl-5 text-xs text-slate-800 space-y-1.5 font-sans leading-relaxed">
-                        {whyThisMatters.slice(0, 4).map((consequence, idx) => (
-                          <li key={idx}>{consequence}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Section 6: Recommendations */}
-                    <div className="print-section border border-slate-200 rounded-lg p-5 bg-slate-50/20">
-                      <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-200 pb-2 mb-3">
-                        6. Recommended Protections
-                      </h2>
-                      <div className="grid grid-cols-1 gap-2.5">
-                        {preventions.map((prev, idx) => (
-                          <div key={idx} className="p-3 border border-slate-200 rounded bg-slate-50/50 flex items-start gap-3">
-                            <span className="text-base leading-none pt-0.5">{prev.icon}</span>
-                            <div className="text-xs font-sans">
-                              <strong className="text-black font-mono block uppercase text-[9px]">{prev.rank}: {prev.name}</strong>
-                              <p className="text-slate-655 mt-1 leading-relaxed">{prev.desc}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Section 7: Key Lessons */}
-                    <div className="print-section border border-slate-200 rounded-lg p-5 bg-slate-50/20">
-                      <h2 className="text-xs font-bold uppercase tracking-wider text-black border-b border-slate-200 pb-2 mb-3">
-                        7. Key Lessons
-                      </h2>
-                      <ul className="list-decimal pl-5 text-xs text-slate-800 space-y-1.5 font-sans leading-relaxed">
-                        {lessons.slice(0, 3).map((lesson, idx) => (
-                          <li key={idx}><strong>Lesson {idx + 1}:</strong> {lesson}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Section 8: Reflection */}
-                    <div className="print-section border border-slate-250 rounded-lg p-4 bg-slate-50/50">
-                      <h2 className="text-[10px] font-bold uppercase tracking-wider text-black font-mono mb-1.5 border-b border-slate-200 pb-1">
-                        8. Student Reflection & Conclusion
-                      </h2>
-                      <p className="text-xs italic text-slate-700 leading-relaxed font-sans">
-                        {reflection}
-                      </p>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            </>
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
-};iv>
+            {/* Section 7: Student Reflection */}
+            <div className="p-4 border border-black rounded bg-slate-50 mt-4">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-black font-mono mb-1">7. Student Reflection & Conclusion</h2>
+              <p className="text-xs italic text-slate-800 leading-relaxed font-sans">
+                {reflection}
+              </p>
+            </div>
+          </div>
         </>
       )}
     </div>
@@ -2415,9 +2146,22 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
       )}
 
       {/* Footer - hidden on print */}
-      <div className="print:hidden">
-        <Footer />
-      </div>
+      <footer className="relative bg-black border-t border-cyber-border/40 py-10 z-10 overflow-hidden mt-12 print:hidden font-mono text-[9px]">
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyber-cyan/20 to-transparent" />
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-500 tracking-wider uppercase">
+          <div>
+            <span className="text-white font-bold tracking-[0.2em]">SENTINEL</span>
+            <span className="ml-2">Student Project | EEE Lab</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-green opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyber-green"></span>
+            </span>
+            <span>LEARNING SESSION ACTIVE</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
