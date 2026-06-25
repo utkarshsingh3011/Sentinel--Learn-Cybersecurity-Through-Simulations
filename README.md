@@ -107,23 +107,21 @@ Sentinel currently helps learners explore concepts including:
 
 # Project Goals
 
-Sentinel was designed to:
-
-* Make cybersecurity easier to understand visually
-* Help students learn through interaction instead of memorization
-* Demonstrate how attacks progress across systems
-* Explain defensive security concepts in simple language
-* Bridge the gap between cybersecurity theory and practical understanding
+- Make cybersecurity easier to understand visually
+- Help students learn through interaction instead of memorization
+- Demonstrate how attacks progress across systems
+- Explain defensive security concepts in simple language
+- Bridge the gap between cybersecurity theory and practical understanding
 
 ---
 
-# Disclaimer
+# Educational Disclaimer
 
-Sentinel is an educational cybersecurity project created for learning purposes.
+Sentinel is an educational cybersecurity project designed to help learners understand cyber attacks through safe, interactive simulations.
 
-All attack scenarios are simulated inside a safe environment to explain cybersecurity concepts. The project does **not** perform real-world attacks, exploit systems, or provide offensive security capabilities.
+All attack scenarios are fictional and executed entirely within the application. Sentinel does not interact with real systems, perform offensive security operations, or provide capabilities for attacking real networks.
 
-Its purpose is to promote cybersecurity awareness, defensive thinking, and interactive learning.
+The project is intended solely for cybersecurity education and awareness.
 
 ---
 
