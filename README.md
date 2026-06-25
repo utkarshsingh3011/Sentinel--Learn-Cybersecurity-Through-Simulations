@@ -137,7 +137,7 @@ Jaypee Institute of Information Technology, Noida
 
 GitHub: https://github.com/utkarshsingh3011
 
-LinkedIn: https://www.linkedin.com/in/YOUR-LINKEDIN/
+LinkedIn: https://www.linkedin.com/in/utkarshsingh3011
 
 ---
 
