@@ -1,18 +1,26 @@
+// ==========================================
+// ESLint Configuration
+// SENTINEL - Interactive Cybersecurity Learning Platform
+// ==========================================
+
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
+import nextTypeScript from "eslint-config-next/typescript";
 
-const eslintConfig = defineConfig([
+export default defineConfig([
+  // Next.js Recommended Rules
   ...nextVitals,
-  ...nextTs,
-  // Override default ignores of eslint-config-next.
+
+  // TypeScript Support
+  ...nextTypeScript,
+
+  // Ignore generated files and build output
   globalIgnores([
-    // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",
+    "dist/**",
+    "coverage/**",
     "next-env.d.ts",
   ]),
 ]);
-
-export default eslintConfig;
