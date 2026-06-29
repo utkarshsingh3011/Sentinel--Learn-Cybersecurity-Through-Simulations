@@ -133,12 +133,10 @@ B.Tech Electronics & Communication Engineering
 
 Jaypee Institute of Information Technology, Noida
 
-GitHub: https://github.com/utkarshsingh3011
-
 LinkedIn: https://www.linkedin.com/in/utkarshsingh3011
 
 ---
 
-⭐ If you enjoyed exploring Sentinel, consider starring the repository.
+⭐ If you enjoyed exploring Sentinel, consider starring the repository
 
 Feedback, suggestions, and contributions are always welcome.
