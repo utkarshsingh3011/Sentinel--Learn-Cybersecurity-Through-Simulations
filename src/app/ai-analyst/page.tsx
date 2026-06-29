@@ -1703,17 +1703,19 @@ function AIAnalystContent() {
         setIsLiveAI(false);
       } finally {
         setLoading(false);
+        // Only unlock Learning Journal after the report has actually loaded,
+        // and only if the user legitimately reached the AI Analyst step (step >= 3).
+        if (typeof window !== "undefined") {
+          const currentMax = parseInt(sessionStorage.getItem("sentinel_max_unlocked_step") || "1", 10);
+          if (currentMax >= 3 && currentMax < 4) {
+            sessionStorage.setItem("sentinel_max_unlocked_step", "4");
+            window.dispatchEvent(new Event("sentinel_progress_update"));
+          }
+        }
       }
     };
 
     fetchAIReport(resolvedCampaign);
-    if (typeof window !== "undefined") {
-      const currentMax = parseInt(sessionStorage.getItem("sentinel_max_unlocked_step") || "1", 10);
-      if (currentMax < 4) {
-        sessionStorage.setItem("sentinel_max_unlocked_step", "4");
-        window.dispatchEvent(new Event("sentinel_progress_update"));
-      }
-    }
   }, [campaignId]);
 
   // Export report to Markdown

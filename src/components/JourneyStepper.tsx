@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,43 +17,50 @@ const STEPS = [
   { id: 4, label: "Key Lessons", secondary: "Learning Journal", path: "/command-center", icon: BookOpen },
 ];
 
+/** Read the current unlocked step synchronously (safe: "use client" only). */
+function readMaxUnlocked(): number {
+  if (typeof window === "undefined") return 1;
+  const raw = sessionStorage.getItem("sentinel_max_unlocked_step");
+  const parsed = raw ? parseInt(raw, 10) : 1;
+  // Write default if missing
+  if (!raw) sessionStorage.setItem("sentinel_max_unlocked_step", "1");
+  return Number.isFinite(parsed) ? parsed : 1;
+}
+
 export default function JourneyStepper({ currentStep }: JourneyStepperProps) {
   const router = useRouter();
-  const [maxUnlockedStep, setMaxUnlockedStep] = useState<number>(1);
+  // Lazy initializer: reads sessionStorage synchronously on first render —
+  // avoids the flash where maxUnlockedStep briefly defaults to 1 before useEffect fires.
+  const [maxUnlockedStep, setMaxUnlockedStep] = useState<number>(() => readMaxUnlocked());
   const [showLockedModal, setShowLockedModal] = useState(false);
 
   useEffect(() => {
+    // Keep in sync when other pages fire the progress event
     const handleUpdate = () => {
-      if (typeof window !== "undefined") {
-        const stored = sessionStorage.getItem("sentinel_max_unlocked_step");
-        if (stored) {
-          setMaxUnlockedStep(parseInt(stored, 10));
-        } else {
-          sessionStorage.setItem("sentinel_max_unlocked_step", "1");
-          setMaxUnlockedStep(1);
-        }
-      }
+      setMaxUnlockedStep(readMaxUnlocked());
     };
 
-    handleUpdate();
+    // Also re-sync on focus in case sessionStorage was updated in another tab / page transition
     window.addEventListener("sentinel_progress_update", handleUpdate);
+    window.addEventListener("focus", handleUpdate);
     return () => {
       window.removeEventListener("sentinel_progress_update", handleUpdate);
+      window.removeEventListener("focus", handleUpdate);
     };
   }, []);
 
-  // The next step user should go to is maxUnlockedStep + 1 (capped at 4)
+  // The ONLY navigable "next" step is exactly maxUnlockedStep + 1
   const nextRequiredStep = Math.min(maxUnlockedStep + 1, 4);
   const nextRequiredPath = STEPS[nextRequiredStep - 1]?.path ?? "/simulate";
 
   const handleStepClick = (e: React.MouseEvent, stepId: number) => {
-    // Steps the user has already completed or is currently on → always allow
+    // Always allow: already completed or is the current step
     if (stepId <= maxUnlockedStep) return;
 
-    // The immediate next step (maxUnlockedStep + 1) → allow navigation
+    // Allow: the single immediate next step
     if (stepId === maxUnlockedStep + 1) return;
 
-    // All further future steps → block and show modal
+    // Anything else: locked — show modal
     e.preventDefault();
     setShowLockedModal(true);
   };
@@ -85,17 +92,15 @@ export default function JourneyStepper({ currentStep }: JourneyStepperProps) {
 
           {/* Stepper Steps Row */}
           <div className="relative mt-5 flex items-center justify-between gap-2">
-            {/* Connector Line behind steps */}
+            {/* Background connector line */}
             <div className="absolute left-6 right-6 top-[22px] h-[1.5px] bg-slate-900 z-0" />
 
-            {/* Animated active path length connector */}
+            {/* Animated progress fill */}
             <div className="absolute left-6 right-6 top-[22px] h-[1.5px] z-0">
               <motion.div
                 className="h-full bg-gradient-to-r from-cyber-cyan via-blue-500 to-cyber-green"
                 initial={{ width: 0 }}
-                animate={{
-                  width: `${((currentStep - 1) / (STEPS.length - 1)) * 100}%`,
-                }}
+                animate={{ width: `${((currentStep - 1) / (STEPS.length - 1)) * 100}%` }}
                 transition={{ duration: 0.6, ease: "easeInOut" }}
               />
             </div>
@@ -104,15 +109,15 @@ export default function JourneyStepper({ currentStep }: JourneyStepperProps) {
               const Icon = step.icon;
               const isCompleted = step.id < currentStep;
               const isActive = step.id === currentStep;
-              // A step is hard-locked if it's MORE than one step ahead of maxUnlockedStep
-              const isLocked = step.id > maxUnlockedStep + 1;
-              // The clickable "next" step is exactly maxUnlockedStep + 1 and ahead of current
-              const isNextStep = step.id === maxUnlockedStep + 1 && step.id > currentStep;
+              // Hard-locked: more than one step beyond maxUnlocked
+              const isHardLocked = step.id > maxUnlockedStep + 1;
+              // Soft-accessible: exactly the next step (maxUnlockedStep + 1)
+              const isNextStep = !isHardLocked && step.id > currentStep && step.id <= maxUnlockedStep + 1;
 
               return (
                 <div key={step.id} className="relative z-10 flex-1 flex flex-col items-center group">
                   <Link
-                    href={isLocked ? "#" : step.path}
+                    href={isHardLocked ? "#" : step.path}
                     onClick={(e) => handleStepClick(e, step.id)}
                     className={`relative flex items-center justify-center w-11 h-11 rounded-lg border transition-all duration-300 ${
                       isActive
@@ -121,12 +126,12 @@ export default function JourneyStepper({ currentStep }: JourneyStepperProps) {
                         ? "bg-cyber-surface/80 border-cyber-green/50 text-cyber-green hover:border-cyber-green"
                         : isNextStep
                         ? "bg-black/60 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200"
-                        : isLocked
-                        ? "bg-black/20 border-slate-950 text-slate-700 opacity-40 cursor-not-allowed"
+                        : isHardLocked
+                        ? "bg-black/20 border-slate-950 text-slate-700 opacity-40 cursor-not-allowed pointer-events-none"
                         : "bg-black/60 border-slate-900 text-slate-400 hover:border-slate-800"
                     }`}
                   >
-                    {isLocked ? (
+                    {isHardLocked ? (
                       <Lock className="w-4 h-4 text-slate-600" />
                     ) : isCompleted ? (
                       <Check className="w-5 h-5 stroke-[2.5]" />
@@ -141,7 +146,7 @@ export default function JourneyStepper({ currentStep }: JourneyStepperProps) {
                         ? "text-cyber-cyan"
                         : isCompleted
                         ? "text-cyber-green"
-                        : isLocked
+                        : isHardLocked
                         ? "text-slate-700 opacity-40"
                         : "text-slate-500"
                     }`}
