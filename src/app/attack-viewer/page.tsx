@@ -8,7 +8,7 @@ import JourneyStepper from "../../components/JourneyStepper";
 import AnimatedCounter from "../../components/AnimatedCounter";
 import {
   Play, Pause, RotateCcw, ArrowLeft, Terminal,
-  Activity, ShieldCheck, Brain, ChevronRight, Layers, ShieldAlert, CheckCircle2, AlertOctagon, Info
+  Activity, ShieldCheck, Brain, ChevronRight, Layers, ShieldAlert, CheckCircle2, AlertOctagon, Info, Lock
 } from "lucide-react";
 import Footer from "../../components/Footer";
 
@@ -97,6 +97,19 @@ export default function AttackViewerPage() {
   const isNearBottomRef = useRef<boolean>(true);
   const [showGuide, setShowGuide] = useState(true);
   const [isTechnicalExpanded, setIsTechnicalExpanded] = useState(false);
+  const [showLockModal, setShowLockModal] = useState(false);
+ 
+  const handleJournalClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (typeof window !== "undefined") {
+      const maxUnlocked = parseInt(sessionStorage.getItem("sentinel_max_unlocked_step") || "1", 10);
+      if (maxUnlocked < 4) {
+        setShowLockModal(true);
+      } else {
+        window.location.href = "/command-center";
+      }
+    }
+  };
 
   // Helper to dynamically stream sub-logs matching the CampaignConfig details
   const addDynamicSubLog = useCallback((stageIdx: number, subIndex: number) => {
@@ -817,13 +830,22 @@ export default function AttackViewerPage() {
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
             Simulation Setup
           </Link>
-          <Link
-            href="/command-center"
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-cyber-cyan/30 bg-cyber-cyan/10 text-cyber-cyan hover:bg-cyber-cyan/20 transition-all duration-300 hover:shadow-[0_0_15px_rgba(6,182,212,0.25)] hover:border-cyber-cyan/60"
-          >
-            <Activity className="w-3.5 h-3.5 animate-pulse" />
-            Open Learning Journal
-          </Link>
+          <div className="flex items-center gap-4 flex-wrap">
+            <button
+              onClick={handleJournalClick}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-slate-800 bg-slate-900/60 text-slate-400 hover:bg-slate-850 hover:text-white transition-all duration-300 hover:border-slate-650 cursor-pointer"
+            >
+              <Activity className="w-3.5 h-3.5" />
+              Open Learning Journal
+            </button>
+            <Link
+              href="/ai-analyst"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-cyber-cyan/30 bg-cyber-cyan/10 text-cyber-cyan hover:bg-cyber-cyan/20 transition-all duration-300 hover:shadow-[0_0_15px_rgba(6,182,212,0.25)] hover:border-cyber-cyan/60"
+            >
+              <Brain className="w-3.5 h-3.5 animate-pulse" />
+              Next Step: Understand What Happened
+            </Link>
+          </div>
         </div>
 
         <JourneyStepper currentStep={2} />
@@ -1564,6 +1586,65 @@ export default function AttackViewerPage() {
 
       </motion.div>
 
+      {/* Educational Lock Modal */}
+      <AnimatePresence>
+        {showLockModal && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.6 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowLockModal(false)}
+              className="fixed inset-0 bg-black z-50 backdrop-blur-sm"
+            />
+            {/* Modal Body */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-6 rounded-xl border border-cyber-red/35 bg-cyber-surface/90 shadow-[0_0_30px_rgba(244,63,94,0.15)] z-50 font-sans text-left"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center gap-2 text-cyber-red font-mono text-xs uppercase font-bold tracking-wider">
+                  <Lock className="w-4 h-4 text-cyber-red" />
+                  Step 3 Required
+                </div>
+                <button
+                  onClick={() => setShowLockModal(false)}
+                  className="text-slate-400 hover:text-white transition-colors cursor-pointer text-xs"
+                >
+                  [ Close ]
+                </button>
+              </div>
+ 
+              <h3 className="text-white text-lg font-bold uppercase font-mono tracking-wide mb-2">
+                Analysis Step Required
+              </h3>
+              
+              <p className="text-slate-300 text-xs leading-relaxed mb-6 font-sans">
+                You must complete the <strong>Understand What Happened (AI Analyst)</strong> step before you can access the Key Lessons Learning Journal. This ensures you understand why the threat actor breached or failed to breach the environment.
+              </p>
+ 
+              <div className="flex flex-col gap-3 font-mono">
+                <Link
+                  href="/ai-analyst"
+                  className="w-full text-center py-2.5 px-4 rounded bg-cyber-red hover:bg-cyber-red/90 text-white text-xs font-bold uppercase transition-all duration-300 shadow-[0_0_15px_rgba(244,63,94,0.3)] cursor-pointer"
+                >
+                  Go to AI Analyst →
+                </Link>
+                <button
+                  onClick={() => setShowLockModal(false)}
+                  className="w-full text-center py-2.5 px-4 rounded border border-slate-800 bg-slate-950/40 text-slate-400 hover:bg-slate-900/60 hover:text-slate-200 text-xs font-bold uppercase transition-all duration-300 cursor-pointer"
+                >
+                  Back to Attack Viewer
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+ 
       {/* Footer Info */}
       <Footer />
 

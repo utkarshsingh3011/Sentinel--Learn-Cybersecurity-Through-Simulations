@@ -9,7 +9,7 @@ import Footer from "../../components/Footer";
 import {
   ArrowLeft, Brain, ShieldAlert, Layers, AlertTriangle,
   FileText, Download, Printer, ChevronRight, TrendingUp, Shield,
-  CheckCircle2, AlertOctagon, Info, Share2, Lock, Eye, Mail, Key, ShieldCheck, Terminal, Activity
+  CheckCircle2, AlertOctagon, Info, Share2, Lock, Eye, Mail, Key, ShieldCheck, Terminal, Activity, BookOpen
 } from "lucide-react";
 import {
   getCampaignHistory, StoredCampaign, getActorName,
@@ -463,6 +463,123 @@ const getAttackJourneyFlow = (attackType: string) => {
     "Internal Pivot Attempted",
     "Data Assets Target Reached"
   ];
+};
+
+const getRealWorldContext = (attackType: string) => {
+  switch (attackType) {
+    case "Phishing":
+      return "In 2020, hackers phished Twitter employees to gain access to internal systems and hijack prominent accounts. Sentinel shows how simple email scams bypass human trust to breach networks.";
+    case "Ransomware":
+      return "In 2021, the Colonial Pipeline shutdown demonstrated how ransomware encrypts critical files. Sentinel shows why automated containment is vital to prevent entire operations from stopping.";
+    case "DDoS":
+      return "In 2016, the massive Dyn attack took down sites like Netflix and Reddit using a flood of volumetric traffic. Sentinel highlights how limiting query rates keeps portals online.";
+    case "SQL Injection":
+      return "In 2017, Equifax leaked millions of records because of an unpatched database entry vulnerability. Sentinel demonstrates how sanitizing inputs protects database schemas.";
+    case "Supply Chain":
+      return "In 2020, the SolarWinds compromise infected thousands of companies through a trusted update. Sentinel shows why cryptographic checksums must verify every file dependency.";
+    default:
+      return "Many famous data breaches start with simple configuration gaps left unpatched. Sentinel teaches how defense-in-depth principles prevent local intrusions from becoming full system compromises.";
+  }
+};
+
+const getSimplifiedPreventativeChecklist = (attackType: string) => {
+  switch (attackType) {
+    case "Phishing":
+      return [
+        { icon: "🔑", title: "Enforce Hardware MFA", desc: "Prevents attackers from logging in even if they steal user passwords." },
+        { icon: "✉️", title: "Configure Email Filters", desc: "Blocks phishing links and spoofed email headers at the mail gateway." },
+        { icon: "🖥️", title: "Deploy Endpoint protection", desc: "Terminates credential harvesting script attempts in memory." },
+        { icon: "🎓", title: "Run User Awareness Training", desc: "Helps students recognize suspicious domains." }
+      ];
+    case "Ransomware":
+      return [
+        { icon: "🔒", title: "Enable Immutable Backups", desc: "Ensures data cannot be deleted or encrypted by ransomware payload files." },
+        { icon: "💾", title: "Restrict Write Permissions", desc: "Prevents unauthorized scripts from locking down network directories." },
+        { icon: "⚙️", title: "Automate Host Isolation", desc: "Instantly disconnects compromised workstations before malware propagates." },
+        { icon: "🛡️", title: "Enforce Zero Trust Access", desc: "Limits user access to only the specific files they need." }
+      ];
+    case "DDoS":
+      return [
+        { icon: "🌐", title: "Route Through Volumetric Scrubbers", desc: "Cleans inbound packet surges at the network border." },
+        { icon: "⏱️", title: "Set SYN-Cookie Rate Limits", desc: "Restricts connection rates to prevent load balancer exhaustion." },
+        { icon: "📦", title: "Distribute Over Edge CDNs", desc: "Caches static pages close to users to keep backend databases safe." },
+        { icon: "🔌", title: "Establish Redundant Gateways", desc: "Provides back-up routing paths if the primary link goes offline." }
+      ];
+    case "SQL Injection":
+      return [
+        { icon: "🧱", title: "Enforce Parameterized Queries", desc: "Tells database engines to treat inputs as plain text rather than commands." },
+        { icon: "🛡️", title: "Deploy Web Application Firewalls", desc: "Filters out database script tags at the website boundary." },
+        { icon: "🔑", title: "Limit User Read/Write Privileges", desc: "Restricts compromised application servers from editing schemas." },
+        { icon: "🔎", title: "Conduct Input Length Checks", desc: "Blocks excessively long or strange query queries from execution." }
+      ];
+    case "Supply Chain":
+      return [
+        { icon: "🔑", title: "Verify Cryptographic Checksums", desc: "Ensures third-party packages match official publisher signatures." },
+        { icon: "📦", title: "Run Builds in Ephemeral Sandboxes", desc: "Compiles code inside isolated, internet-restricted containers." },
+        { icon: "🌐", title: "Mirror External Registries", desc: "Pulls package updates from validated local servers rather than public hubs." },
+        { icon: "🔎", title: "Audit Dependency Libraries", desc: "Scans open-source packages for known security vulnerabilities before build." }
+      ];
+    default:
+      return [
+        { icon: "🔒", title: "Implement Zero Trust Rules", desc: "Validates all user access requests regardless of network location." },
+        { icon: "🛡️", title: "Segment Network Zones", desc: "Confines potential breaches to isolated developer subnets." },
+        { icon: "📊", title: "Enable Centralized Log Rules", desc: "Flags unusual activity alerts early to trigger fast responses." }
+      ];
+  }
+};
+
+const getRememberThisPoints = (attackType: string) => {
+  switch (attackType) {
+    case "Phishing":
+      return [
+        "Trust should always be verified—never enter passwords on email links without checking the URL.",
+        "Small security gaps can lead to large attacks if administrator credentials are harvested.",
+        "Layered security (like hardware MFA keys) greatly reduces credential compromise risk."
+      ];
+    case "Ransomware":
+      return [
+        "Offline backups are only useful if the attacker cannot access or modify them.",
+        "Internal network segmentation confines file encryption payloads to a single subnet.",
+        "Automated endpoint tools must isolate compromised hosts instantly before malware propagates."
+      ];
+    case "DDoS":
+      return [
+        "Availability is a core pillar of security—keeping servers accessible is just as vital as data confidentiality.",
+        "Connection rate limits prevent gateways from crashing under volumetric request spikes.",
+        "Edge caching and distributed networks absorb traffic surges to protect backend assets."
+      ];
+    case "SQL Injection":
+      return [
+        "Never trust user inputs—always use parameterized queries in code.",
+        "Least privilege database rules prevent attackers from viewing or modifying core schemas.",
+        "WAF filters add a vital layer of perimeter protection to detect and block malicious script syntax."
+      ];
+    case "Supply Chain":
+      return [
+        "Trusting external code updates without validation exposes the entire build pipeline.",
+        "Isolated build agents prevent malicious packages from downloading backdoor shells.",
+        "Software dependencies must be cryptographically verified and audited regularly for gaps."
+      ];
+    default:
+      return [
+        "Verify credentials at every layer instead of trusting internal network zones.",
+        "Defenders must continuously monitor system memory and logs for suspicious pivot activity.",
+        "Layered security controls dramatically reduce the likelihood of a successful system compromise."
+      ];
+  }
+};
+
+const getRevealCardContent = (attackType: string, securityLevel: string, isBlocked: boolean) => {
+  const levelName = getSecurityLevelName(securityLevel);
+  return {
+    whyBlockedOrSucceeded: isBlocked
+      ? `Under ${levelName} Protection, active security rules successfully flagged unauthorized activity (like memory scanning or lateral pivots) and isolated key assets, preventing the attacker from compromising critical systems.`
+      : `Lacking active rules under ${levelName} Protection, the security tools failed to flag the attacker's script or credentials dump, allowing them to pivot laterally and exfiltrate database tables.`,
+    whatIfDifferentSecurity: isBlocked
+      ? "If Basic Protection had been selected, many advanced endpoint scanning and network segmentation rules would be disabled. The attacker would have easily pivoted from the workstation to compromise the database."
+      : "If Advanced Protection had been active, the security gateway would have automatically isolated the compromised workstation and blocked lateral access to the server, stopping the attack in its tracks.",
+    howBasicProtectionChanges: "Under Basic Protection, the system relies on generic perimeter firewalls with no internal access control. Attackers can move freely once inside, dump system memory credentials, and compromise databases without triggering alerts."
+  };
 };
 
 const getImpactDetails = (attackType: string, industry: string, isBlocked: boolean) => {
@@ -1437,6 +1554,35 @@ const PrintCaseStudy = ({ reportData }: { reportData: CTIReport }) => {
   );
 };
 
+function RevealCard({ question, answer }: { question: string; answer: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="glassmorphism-card rounded-xl border border-cyber-border overflow-hidden transition-all duration-300">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full p-4 flex justify-between items-center text-left hover:bg-cyber-surface/40 transition-colors font-mono text-[11px] font-bold text-white uppercase"
+      >
+        <span className="text-cyber-cyan">{question}</span>
+        <span className="text-xs text-cyber-cyan">{isOpen ? "CLOSE" : "REVEAL"}</span>
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="border-t border-cyber-border/40 bg-black/25 overflow-hidden font-sans"
+          >
+            <p className="p-4 text-xs leading-relaxed text-slate-300">
+              {answer}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function AIAnalystContent() {
   const searchParams = useSearchParams();
   const campaignId = searchParams.get("campaignId");
@@ -1715,30 +1861,44 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
         <JourneyStepper currentStep={3} />
 
         {/* Title Header - print:hidden */}
-        <div className="mb-10 max-w-4xl print:hidden flex flex-wrap items-center justify-between gap-4">
+        <div className="mb-10 max-w-4xl print:hidden space-y-4">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase font-bold">
               <Brain className="w-3.5 h-3.5 text-cyber-cyan animate-pulse" />
-              Simulation Review
+              Let's Understand What Happened
             </div>
             <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase font-sans">
-              Simulation Review
+              Let's Understand What Happened
             </h1>
-            <p className="text-sm text-slate-400 max-w-2xl leading-relaxed font-sans">
-              See how the attack unfolded, what impact it had, and how security defenses responded.
-            </p>
           </div>
 
-          <div>
-            {reportData.status === "Blocked" ? (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded border border-cyber-green/30 bg-cyber-green/10 text-cyber-green text-xs font-mono font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.15)]">
-                🟢 Attack Successfully Blocked
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2 font-mono text-[10px] tracking-wider">
+            <div className="bg-black/40 p-4 rounded-xl border border-cyber-border">
+              <span className="text-slate-500 uppercase block text-[8px] font-bold">Attack Result</span>
+              <span className={`font-bold block mt-1.5 uppercase ${
+                reportData.status === "Blocked" ? "text-cyber-green" : "text-cyber-red"
+              }`}>
+                {reportData.status === "Blocked" ? "🟢 Blocked" : "🔴 Successful"}
               </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded border border-cyber-red/30 bg-cyber-red/10 text-cyber-red text-xs font-mono font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(244,63,94,0.15)]">
-                🔴 Attack Reached Critical Systems
+            </div>
+            <div className="bg-black/40 p-4 rounded-xl border border-cyber-border">
+              <span className="text-slate-500 uppercase block text-[8px] font-bold">Target</span>
+              <span className="text-white font-bold block mt-1.5 uppercase truncate" title={reportData.targetName}>
+                {reportData.targetName}
               </span>
-            )}
+            </div>
+            <div className="bg-black/40 p-4 rounded-xl border border-cyber-border">
+              <span className="text-slate-500 uppercase block text-[8px] font-bold">Attack Method</span>
+              <span className="text-white font-bold block mt-1.5 uppercase truncate" title={reportData.vectorName}>
+                {reportData.vectorName}
+              </span>
+            </div>
+            <div className="bg-black/40 p-4 rounded-xl border border-cyber-border">
+              <span className="text-slate-500 uppercase block text-[8px] font-bold">Security Level</span>
+              <span className="text-white font-bold block mt-1.5 uppercase">
+                {getSecurityLevelName(reportData.securityLevel)}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -1756,56 +1916,34 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
         </div>
 
         {/* Action Controls - hidden on print */}
-        <div className="glassmorphism-card rounded-xl p-4 border border-cyber-border mb-8 flex flex-wrap items-center justify-between gap-4 print:hidden">
-          <div className="flex flex-wrap items-center gap-3 font-mono text-[10px]">
-            <span className="text-slate-400">TARGET REF:</span>
-            <span className="text-white font-bold">{reportData.id}</span>
-            <span className="text-slate-655">|</span>
-            <span className="text-slate-400">ATTACKER:</span>
-            <span className="text-white font-bold uppercase">{reportData.actorName}</span>
-            <span className="text-slate-655">|</span>
-            <span className="text-slate-400">PROTECTION:</span>
-            <span className="text-white font-bold uppercase">{getSecurityLevelName(reportData.securityLevel)}</span>
-            <span className="text-slate-655">|</span>
-            {isLiveAI ? (
-              <span className="px-1.5 py-0.5 rounded border border-cyber-cyan/30 bg-cyber-cyan/10 text-cyber-cyan text-[8px] font-bold uppercase tracking-wider animate-pulse">
-                AI Intelligence Synced
-              </span>
-            ) : (
-              <span className="px-1.5 py-0.5 rounded border border-amber-500/30 bg-amber-500/10 text-amber-500 text-[8px] font-bold uppercase tracking-wider">
-                Review Generated
-              </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-3 font-mono">
-            <button
-              onClick={handlePrint}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-cyber-border bg-cyber-surface hover:bg-cyber-surface-brighter hover:text-white text-slate-300 text-[10px] tracking-widest uppercase transition-colors cursor-pointer font-bold"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              Print Summary
-            </button>
-            <button
-              onClick={handleExportMarkdown}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-cyber-cyan/35 bg-cyber-cyan/10 hover:bg-cyber-cyan/20 text-cyber-cyan text-[10px] tracking-widest uppercase transition-all hover:shadow-[0_0_12px_rgba(6,182,212,0.2)] cursor-pointer font-bold"
-            >
-              <Download className="w-3.5 h-3.5" />
-              Download Report
-            </button>
-            <button
-              onClick={handleShare}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-purple-500/35 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 text-[10px] tracking-widest uppercase transition-all hover:shadow-[0_0_12px_rgba(168,85,247,0.2)] cursor-pointer font-bold relative"
-            >
-              <Share2 className="w-3.5 h-3.5" />
-              {copied ? "Link Copied!" : "Share Simulation"}
-            </button>
-          </div>
+        <div className="flex justify-end mb-8 gap-3 print:hidden">
+          <button
+            onClick={handlePrint}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-cyber-border bg-cyber-surface hover:bg-cyber-surface-brighter hover:text-white text-slate-350 text-[10px] tracking-widest uppercase transition-colors cursor-pointer font-bold"
+          >
+            <Printer className="w-3.5 h-3.5" />
+            Print Summary
+          </button>
+          <button
+            onClick={handleExportMarkdown}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-cyber-cyan/35 bg-cyber-cyan/10 hover:bg-cyber-cyan/20 text-cyber-cyan text-[10px] tracking-widest uppercase transition-all hover:shadow-[0_0_12px_rgba(6,182,212,0.2)] cursor-pointer font-bold"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Download Report
+          </button>
+          <button
+            onClick={handleShare}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-purple-500/35 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 text-[10px] tracking-widest uppercase transition-all hover:shadow-[0_0_12px_rgba(168,85,247,0.2)] cursor-pointer font-bold relative"
+          >
+            <Share2 className="w-3.5 h-3.5" />
+            {copied ? "Link Copied!" : "Share Simulation"}
+          </button>
         </div>
 
-        {/* Unified Single-Column Flow        {/* Unified Single-Column Flow Layout */}
+        {/* Unified Single-Column Flow Layout */}
         <div className="space-y-10 max-w-5xl mx-auto">
-                {/* 1. What Happened? */}
+
+          {/* 1. Attack Story */}
           <motion.section
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1813,366 +1951,240 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
           >
             <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent" />
             <div className="flex items-center gap-2 border-b border-cyber-border/40 pb-4 mb-6">
-              <span className="text-cyber-cyan font-mono text-[10px] uppercase font-bold tracking-wider">🕵️ 1. What Happened?</span>
+              <span className="text-cyber-cyan font-mono text-[10px] uppercase font-bold tracking-wider">🕵️ Attack Story</span>
             </div>
-            <div className="space-y-4 font-sans text-xs leading-relaxed text-slate-300">
-              <p className="text-slate-200 text-sm font-semibold leading-relaxed">
-                {attackAttempt} {finalOutcome}
-              </p>
-              <div className="p-4 rounded-lg bg-cyber-surface/40 border border-cyber-border/60">
-                <strong className="text-white font-mono text-[9px] uppercase tracking-wider block mb-1 text-cyber-cyan">Scenario Overview</strong>
-                <p className="text-slate-300">{reportData.executiveSummary}</p>
-              </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative font-sans text-xs">
+              {/* How the attacker entered */}
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-black/35 p-4 rounded-xl border border-cyber-border relative"
+              >
+                <span className="text-cyber-cyan font-mono text-[8px] uppercase tracking-wider block font-bold mb-1.5">01. Entry Vector</span>
+                <h4 className="text-white font-bold mb-1 uppercase font-mono text-[10px]">How Attacker Entered</h4>
+                <p className="text-slate-300 leading-relaxed">
+                  The attacker targeted the {reportData.industryName} network using a simulated {reportData.vectorName.toLowerCase()} exploit.
+                </p>
+              </motion.div>
 
-              {/* Milestones timeline embedded here */}
-              <div className="mt-6">
-                <span className="text-slate-500 font-mono text-[9px] uppercase tracking-widest block font-bold mb-4">Progression Milestones</span>
-                {(() => {
-                  const stages = reportData.stages;
-                  const isStep1Blocked = stages[0]?.status === "blocked" || stages[1]?.status === "blocked";
-                  const isStep2Blocked = !isStep1Blocked && (stages[2]?.status === "blocked" || stages[3]?.status === "blocked" || stages[4]?.status === "blocked");
-                  const isStep3Blocked = !isStep1Blocked && !isStep2Blocked && (stages[5]?.status === "blocked");
+              {/* What the attacker tried */}
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-black/35 p-4 rounded-xl border border-cyber-border relative"
+              >
+                <span className="text-cyber-cyan font-mono text-[8px] uppercase tracking-wider block font-bold mb-1.5">02. Objective</span>
+                <h4 className="text-white font-bold mb-1 uppercase font-mono text-[10px]">What Attacker Tried</h4>
+                <p className="text-slate-300 leading-relaxed">
+                  They attempted to harvest administrative login credentials and move laterally to access the target system: {reportData.targetName}.
+                </p>
+              </motion.div>
 
-                  const milestones = [
-                    {
-                      title: "Looking for Entry",
-                      desc: `Attacker performed network scans and delivered payloads via ${reportData.vectorName}.`,
-                      status: isStep1Blocked ? "Stopped" : "Successful"
-                    },
-                    {
-                      title: "Pivoting Inside",
-                      desc: "Attacker searched memory for credentials and pivoted to database server zones.",
-                      status: isStep1Blocked ? "Unreached" : isStep2Blocked ? "Stopped" : "Successful"
-                    },
-                    {
-                      title: "Data Target",
-                      desc: "Attacker reached the target directory to copy files and lock directories.",
-                      status: (isStep1Blocked || isStep2Blocked) ? "Unreached" : isStep3Blocked ? "Stopped" : "Successful"
-                    }
-                  ];
+              {/* How security responded */}
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-black/35 p-4 rounded-xl border border-cyber-border relative"
+              >
+                <span className="text-cyber-cyan font-mono text-[8px] uppercase tracking-wider block font-bold mb-1.5">03. Defense Action</span>
+                <h4 className="text-white font-bold mb-1 uppercase font-mono text-[10px]">How Security Responded</h4>
+                <p className="text-slate-300 leading-relaxed">
+                  {reportData.status === "Blocked"
+                    ? `Active rules under ${getSecurityLevelName(reportData.securityLevel)} Protection successfully detected and blocked the malicious steps.`
+                    : `Configured security settings under ${getSecurityLevelName(reportData.securityLevel)} Protection failed to intercept the credential dumps or lateral pivots.`}
+                </p>
+              </motion.div>
 
-                  return (
-                    <div className="relative border-l border-cyber-border/80 pl-6 space-y-4 ml-3">
-                      {milestones.map((milestone, idx) => {
-                        const stepStatus = milestone.status;
-                        return (
-                          <div key={idx} className={`relative transition-all duration-300 ${stepStatus === "Unreached" ? "opacity-30" : "opacity-100"}`}>
-                            <span className={`absolute -left-[31px] top-1.5 w-4.5 h-4.5 rounded-full border flex items-center justify-center font-mono text-[8px] font-bold ${
-                              stepStatus === "Stopped"
-                                ? "bg-black border-cyber-green text-cyber-green shadow-[0_0_10px_rgba(16,185,129,0.3)]"
-                                : stepStatus === "Successful"
-                                  ? "bg-cyber-red border-cyber-red text-black"
-                                  : "bg-slate-950 border-slate-800 text-slate-655"
-                            }`}>
-                              {idx + 1}
-                            </span>
-                            <div className="p-3.5 rounded-lg bg-cyber-surface/30 border border-cyber-border/40 flex justify-between items-center gap-4">
-                              <div className="font-sans text-xs">
-                                <h5 className="font-bold text-white font-mono uppercase tracking-wide text-[10px]">{milestone.title}</h5>
-                                <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">{milestone.desc}</p>
-                              </div>
-                              <div className="shrink-0 font-mono text-[8px] font-bold uppercase tracking-wider">
-                                {stepStatus === "Stopped" && <span className="text-cyber-green">🟢 Stopped</span>}
-                                {stepStatus === "Successful" && <span className="text-cyber-red">🔴 Succeeded</span>}
-                                {stepStatus === "Unreached" && <span className="text-slate-500">⚪ Unreached</span>}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })()}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[10px] font-mono text-slate-400 pt-4">
-                <div className="bg-black/35 p-3 rounded border border-cyber-border">
-                  <span className="text-slate-505 text-cyber-cyan uppercase block text-[8px] font-bold">Target Environment</span>
-                  <span className="text-white font-bold block mt-1 uppercase">{reportData.industryName} ({reportData.targetName})</span>
-                </div>
-                <div className="bg-black/35 p-3 rounded border border-cyber-border">
-                  <span className="text-slate-505 text-cyber-cyan uppercase block text-[8px] font-bold">Threat Actor</span>
-                  <span className="text-white font-bold block mt-1 uppercase">{reportData.actorName}</span>
-                </div>
-                <div className="bg-black/35 p-3 rounded border border-cyber-border">
-                  <span className="text-slate-505 text-cyber-cyan uppercase block text-[8px] font-bold">Attack Method</span>
-                  <span className="text-white font-bold block mt-1 uppercase">{reportData.vectorName}</span>
-                </div>
-              </div>
+              {/* Final outcome */}
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+                className="bg-black/35 p-4 rounded-xl border border-cyber-border relative"
+              >
+                <span className="text-cyber-cyan font-mono text-[8px] uppercase tracking-wider block font-bold mb-1.5">04. Outcome</span>
+                <h4 className="text-white font-bold mb-1 uppercase font-mono text-[10px]">Final Outcome</h4>
+                <p className="text-slate-300 leading-relaxed">
+                  {reportData.status === "Blocked"
+                    ? "The attack was blocked with zero records exposed, keeping database tables completely safe."
+                    : "The attacker gained root administrator control, encrypting local system files and exfiltrating target databases."}
+                </p>
+              </motion.div>
             </div>
           </motion.section>
 
-          {/* 2. Attack Journey */}
+          {/* 2. Attack Breakdown */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Attacker's Goal */}
+            <div className="glassmorphism-card rounded-xl p-5 border border-cyber-border bg-black/20">
+              <span className="text-cyber-cyan font-mono text-[9px] uppercase tracking-wider block font-bold mb-2">🎯 Attacker's Goal</span>
+              <p className="text-white text-xs leading-relaxed font-sans">
+                {reportData.status === "Blocked"
+                  ? `To pivot silent lateral channels into the ${reportData.targetName} server and exfiltrate secure records.`
+                  : `To compromise the ${reportData.targetName} host, exfiltrate private database files, and lock operations.`}
+              </p>
+            </div>
+
+            {/* Defender's Response */}
+            <div className="glassmorphism-card rounded-xl p-5 border border-cyber-border bg-black/20">
+              <span className="text-cyber-cyan font-mono text-[9px] uppercase tracking-wider block font-bold mb-2">🛡️ Defender's Response</span>
+              <p className="text-white text-xs leading-relaxed font-sans">
+                {reportData.status === "Blocked"
+                  ? `Automated rules successfully detected the malicious access attempts and isolated the threat at early stages.`
+                  : `Loose access policies failed to intercept internal pivots, allowing the attacker to retrieve master admin tokens.`}
+              </p>
+            </div>
+          </div>
+
+          {/* 3. Real World Context */}
+          <div className="glassmorphism-card rounded-xl p-5 border border-purple-500/30 bg-purple-500/5 relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-purple-500" />
+            <span className="text-[9px] font-mono text-purple-400 uppercase tracking-widest block font-bold mb-2">
+              💡 Could this happen in real life?
+            </span>
+            <p className="text-xs leading-relaxed text-slate-350 font-sans">
+              {getRealWorldContext(reportData.vectorId)}
+            </p>
+          </div>
+
+          {/* 4. Interactive Questions */}
+          <div className="space-y-4">
+            <span className="text-slate-500 font-mono text-[9px] uppercase tracking-widest block font-bold">
+              Interactive Lesson Details (Reveal Cards)
+            </span>
+            <div className="grid grid-cols-1 gap-3">
+              {[
+                {
+                  id: "why",
+                  q: reportData.status === "Blocked" ? "▶ Why was the attack blocked?" : "▶ Why did the attack succeed?",
+                  ans: getRevealCardContent(reportData.vectorId, reportData.securityLevel, reportData.status === "Blocked").whyBlockedOrSucceeded
+                },
+                {
+                  id: "change",
+                  q: reportData.status === "Blocked" ? "▶ What if weaker security had been selected?" : "▶ What if stronger security had been selected?",
+                  ans: getRevealCardContent(reportData.vectorId, reportData.securityLevel, reportData.status === "Blocked").whatIfDifferentSecurity
+                },
+                {
+                  id: "basic",
+                  q: "▶ How would this attack change with Basic Protection?",
+                  ans: getRevealCardContent(reportData.vectorId, reportData.securityLevel, reportData.status === "Blocked").howBasicProtectionChanges
+                }
+              ].map((item) => {
+                return (
+                  <RevealCard key={item.id} question={item.q} answer={item.ans} />
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 5. How could this attack be prevented? */}
           <motion.section
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative"
           >
             <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent" />
-            <div className="flex items-center gap-2 border-b border-cyber-border/40 pb-4 mb-6">
-              <span className="text-cyber-cyan font-mono text-[10px] uppercase font-bold tracking-wider">🗺️ 2. Attack Journey</span>
+            <div className="flex items-center gap-2 border-b border-cyber-border/40 pb-4 mb-4">
+              <span className="text-cyber-cyan font-mono text-[10px] uppercase font-bold tracking-wider">🛡️ How could this attack be prevented?</span>
             </div>
             
-            <div className="flex flex-col md:flex-row items-center justify-center gap-3 py-6 px-4 bg-black/40 rounded border border-cyber-border/40">
-              {getAttackJourneyFlow(reportData.vectorId).map((step, idx, arr) => (
-                <React.Fragment key={idx}>
-                  <div className="flex flex-col items-center p-3 rounded-lg border border-cyber-cyan/20 bg-cyber-cyan/5 w-full md:w-44 text-center">
-                    <span className="text-[10px] font-mono text-cyber-cyan font-bold block mb-1">STEP 0{idx + 1}</span>
-                    <span className="text-white text-[11px] font-medium leading-tight">{step}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {getSimplifiedPreventativeChecklist(reportData.vectorId).map((item, idx) => (
+                <div key={idx} className="p-3.5 rounded bg-cyber-surface/30 border border-cyber-border/40 flex items-start gap-3">
+                  <span className="text-lg shrink-0 pt-0.5">{item.icon}</span>
+                  <div className="font-sans text-xs">
+                    <strong className="text-white font-mono text-[10px] uppercase tracking-wider block font-bold">{item.title}</strong>
+                    <p className="text-slate-400 text-[10.5px] mt-0.5 leading-normal">{item.desc}</p>
                   </div>
-                  {idx < arr.length - 1 && (
-                    <div className="text-cyber-cyan/60 font-mono text-base font-bold my-1 md:my-0">
-                      <span className="md:hidden">↓</span>
-                      <span className="hidden md:inline">→</span>
-                    </div>
-                  )}
-                </React.Fragment>
+                </div>
               ))}
             </div>
           </motion.section>
 
-          {/* 3. Why The Attack Succeeded / Was Blocked */}
+          {/* 6. Remember This */}
           <motion.section
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative"
           >
             <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent" />
-            <div className="flex items-center gap-2 border-b border-cyber-border/40 pb-4 mb-6">
-              <span className="text-cyber-cyan font-mono text-[10px] uppercase font-bold tracking-wider">
-                🛡️ 3. Why The Attack {reportData.status === "Blocked" ? "Was Blocked" : "Succeeded"}
-              </span>
-            </div>
-            <div className="space-y-4 font-sans text-xs leading-relaxed text-slate-300">
-              <p className="text-slate-200 text-sm font-semibold leading-relaxed">
-                {defenseResponse}
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                <div className="bg-black/35 p-4 rounded border border-cyber-border">
-                  <span className="text-slate-500 uppercase block font-mono text-[8px] font-bold">Security Setup (Defensive Posture)</span>
-                  <span className="text-cyber-cyan font-extrabold block mt-1 uppercase text-sm font-mono">
-                    {getSecurityLevelName(reportData.securityLevel)} Protection
-                  </span>
-                  <p className="text-slate-400 text-[10px] mt-1.5 leading-normal">
-                    This setup governs which security rules, alert policies, and access checks were active during the simulation.
-                  </p>
-                </div>
-                <div className="bg-black/35 p-4 rounded border border-cyber-border">
-                  <span className="text-slate-500 uppercase block font-mono text-[8px] font-bold">Security Gap (Vulnerability)</span>
-                  <span className={`font-extrabold block mt-1 uppercase text-sm font-mono ${reportData.status === "Blocked" ? "text-cyber-green" : "text-cyber-red"}`}>
-                    {reportData.status === "Blocked" ? "Fully Protected" : "Exposed Vulnerability"}
-                  </span>
-                  <p className="text-slate-400 text-[10px] mt-1.5 leading-normal">
-                    {reportData.status === "Blocked" 
-                      ? "Active defenses successfully blocked threat behavior patterns and prevented the attacker from reaching critical zones." 
-                      : "Unsecured paths or a lack of strict access controls allowed the payload to run and pivot to other servers."}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </motion.section>
-
-          {/* 4. What The Attacker Achieved */}
-          <motion.section
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative"
-          >
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent" />
-            <div className="flex items-center gap-2 border-b border-cyber-border/40 pb-4 mb-6">
-              <span className="text-cyber-cyan font-mono text-[10px] uppercase font-bold tracking-wider">💰 4. What The Attacker Achieved</span>
+            <div className="flex items-center gap-2 border-b border-cyber-border/40 pb-4 mb-4">
+              <span className="text-cyber-cyan font-mono text-[10px] uppercase font-bold tracking-wider">🎓 Remember This</span>
             </div>
             
-            <div className="space-y-6 text-xs leading-relaxed">
-              <div className="p-4 rounded bg-cyber-surface/40 border border-cyber-border/60">
-                <span className="text-white font-mono text-[9px] uppercase tracking-wider block font-bold text-cyber-cyan mb-1">Possible Business Impact</span>
-                <p className="text-slate-355">
-                  {reportData.status === "Blocked"
-                    ? "The attack was successfully contained. The attacker failed to reach the database, keeping operational disruption and cost to a minimum."
-                    : "The attack succeeded in bypassing defenses. Critical servers were accessed, which would lead to operational halts, potential regulatory violations, and reputational damage."}
-                </p>
-              </div>
-
-              {(() => {
-                const details = getImpactDetails(reportData.vectorId, reportData.industryName, reportData.status === "Blocked");
-                return (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                    {/* What Systems Were Affected */}
-                    <div className="bg-black/35 p-4 rounded border border-cyber-border/40">
-                      <span className="text-white font-mono text-[10px] uppercase tracking-wider block font-bold mb-3 flex items-center gap-1.5">
-                        <Terminal className="w-3.5 h-3.5 text-cyber-cyan" />
-                        What Systems Were Affected?
-                      </span>
-                      <ul className="space-y-2 text-[11px] text-slate-300">
-                        {details.systems.map((sys, index) => (
-                          <li key={index} className="flex items-center gap-2">
-                            <span className="text-cyber-red font-bold">•</span>
-                            {sys}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Possible Consequences */}
-                    <div className="bg-black/35 p-4 rounded border border-cyber-border/40">
-                      <span className="text-white font-mono text-[10px] uppercase tracking-wider block font-bold mb-3 flex items-center gap-1.5">
-                        <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
-                        What Problems Would This Cause?
-                      </span>
-                      <ul className="space-y-2 text-[11px] text-slate-300">
-                        {details.consequences.map((cons, index) => (
-                          <li key={index} className="flex items-center gap-2">
-                            <span className="text-cyber-red font-bold">•</span>
-                            {cons}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* How Long Might Recovery Take */}
-                    <div className="bg-black/35 p-4 rounded border border-cyber-border/40">
-                      <span className="text-white font-mono text-[10px] uppercase tracking-wider block font-bold mb-2 flex items-center gap-1.5">
-                        <Activity className="w-3.5 h-3.5 text-cyber-cyan" />
-                        How Long Might Recovery Take?
-                      </span>
-                      <p className="text-[11px] text-slate-300 leading-normal">
-                        {details.recovery}
-                      </p>
-                    </div>
-
-                    {/* What Security Improvements Would Help */}
-                    <div className="bg-black/35 p-4 rounded border border-cyber-border/40">
-                      <span className="text-white font-mono text-[10px] uppercase tracking-wider block font-bold mb-3 flex items-center gap-1.5">
-                        <ShieldCheck className="w-3.5 h-3.5 text-cyber-green" />
-                        What Security Improvements Would Help?
-                      </span>
-                      <ul className="space-y-2 text-[11px] text-slate-300">
-                        {details.improvements.map((imp, index) => (
-                          <li key={index} className="flex items-center gap-2">
-                            <span className="text-cyber-green font-bold">✓</span>
-                            {imp}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
+            <ul className="space-y-3 font-sans text-xs text-slate-300 font-sans">
+              {getRememberThisPoints(reportData.vectorId).map((point, idx) => (
+                <li key={idx} className="flex gap-2.5 items-start">
+                  <span className="text-cyber-cyan font-bold">•</span>
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
           </motion.section>
 
-          {/* 5. How This Could Have Been Stopped */}
-          <motion.section
+          {/* Lesson Complete */}
+          <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative"
+            className="glassmorphism-card rounded-xl p-6 border border-cyber-green/45 bg-cyber-green/5 relative overflow-hidden text-center max-w-2xl mx-auto shadow-[0_0_20px_rgba(16,185,129,0.15)] mb-8"
           >
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent" />
-            <div className="flex items-center gap-2 border-b border-cyber-border/40 pb-4 mb-6">
-              <span className="text-cyber-cyan font-mono text-[10px] uppercase font-bold tracking-wider">🛑 5. How This Could Have Been Stopped</span>
-            </div>
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-cyber-green" />
             
-            <div className="space-y-4">
-              <p className="text-[11px] text-slate-400 font-sans leading-relaxed">
-                Applying the following security controls would have blocked the methods simulated during this attack:
-              </p>
-              
-              <div className="space-y-3">
-                {reportData.mitigations.map((mitigation, idx) => {
-                  const parts = mitigation.split(":");
-                  const title = parts[0] || "Security Control";
-                  const desc = parts.slice(1).join(":") || mitigation;
-                  return (
-                    <div key={idx} className="p-3.5 rounded bg-cyber-surface/30 border border-cyber-border/40 flex items-start gap-3">
-                      <div className="pt-0.5 shrink-0">
-                        <div className="w-4.5 h-4.5 rounded border border-cyber-cyan/40 bg-cyber-cyan/5 flex items-center justify-center font-bold text-cyber-cyan text-[9px]">
-                          ✓
-                        </div>
-                      </div>
-                      <div className="font-sans text-xs">
-                        <strong className="text-white font-mono text-[10px] uppercase tracking-wider block">{title}</strong>
-                        <p className="text-slate-400 text-[11px] mt-0.5 leading-normal">{desc}</p>
-                      </div>
-                    </div>
-                  );
-                })}
+            <h3 className="text-lg font-bold text-white uppercase tracking-wider font-mono">
+              Lesson Complete
+            </h3>
+            
+            <div className="my-5 flex flex-col items-center gap-2 text-xs text-slate-300 font-sans">
+              <div className="flex items-center gap-1.5 text-cyber-green">
+                <span>✓</span>
+                <span>You learned how the attacker entered.</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-cyber-green">
+                <span>✓</span>
+                <span>You learned how defenses responded.</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-cyber-green">
+                <span>✓</span>
+                <span>You learned how to strengthen security.</span>
               </div>
             </div>
-          </motion.section>
 
-          {/* 6. What You Should Learn */}
-          <motion.section
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative"
-          >
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent" />
-            <div className="flex items-center gap-2 border-b border-cyber-border/40 pb-4 mb-6">
-              <span className="text-cyber-cyan font-mono text-[10px] uppercase font-bold tracking-wider">🎓 6. What You Should Learn</span>
-            </div>
-            
-            <div className="space-y-4 font-sans text-xs leading-relaxed text-slate-350">
-              {(() => {
-                const lessons = getEducationalLessons(reportData.vectorId, reportData.securityLevel);
-                return (
-                  <div className="space-y-4">
-                    <div className="p-4 rounded bg-cyber-surface/40 border border-cyber-border/60">
-                      <span className="text-white font-mono text-[9px] uppercase tracking-wider block font-bold text-cyber-cyan mb-1">Key Takeaway</span>
-                      <p className="text-slate-205 text-[11px] leading-relaxed">
-                        {lessons.keyTakeaway}
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-black/35 p-4 rounded border border-cyber-border/40">
-                        <span className="text-white font-mono text-[9px] uppercase tracking-wider block font-bold text-amber-500 mb-1.5">What Beginners Should Remember</span>
-                        <p className="text-[11px] text-slate-400">
-                          {lessons.whatBeginnersRemember}
-                        </p>
-                      </div>
-
-                      <div className="bg-black/35 p-4 rounded border border-cyber-border/40">
-                        <span className="text-white font-mono text-[9px] uppercase tracking-wider block font-bold text-purple-400 mb-1.5">Real-World Lesson</span>
-                        <p className="text-[11px] text-slate-400">
-                          {lessons.realWorldLesson}
-                        </p>
-                      </div>
-
-                      <div className="bg-black/35 p-4 rounded border border-cyber-border/40">
-                        <span className="text-white font-mono text-[9px] uppercase tracking-wider block font-bold text-cyber-red mb-1.5">Why This Attack Worked</span>
-                        <p className="text-[11px] text-slate-400">
-                          {lessons.whyAttackWorked}
-                        </p>
-                      </div>
-
-                      <div className="bg-black/35 p-4 rounded border border-cyber-border/40">
-                        <span className="text-white font-mono text-[9px] uppercase tracking-wider block font-bold text-cyber-green mb-1.5">How Defenders Could Improve</span>
-                        <p className="text-[11px] text-slate-400">
-                          {lessons.howDefendersImprove}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
-          </motion.section>
-
-          {/* Section 6 & 7: Collapsible Technical Threat Intelligence */}
-          <div className="w-full">
-            <div className="p-5 rounded-lg border border-cyber-border bg-cyber-surface/30 mb-4 text-left print:hidden">
-              <h4 className="text-white font-mono text-xs uppercase font-bold tracking-wider">Advanced Technical Details</h4>
-              <p className="text-[10px] text-slate-400 mt-1 font-sans">
-                For cybersecurity learners, analysts, and recruiters interested in deeper technical details.
-              </p>
-              <button
-                onClick={() => setIsTechnicalExpanded(!isTechnicalExpanded)}
-                className="mt-3 py-2 px-4 rounded border border-cyber-cyan/35 bg-cyber-cyan/10 hover:bg-cyber-cyan/20 text-cyber-cyan hover:text-white flex items-center gap-2 font-mono text-[9px] uppercase tracking-wider transition-all duration-300 hover:cursor-pointer font-bold"
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4 border-t border-cyber-green/10">
+              <Link
+                href="/command-center"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded bg-cyber-green text-xs font-mono font-bold tracking-widest text-black uppercase hover:bg-cyber-green/90 hover:shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all duration-300 cursor-pointer"
               >
-                <Layers className="w-3.5 h-3.5 text-cyber-cyan animate-pulse" />
-                <span>{isTechnicalExpanded ? "[-] Hide Advanced Technical Details" : "[+] View Advanced Technical Details"}</span>
+                <BookOpen className="w-4 h-4 text-black" />
+                Continue to Learning Journal
+              </Link>
+              <button
+                onClick={handleExportMarkdown}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded border border-cyber-border bg-cyber-surface hover:bg-cyber-surface-brighter text-xs font-mono font-bold tracking-widest text-slate-300 uppercase transition-all duration-300 cursor-pointer"
+              >
+                <Download className="w-4.5 h-4.5 text-slate-300" />
+                Download Learning Report
               </button>
             </div>
+          </motion.div>
+
+        </div>
+
+          {/* Collapsible Advanced Technical Details */}
+          <div className="w-full pt-4">
+            <button
+              onClick={() => setIsTechnicalExpanded(!isTechnicalExpanded)}
+              className="w-full py-3.5 px-4 rounded-lg border border-cyber-border hover:border-slate-700 bg-cyber-surface/40 hover:bg-cyber-surface/75 text-slate-350 hover:text-white flex items-center justify-between font-mono text-[10px] uppercase tracking-wider transition-all duration-300 hover:cursor-pointer"
+            >
+              <span className="font-bold flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-cyber-cyan" />
+                Advanced Technical Details
+              </span>
+              <span className="text-cyber-cyan font-bold">{isTechnicalExpanded ? "▲ Collapse" : "▼ Expand"}</span>
+            </button>
 
             <AnimatePresence>
               {(isTechnicalExpanded || typeof window === "undefined" /* keep visible on print if server side */) && (
@@ -2349,7 +2361,6 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
               )}
             </AnimatePresence>
           </div>
-        </div>
 
       </motion.div>
 

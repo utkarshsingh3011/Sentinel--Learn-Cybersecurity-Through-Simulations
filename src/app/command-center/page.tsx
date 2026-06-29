@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, Terminal, Activity, ShieldCheck, ShieldAlert,
-  Database, RefreshCw, Brain, ChevronRight, Flame
+  Database, RefreshCw, Brain, ChevronRight, Flame, Lock
 } from "lucide-react";
 import {
   getCampaignHistory, StoredCampaign, getActorName,
@@ -15,12 +15,52 @@ import AnimatedCounter from "../../components/AnimatedCounter";
 import JourneyStepper from "../../components/JourneyStepper";
 import Footer from "../../components/Footer";
 
+function SecurityTipCard({ title, desc }: { title: string; desc: string }) {
+  const [isHovered, setIsHovered] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="glassmorphism-card rounded-xl p-4 border border-cyber-border bg-black/20 hover:bg-black/40 transition-all duration-300 relative overflow-hidden"
+    >
+      <div className="flex items-center gap-2">
+        <span className="text-cyber-green font-bold">✓</span>
+        <span className="text-white text-xs font-mono font-bold uppercase">{title}</span>
+      </div>
+      <motion.div
+        initial={{ height: 0, opacity: 0, marginTop: 0 }}
+        animate={{
+          height: isHovered ? "auto" : 0,
+          opacity: isHovered ? 1 : 0,
+          marginTop: isHovered ? 8 : 0
+        }}
+        transition={{ duration: 0.25 }}
+        className="overflow-hidden"
+      >
+        <p className="text-[10px] text-slate-400 font-sans leading-relaxed">
+          {desc}
+        </p>
+      </motion.div>
+    </div>
+  );
+}
+
 export default function CommandCenterPage() {
   const [history, setHistory] = useState<StoredCampaign[]>([]);
   const [selectedCampaign, setSelectedCampaign] = useState<StoredCampaign | null>(null);
   const [currentTime, setCurrentTime] = useState("");
   const [activeTab, setActiveTab] = useState<"all" | "blocked" | "successful">("all");
   const [showAdvancedAnalytics, setShowAdvancedAnalytics] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const maxUnlocked = parseInt(sessionStorage.getItem("sentinel_max_unlocked_step") || "1", 10);
+      if (maxUnlocked < 4) {
+        setIsLocked(true);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     setTimeout(() => {
@@ -162,6 +202,84 @@ export default function CommandCenterPage() {
     return `Test defenses against ${getAttackName(minType)}`;
   };
 
+  const getDefenderRank = (blockedCount: number) => {
+    if (blockedCount < 2) {
+      return {
+        rankName: "Beginner Defender",
+        badgeColor: "text-cyber-green border-cyber-green/30 bg-cyber-green/5",
+        nextRank: "Intermediate Defender",
+        needed: 2 - blockedCount,
+        percent: Math.min(100, Math.round((blockedCount / 2) * 100))
+      };
+    } else if (blockedCount < 5) {
+      return {
+        rankName: "Intermediate Defender",
+        badgeColor: "text-cyber-cyan border-cyber-cyan/30 bg-cyber-cyan/5",
+        nextRank: "Advanced Guardian",
+        needed: 5 - blockedCount,
+        percent: Math.min(100, Math.round(((blockedCount - 2) / 3) * 100))
+      };
+    } else {
+      return {
+        rankName: "Advanced Guardian",
+        badgeColor: "text-purple-400 border-purple-500/30 bg-purple-500/5",
+        nextRank: "Elite Security Specialist",
+        needed: 10 - blockedCount,
+        percent: Math.min(100, Math.round((blockedCount / 10) * 100))
+      };
+    }
+  };
+ 
+  const getAchievements = (blockedCount: number, successfulCount: number) => {
+    const simulatedTypes = new Set(history.map(c => c.attackType));
+    const hasHighRiskBlocked = history.some(c => c.status === "Blocked" && c.riskScore >= 70);
+    
+    return [
+      { id: "ACH-1", icon: "🏆", title: "First Simulation", desc: "Launched your first simulation.", unlocked: history.length > 0 },
+      { id: "ACH-2", icon: "🛡️", title: "First Successful Defense", desc: "Blocked a threat actor from breaching.", unlocked: blockedCount > 0 },
+      { id: "ACH-3", icon: "🔥", title: "Five Simulations Completed", desc: "Built and ran five scenarios.", unlocked: history.length >= 5 },
+      { id: "ACH-4", icon: "⚡", title: "Defended High-Risk Attack", desc: "Contained an attack with a risk >= 70%.", unlocked: hasHighRiskBlocked },
+      { id: "ACH-5", icon: "🎯", title: "Perfect Defense", desc: "Zero successful breaches on history.", unlocked: history.length > 0 && successfulCount === 0 },
+      { id: "ACH-6", icon: "🧠", title: "Learned All Attack Types", desc: "Tested all five threat vectors.", unlocked: simulatedTypes.size >= 5 }
+    ];
+  };
+ 
+  const generateActivityHeatmap = () => {
+    const days = 112; // 16 weeks
+    const result = [];
+    const now = new Date();
+    
+    const counts: Record<string, number> = {};
+    history.forEach(c => {
+      const dStr = new Date(c.timestamp).toDateString();
+      counts[dStr] = (counts[dStr] || 0) + 1;
+    });
+    
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(now.getDate() - i);
+      const dStr = d.toDateString();
+      const count = counts[dStr] || 0;
+      result.push({
+        dateStr: dStr,
+        dateLabel: d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+        count
+      });
+    }
+    
+    return result;
+  };
+ 
+  const getTimelineSteps = () => {
+    const count = history.length;
+    return [
+      { sim: "Simulation 1", concept: "Learned Phishing", active: count >= 1 },
+      { sim: "Simulation 2", concept: "Learned SQL Injection", active: count >= 2 },
+      { sim: "Simulation 3", concept: "Learned Ransomware", active: count >= 3 },
+      { sim: "Simulation 4", concept: "Learned Insider Threat", active: count >= 4 }
+    ];
+  };
+
   // MITRE ATT&CK Coverage
   // List of techniques to show
   const mitreTechniquesList = [
@@ -283,6 +401,57 @@ export default function CommandCenterPage() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
   };
 
+  if (isLocked) {
+    return (
+      <div className="relative min-h-screen flex flex-col items-center justify-center overflow-x-hidden bg-cyber-bg text-slate-100">
+        {/* Background Decors */}
+        <div className="absolute inset-0 cyber-grid opacity-30 pointer-events-none z-0" />
+        <div className="absolute inset-0 cyber-grid-fine opacity-50 pointer-events-none z-0" />
+        <div className="fixed inset-0 pointer-events-none z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.15)_50%)] bg-[length:100%_4px] opacity-10" />
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="relative z-10 w-full max-w-lg mx-auto px-6 text-center"
+        >
+          {/* Lock icon glow */}
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-16 h-16 rounded-full border border-cyber-red/40 bg-cyber-red/10 flex items-center justify-center shadow-[0_0_30px_rgba(244,63,94,0.2)]">
+              <Lock className="w-8 h-8 text-cyber-red" />
+            </div>
+          </div>
+
+          <span className="text-[10px] font-mono text-cyber-red uppercase tracking-widest block font-bold mb-3">
+            [ STEP 3 INCOMPLETE ]
+          </span>
+
+          <h1 className="text-2xl font-extrabold text-white uppercase tracking-tight font-sans mb-3">
+            Complete the AI Analyst First
+          </h1>
+
+          <p className="text-slate-400 text-sm leading-relaxed font-sans mb-8 max-w-md mx-auto">
+            The <strong className="text-white">Key Lessons Learning Journal</strong> is unlocked after you complete the <strong className="text-white">Understand What Happened</strong> step. This ensures you understand the attack before reviewing your learning progress.
+          </p>
+
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 font-mono">
+            <Link
+              href="/ai-analyst"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded bg-cyber-red hover:bg-cyber-red/90 text-white text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-[0_0_20px_rgba(244,63,94,0.3)] cursor-pointer"
+            >
+              Go to AI Analyst →
+            </Link>
+            <Link
+              href="/attack-viewer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white hover:border-slate-600 text-xs font-bold uppercase tracking-widest transition-all duration-300 cursor-pointer"
+            >
+              ← Back to Attack Viewer
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative min-h-screen flex flex-col justify-between overflow-x-hidden bg-cyber-bg text-slate-100 selection:bg-electric-blue/30 selection:text-white">
       {/* Background Decors */}
@@ -320,368 +489,407 @@ export default function CommandCenterPage() {
         </div>
 
         <JourneyStepper currentStep={4} />
-
-        {/* Top Human-Readable Explanation */}
-        <div className="mb-8 p-5 rounded bg-cyber-surface/60 border border-cyber-border/80 text-xs text-slate-300 leading-relaxed max-w-4xl relative overflow-hidden space-y-3">
-          <div className="absolute top-0 left-0 bottom-0 w-[3px] bg-cyber-cyan" />
-          <div>
-            <strong className="text-white block mb-0.5">Welcome to your Key Lessons (Learning Journal)</strong>
-            This panel aggregates data from all attack simulations you have built and run on SENTINEL. It serves as your personal progress dashboard to track how different security configurations stood up to simulated threat actors.
+ 
+        {/* Hero Section */}
+        <div className="mb-6 max-w-4xl">
+          <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase mb-3">
+            <Terminal className="w-3.5 h-3.5 text-cyber-cyan animate-pulse" />
+            Your Cybersecurity Journey
           </div>
-          <div>
-            <strong className="text-white block mb-0.5">Track your achievements</strong>
-            Monitor your overall Learning Progress Index, view summaries of previous explorations, and see which threat models you have fully defended.
-          </div>
-          <div>
-            <strong className="text-white block mb-0.5">Apply security mitigations</strong>
-            Review recommended fixes generated dynamically from successful breaches to learn how security engineers prevent real-world incidents.
-          </div>
-        </div>
-
-        {/* Dashboard Title Header */}
-        <div className="mb-12 max-w-4xl">
-          <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase mb-4">
-            <Terminal className="w-3.5 h-3.5 text-cyber-cyan" />
-            SENTINEL Learning Center: learning-journal.exe
-          </div>
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase tracking-tight">
-            Learning Progress Journal
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase font-sans">
+            Your Cybersecurity Journey
           </h1>
-          <p className="text-sm text-slate-400 mt-2 font-mono">
-            Your personal record of completed simulations, defenses tested, and security achievements.
-          </p>
         </div>
-
-        {/* Layout Grid */}
-        <div className="space-y-8">
-          {/* Row 1: Security Posture & Threat Statistics */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-            {/* Posture Card (4 cols) */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="lg:col-span-4 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between items-center text-center relative overflow-hidden"
-            >
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyber-cyan/35 to-transparent" />
-
-              <div className="w-full text-left">
-                <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-2">
-                  [01] Learning Progress Snapshot
-                </span>
-              </div>
-
-              {/* Animated circular gauge */}
-              <div className="relative my-6 flex items-center justify-center">
-                <svg className="w-40 h-40 transform -rotate-90">
-                  <circle
-                    cx="80"
-                    cy="80"
-                    r="68"
-                    className="stroke-slate-900"
-                    strokeWidth="8"
-                    fill="transparent"
-                  />
-                  <motion.circle
-                    cx="80"
-                    cy="80"
-                    r="68"
-                    stroke={securityScore >= 75 ? "#10b981" : securityScore >= 45 ? "#f59e0b" : "#f43f5e"}
-                    strokeWidth="8"
-                    fill="transparent"
-                    strokeDasharray={2 * Math.PI * 68}
-                    initial={{ strokeDashoffset: 2 * Math.PI * 68 }}
-                    animate={{ strokeDashoffset: (2 * Math.PI * 68) * (1 - securityScore / 100) }}
-                    transition={{ duration: 1.2, ease: "easeOut" }}
-                    strokeLinecap="round"
-                    className="drop-shadow-[0_0_8px_rgba(6,182,212,0.4)]"
-                  />
-                </svg>
-                <div className="absolute flex flex-col items-center justify-center">
-                  <motion.span
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className="text-4xl font-extrabold font-mono text-white"
-                  >
-                    {securityScore}%
-                  </motion.span>
-                  <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest mt-1">
-                    LEARNING PROGRESS INDEX
-                  </span>
-                </div>
-              </div>
-
-              <div className="w-full mt-2">
-                <div className={`py-1.5 px-3 rounded border text-xs font-mono font-bold tracking-widest uppercase inline-block ${statusInfo.color} ${statusInfo.border} ${statusInfo.bg}`}>
-                  {statusInfo.label}
-                </div>
-                <p className="text-[10px] text-slate-400 font-sans mt-3 leading-relaxed text-left">
-                  <strong>Learning Progress Snapshot</strong>: The percentage of simulated attacks that you have successfully defended. A higher index indicates you are building more resilient security setups.
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Statistics Cards (8 cols) */}
-            <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6 items-stretch">
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4 }}
-                className="glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      Simulations Launched
-                    </span>
-                    <h3 className="text-4xl font-extrabold font-mono text-white mt-2">
-                      <AnimatedCounter value={totalSimulations} />
-                    </h3>
-                  </div>
-                  <div className="p-3 bg-slate-950 border border-cyber-border rounded text-cyber-cyan">
-                    <Activity className="w-5 h-5" />
-                  </div>
-                </div>
-                <p className="text-[10px] text-slate-400 font-sans mt-4 border-t border-cyber-border/40 pt-4 leading-relaxed">
-                  The total number of cybersecurity simulations launched to test our systems.
-                </p>
-              </motion.div>
  
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.1 }}
-                className="glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      High Risk Scenarios Tested
-                    </span>
-                    <h3 className="text-4xl font-extrabold font-mono text-cyber-red mt-2">
-                      <AnimatedCounter value={criticalThreats} />
-                    </h3>
-                  </div>
-                  <div className="p-3 bg-slate-950 border border-cyber-border rounded text-cyber-red">
-                    <Flame className="w-5 h-5" />
-                  </div>
-                </div>
-                <p className="text-[10px] text-slate-400 font-sans mt-4 border-t border-cyber-border/40 pt-4 leading-relaxed">
-                  Simulations where the attack was highly dangerous due to the combination of threat severity and vulnerability.
-                </p>
-              </motion.div>
- 
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-                className="glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      Defensive Successes
-                    </span>
-                    <h3 className="text-4xl font-extrabold font-mono text-cyber-green mt-2">
-                      <AnimatedCounter value={blockedAttacks} />
-                    </h3>
-                  </div>
-                  <div className="p-3 bg-slate-950 border border-cyber-border rounded text-cyber-green">
-                    <ShieldCheck className="w-5 h-5" />
-                  </div>
-                </div>
-                <p className="text-[10px] text-slate-400 font-sans mt-4 border-t border-cyber-border/40 pt-4 leading-relaxed">
-                  Attacks where our security systems successfully detected and stopped the intruder before they could reach critical data.
-                </p>
-              </motion.div>
- 
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.3 }}
-                className="glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      Bypasses Identified
-                    </span>
-                    <h3 className="text-4xl font-extrabold font-mono text-cyber-red mt-2">
-                      <AnimatedCounter value={successfulAttacks} />
-                    </h3>
-                  </div>
-                  <div className="p-3 bg-slate-950 border border-cyber-border rounded text-cyber-red">
-                    <ShieldAlert className="w-5 h-5" />
-                  </div>
-                </div>
-                <p className="text-[10px] text-slate-400 font-sans mt-4 border-t border-cyber-border/40 pt-4 leading-relaxed">
-                  Attacks that managed to break through our defenses. These reveal key security weaknesses that need to be fixed.
-                </p>
-              </motion.div>
+        {/* 4 Hero Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glassmorphism-card rounded-xl p-5 border border-cyber-border bg-black/20"
+          >
+            <span className="text-[9px] font-mono text-slate-550 uppercase tracking-widest block font-bold">✓ Simulations Completed</span>
+            <div className="text-3xl font-extrabold font-mono text-white mt-2 flex items-baseline gap-1.5">
+              <AnimatedCounter value={totalSimulations} />
             </div>
-          </div>
-
-          {/* Row: Learning Insights Snapshot */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4 }}
-              className="glassmorphism-card rounded-xl p-5 border border-cyber-cyan/30 bg-cyber-cyan/5 flex flex-col justify-between"
-            >
-              <div>
-                <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">Most Explored Attack</span>
-                <div className="text-white text-sm font-bold mt-2 uppercase font-mono">{getMostExploredAttack()}</div>
-              </div>
-              <p className="text-[9px] text-slate-400 mt-3 font-sans leading-relaxed">
-                The attack type you have simulated the most.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              className="glassmorphism-card rounded-xl p-5 border border-cyber-green/30 bg-cyber-green/5 flex flex-col justify-between"
-            >
-              <div>
-                <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">Strongest Defense Tested</span>
-                <div className="text-white text-sm font-bold mt-2 uppercase font-mono">{getStrongestDefense()}</div>
-              </div>
-              <p className="text-[9px] text-slate-400 mt-3 font-sans leading-relaxed">
-                The highest level of protection you have tested in a simulation.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.2 }}
-              className="glassmorphism-card rounded-xl p-5 border border-cyber-red/30 bg-cyber-red/5 flex flex-col justify-between"
-            >
-              <div>
-                <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">Biggest Security Weakness</span>
-                <div className="text-white text-sm font-bold mt-2 uppercase font-mono">{getBiggestWeakness()}</div>
-              </div>
-              <p className="text-[9px] text-slate-400 mt-3 font-sans leading-relaxed">
-                The attack scenario with the lowest defensive success rate.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.3 }}
-              className="glassmorphism-card rounded-xl p-5 border-purple-500/30 bg-purple-550/5 flex flex-col justify-between"
-            >
-              <div>
-                <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">Recommended Next Scenario</span>
-                <div className="text-white text-sm font-bold mt-2 uppercase font-mono">{getRecommendedNextScenario()}</div>
-              </div>
-              <p className="text-[9px] text-slate-400 mt-3 font-sans leading-relaxed">
-                Suggested simulation based on un-simulated threat categories.
-              </p>
-            </motion.div>
-          </div>
-
-          {/* Row 2: Campaign History Narrative Cards & Recommendations */}
+          </motion.div>
+ 
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glassmorphism-card rounded-xl p-5 border border-cyber-border bg-black/20"
+          >
+            <span className="text-[9px] font-mono text-slate-555 uppercase tracking-widest block font-bold">✓ Defended Attacks</span>
+            <div className="text-3xl font-extrabold font-mono text-cyber-green mt-2 flex items-baseline gap-1.5">
+              <AnimatedCounter value={blockedAttacks} />
+            </div>
+          </motion.div>
+ 
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glassmorphism-card rounded-xl p-5 border border-cyber-border bg-black/20"
+          >
+            <span className="text-[9px] font-mono text-slate-555 uppercase tracking-widest block font-bold">✓ Learning Score</span>
+            <div className="text-3xl font-extrabold font-mono text-cyber-cyan mt-2 flex items-baseline gap-1.5">
+              <AnimatedCounter value={securityScore} />%
+            </div>
+          </motion.div>
+ 
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glassmorphism-card rounded-xl p-5 border border-cyber-border bg-black/20"
+          >
+            <span className="text-[9px] font-mono text-slate-555 uppercase tracking-widest block font-bold">✓ Next Challenge</span>
+            <div className="text-3xl font-extrabold font-mono text-purple-400 mt-2 flex items-baseline gap-1.5">
+              Level <AnimatedCounter value={history.some(c => c.attackType === "SQL Injection") ? 4 : 3} />
+            </div>
+          </motion.div>
+        </div>
+ 
+        <div className="space-y-8">
+          {/* Row 1: Achievement Rank & Skills badges */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-            {/* Campaign History Cards (8 cols) */}
+            {/* Learning Progress Achievement Card (5 cols) */}
+            {(() => {
+              const rank = getDefenderRank(blockedAttacks);
+              return (
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="lg:col-span-5 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between relative overflow-hidden"
+                >
+                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyber-cyan/35 to-transparent" />
+                  <div>
+                    <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-4">
+                      Learning Progress
+                    </span>
+                    <div className={`py-1.5 px-3 rounded border text-xs font-mono font-bold tracking-widest uppercase inline-block ${rank.badgeColor}`}>
+                      🟢 {rank.rankName}
+                    </div>
+                    <div className="text-4xl font-extrabold font-mono text-white mt-4">{securityScore}%</div>
+                    <p className="text-[11px] text-slate-400 mt-3 font-sans leading-relaxed">
+                      Only {rank.needed} more successful simulation{rank.needed === 1 ? "" : "s"} until {rank.nextRank}.
+                    </p>
+                  </div>
+                  <div className="w-full mt-4">
+                    <div className="h-1.5 bg-slate-900 border border-cyber-border/40 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${rank.percent}%` }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        className="h-full bg-cyber-green"
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })()}
+ 
+            {/* Skills You've Practiced (7 cols) */}
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="lg:col-span-8 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
+              className="lg:col-span-7 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
             >
               <div>
-                <div className="flex justify-between items-center border-b border-cyber-border/40 pb-4 mb-6">
-                  <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                    [04] Your Simulation History
+                <span className="text-[9px] font-mono text-slate-550 uppercase tracking-widest block font-bold mb-4">
+                  Skills You've Practiced
+                </span>
+                <p className="text-[11px] text-slate-400 mb-6 font-sans leading-relaxed">
+                  Colored badges show skills you have run in simulation. Grey badges represent unpracticed areas.
+                </p>
+                
+                <div className="flex flex-wrap gap-2.5">
+                  {[
+                    { id: "Phishing", label: "Phishing", check: () => history.some(c => c.attackType === "Phishing") },
+                    { id: "SQLi", label: "SQL Injection", check: () => history.some(c => c.attackType === "SQL Injection") },
+                    { id: "DDoS", label: "DDoS", check: () => history.some(c => c.attackType === "DDoS") },
+                    { id: "Malware", label: "Malware", check: () => history.some(c => c.attackType === "Ransomware") },
+                    { id: "CredTheft", label: "Credential Theft", check: () => history.some(c => c.attackType === "Phishing" || c.attackType === "Ransomware") },
+                    { id: "Insider", label: "Insider Threat", check: () => history.some(c => c.attackType === "Supply Chain") },
+                  ].map((skill) => {
+                    const completed = skill.check();
+                    return (
+                      <div
+                        key={skill.id}
+                        className={`px-3 py-1.5 rounded-lg border text-[10px] font-mono font-bold tracking-wider uppercase transition-all duration-300 ${
+                          completed
+                            ? "border-cyber-cyan/45 bg-cyber-cyan/10 text-cyber-cyan shadow-[0_0_10px_rgba(6,182,212,0.15)]"
+                            : "border-slate-800/80 bg-slate-950/40 text-slate-500"
+                        }`}
+                      >
+                        {completed ? "✓ " : "○ "}
+                        {skill.label}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="text-[9px] font-mono text-slate-550 uppercase mt-4">
+                PRACTICAL APPLICATION CHECKS
+              </div>
+            </motion.div>
+          </div>
+ 
+          {/* Row 2: Timeline & Achievements */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+            {/* Learning Timeline (6 cols) */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="lg:col-span-6 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
+            >
+              <div>
+                <span className="text-[9px] font-mono text-slate-550 uppercase tracking-widest block font-bold mb-4">
+                  Learning Timeline
+                </span>
+                <p className="text-[11px] text-slate-400 mb-6 font-sans leading-relaxed">
+                  Your visual roadmap showing concepts practiced in chronological order.
+                </p>
+                
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4 relative py-2">
+                  {getTimelineSteps().map((step, idx, arr) => (
+                    <React.Fragment key={idx}>
+                      <div className={`flex flex-col items-center text-center ${step.active ? "opacity-100" : "opacity-35"}`}>
+                        <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-mono text-xs font-bold transition-colors duration-300 ${
+                          step.active ? "border-cyber-cyan bg-cyber-cyan/15 text-cyber-cyan" : "border-slate-800 bg-slate-950 text-slate-655"
+                        }`}>
+                          {idx + 1}
+                        </div>
+                        <span className="text-white text-[9px] font-bold mt-2 font-mono uppercase">{step.sim}</span>
+                        <span className="text-[9px] text-cyber-cyan font-mono uppercase mt-0.5">{step.concept.split(" ")[1]}</span>
+                      </div>
+                      {idx < arr.length - 1 && (
+                        <div className="flex-1 h-[2px] bg-slate-800 min-w-[20px] hidden md:block relative">
+                          <div className={`absolute inset-y-0 left-0 transition-all duration-500 bg-cyber-cyan ${
+                            step.active && arr[idx+1].active ? "w-full" : "w-0"
+                          }`} />
+                        </div>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+ 
+            {/* Achievements Grid (6 cols) */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="lg:col-span-6 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
+            >
+              <div>
+                <span className="text-[9px] font-mono text-slate-550 uppercase tracking-widest block font-bold mb-4">
+                  Achievements
+                </span>
+                <div className="grid grid-cols-2 gap-4">
+                  {getAchievements(blockedAttacks, successfulAttacks).map((ach) => (
+                    <div
+                      key={ach.id}
+                      className={`p-3 rounded-lg border font-sans transition-all duration-300 flex items-center gap-2.5 ${
+                        ach.unlocked
+                          ? "border-cyber-cyan/35 bg-cyber-cyan/5 text-slate-200"
+                          : "border-slate-800/80 bg-slate-950/30 text-slate-500 opacity-50"
+                      }`}
+                    >
+                      <span className="text-xl select-none">{ach.icon}</span>
+                      <div className="text-left">
+                        <h4 className="text-[10px] font-bold uppercase font-mono leading-tight">{ach.title}</h4>
+                        <p className="text-[8.5px] text-slate-400 mt-0.5 leading-normal">{ach.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+ 
+          {/* Row 3: Activity & Recommended Next Challenge */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+            {/* Weekly Learning Activity (7 cols) */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="lg:col-span-7 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
+            >
+              <div>
+                <span className="text-[9px] font-mono text-slate-550 uppercase tracking-widest block font-bold mb-4">
+                  Weekly Learning Activity
+                </span>
+                <p className="text-[11px] text-slate-400 mb-6 font-sans leading-relaxed">
+                  Brighter squares represent days with more simulations executed.
+                </p>
+                
+                {(() => {
+                  const heatmapData = generateActivityHeatmap();
+                  const weeks = [];
+                  for (let i = 0; i < 16; i++) {
+                    weeks.push(heatmapData.slice(i * 7, (i + 1) * 7));
+                  }
+                  return (
+                    <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-thin">
+                      {weeks.map((week, wIdx) => (
+                        <div key={wIdx} className="flex flex-col gap-1.5">
+                          {week.map((day, dIdx) => {
+                            const intensity = day.count === 0 ? "bg-slate-900/60 border-cyber-border/20"
+                                            : day.count === 1 ? "bg-cyber-cyan/20 border-cyber-cyan/30"
+                                            : day.count === 2 ? "bg-cyber-cyan/50 border-cyber-cyan/50 shadow-[0_0_8px_rgba(6,182,212,0.25)]"
+                                            : "bg-cyber-cyan border-white shadow-[0_0_12px_rgba(6,182,212,0.4)]";
+                            return (
+                              <div
+                                key={dIdx}
+                                className={`w-3 h-3 rounded-sm border ${intensity} transition-all duration-300`}
+                                title={`${day.dateLabel}: ${day.count} simulations`}
+                              />
+                            );
+                          })}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
+              <div className="flex justify-between items-center text-[9px] font-mono text-slate-500 mt-4">
+                <span>LAST 16 WEEKS ACTIVITY GRAPH</span>
+                <div className="flex items-center gap-1">
+                  <span>Less</span>
+                  <div className="w-2 h-2 rounded-sm bg-slate-900 border border-cyber-border/20" />
+                  <div className="w-2 h-2 rounded-sm bg-cyber-cyan/20 border border-cyber-cyan/30" />
+                  <div className="w-2 h-2 rounded-sm bg-cyber-cyan/50 border border-cyber-cyan/50" />
+                  <div className="w-2 h-2 rounded-sm bg-cyber-cyan border border-white" />
+                  <span>More</span>
+                </div>
+              </div>
+            </motion.div>
+ 
+            {/* Recommended Next Challenge (5 cols) */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="lg:col-span-5 glassmorphism-card rounded-xl p-6 border border-cyber-cyan/45 bg-cyber-cyan/5 relative overflow-hidden flex flex-col justify-between"
+            >
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-cyber-cyan" />
+              <div className="space-y-3 font-sans">
+                <span className="text-[9px] font-mono text-cyber-cyan uppercase tracking-widest block font-bold">
+                  Recommended Next Simulation
+                </span>
+                <h3 className="text-md font-bold text-white uppercase font-mono">
+                  {history.some(c => c.attackType === "SQL Injection") ? "Ransomware Defense" : "SQL Injection Probe"}
+                </h3>
+                <div className="flex items-center gap-3 text-[10px] font-mono text-slate-400">
+                  <span className="flex items-center gap-1">
+                    Difficulty: <span className="text-amber-500">⭐⭐⭐⭐☆</span>
                   </span>
-
-                  {/* Filters */}
-                  <div className="flex items-center gap-2 bg-slate-950 p-1 border border-cyber-border rounded text-[9px] font-mono">
-                    <button
-                      onClick={() => setActiveTab("all")}
-                      className={`px-2 py-0.5 rounded cursor-pointer ${activeTab === "all" ? "bg-electric-blue text-white" : "text-slate-400 hover:text-white"}`}
-                    >
-                      ALL
-                    </button>
-                    <button
-                      onClick={() => setActiveTab("blocked")}
-                      className={`px-2 py-0.5 rounded cursor-pointer ${activeTab === "blocked" ? "bg-cyber-green text-black font-bold" : "text-slate-400 hover:text-white"}`}
-                    >
-                      DEFENDED
-                    </button>
-                    <button
-                      onClick={() => setActiveTab("successful")}
-                      className={`px-2 py-0.5 rounded cursor-pointer ${activeTab === "successful" ? "bg-cyber-red text-white" : "text-slate-400 hover:text-white"}`}
-                    >
-                      BYPASSED
-                    </button>
+                  <span>•</span>
+                  <span>5 mins</span>
+                </div>
+                <div className="space-y-1.5 pt-1 text-[11px] text-slate-300">
+                  <div className="text-slate-400">You'll practice:</div>
+                  <div className="flex items-center gap-1.5 text-cyber-cyan">
+                    <span>✓</span>
+                    <span>{history.some(c => c.attackType === "SQL Injection") ? "Immutable Backups" : "SQL Parameterization"}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-cyber-cyan">
+                    <span>✓</span>
+                    <span>{history.some(c => c.attackType === "SQL Injection") ? "Workstation Isolation" : "Web Application Firewall"}</span>
                   </div>
                 </div>
-
-                <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
-                  {filteredHistory.length === 0 ? (
-                    <div className="py-8 text-center text-slate-500 uppercase font-mono text-[10px]">
-                      No simulations recorded matching filter parameters.
+              </div>
+ 
+              <div className="pt-4">
+                <Link
+                  href="/simulate"
+                  className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded bg-cyber-cyan text-[10px] font-mono font-bold tracking-widest text-black uppercase hover:bg-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.4)] transition-all duration-300 cursor-pointer"
+                >
+                  Start Challenge →
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+ 
+          {/* Row 4: History & Security Tips */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+            {/* Simulation History (7 cols) */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="lg:col-span-7 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex justify-between items-center border-b border-cyber-border/40 pb-4 mb-4">
+                  <span className="text-[9px] font-mono text-slate-550 uppercase tracking-widest block font-bold">
+                    Simulation History (Last 5 Runs)
+                  </span>
+ 
+                  {/* Filters */}
+                  <div className="flex items-center gap-2 bg-slate-950 p-1 border border-cyber-border rounded text-[8px] font-mono">
+                    {["all", "blocked", "successful"].map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab as any)}
+                        className={`px-2 py-0.5 rounded cursor-pointer uppercase ${
+                          activeTab === tab 
+                            ? tab === "blocked" ? "bg-cyber-green text-black font-bold" 
+                              : tab === "successful" ? "bg-cyber-red text-white" 
+                              : "bg-electric-blue text-white"
+                            : "text-slate-400 hover:text-white"
+                        }`}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+ 
+                <div className="space-y-3">
+                  {filteredHistory.slice(0, 5).length === 0 ? (
+                    <div className="py-8 text-center text-slate-500 uppercase font-mono text-[9px]">
+                      No simulations recorded.
                     </div>
                   ) : (
-                    filteredHistory.map((camp) => {
+                    filteredHistory.slice(0, 5).map((camp) => {
                       const isBlocked = camp.status === "Blocked";
-                      const dateStr = new Date(camp.timestamp).toLocaleDateString();
-                      const timeStr = new Date(camp.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
+                      const dateStr = new Date(camp.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                      
                       return (
                         <div
                           key={camp.id}
-                          onClick={() => setSelectedCampaign(camp)}
-                          className="group border border-cyber-border hover:border-cyber-cyan/50 bg-black/35 hover:bg-slate-900/40 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer transition-all duration-200"
+                          className="border border-cyber-border/80 bg-black/35 hover:bg-slate-900/40 p-3 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors duration-200"
                         >
-                          <div className="flex items-start md:items-center gap-3">
-                            <span className="text-lg mt-0.5 md:mt-0 select-none">
-                              {isBlocked ? "🟢" : "🔴"}
-                            </span>
-                            <div>
-                              <p className="text-xs text-white font-medium leading-relaxed">
-                                <span className="font-bold text-cyber-cyan group-hover:underline font-mono">
-                                  {camp.id}
-                                </span>{" "}
-                                — {getActorName(camp.threatActor)} targeted the{" "}
-                                <span className="font-semibold text-slate-200 uppercase">{camp.industry}</span> sector using a{" "}
-                                <span className="font-semibold text-slate-200 uppercase">{getAttackName(camp.attackType)}</span> attempt.
-                              </p>
-                              <div className="flex items-center gap-2 mt-1.5 text-[9px] text-slate-500 font-mono flex-wrap">
-                                <span>{dateStr} {timeStr}</span>
-                                <span>•</span>
-                                <span>Defense Level: <span className="text-slate-400 font-bold uppercase">{camp.securityLevel}</span></span>
-                              </div>
+                          <div className="font-sans text-[11px] leading-relaxed">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs">{isBlocked ? "🟢" : "🔴"}</span>
+                              <span className="font-bold text-white uppercase font-mono text-[10px]">{camp.id.split("-")[0]}</span>
+                              <span className="text-slate-505 font-mono text-[9px]">{dateStr}</span>
                             </div>
+                            <p className="text-slate-350 mt-1">
+                              {getActorName(camp.threatActor)} targeted {camp.primaryTarget} via {getAttackName(camp.attackType)}.
+                            </p>
                           </div>
-
-                          <div className="flex items-center gap-3 justify-between md:justify-end border-t md:border-t-0 border-cyber-border/20 pt-2 md:pt-0">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-[9px] text-slate-500 font-mono uppercase">Risk Score:</span>
-                              <span className={`font-bold font-mono text-xs ${camp.riskScore >= 70 ? "text-cyber-red" : camp.riskScore >= 45 ? "text-amber-500" : "text-cyber-green"}`}>
-                                {camp.riskScore}%
-                              </span>
-                            </div>
-                            <span className={`px-2 py-0.5 rounded border text-[8px] font-bold uppercase ${isBlocked
-                              ? "border-cyber-green/30 bg-cyber-green/10 text-cyber-green"
-                              : "border-cyber-red/30 bg-cyber-red/10 text-cyber-red"
-                              }`}>
+ 
+                          <div className="flex items-center gap-3 justify-between sm:justify-end shrink-0 font-mono">
+                            <span className={`px-2 py-0.5 rounded border text-[8px] font-bold uppercase ${
+                              isBlocked ? "border-cyber-green/30 bg-cyber-green/10 text-cyber-green" : "border-cyber-red/30 bg-cyber-red/10 text-cyber-red"
+                            }`}>
                               {isBlocked ? "Defended" : "Bypassed"}
                             </span>
+                            
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => setSelectedCampaign(camp)}
+                                className="px-2 py-1 rounded border border-cyber-cyan/35 bg-cyber-cyan/10 hover:bg-cyber-cyan/25 text-cyber-cyan text-[8.5px] font-bold uppercase transition-colors cursor-pointer"
+                              >
+                                Review
+                              </button>
+                              <Link
+                                href="/simulate"
+                                className="px-2 py-1 rounded border border-cyber-border bg-cyber-surface hover:bg-cyber-surface-brighter text-slate-300 text-[8.5px] font-bold uppercase transition-colors cursor-pointer"
+                              >
+                                Again
+                              </Link>
+                            </div>
                           </div>
                         </div>
                       );
@@ -689,80 +897,54 @@ export default function CommandCenterPage() {
                   )}
                 </div>
               </div>
-
-              <div className="flex justify-between items-center text-[9px] font-mono text-slate-500 mt-6 pt-4 border-t border-cyber-border/40">
-                <span>SELECT A CARD TO VIEW THE ATTACK STORY & PREVENTION STEPS</span>
-                <button
-                  onClick={refreshHistory}
-                  className="flex items-center gap-1 hover:text-white cursor-pointer transition-colors uppercase font-bold"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  Reload Records
+              
+              <div className="flex justify-between items-center text-[9px] font-mono text-slate-500 mt-4 pt-4 border-t border-cyber-border/40">
+                <span>HISTORY LIMITED TO LAST 5 SCENARIOS</span>
+                <button onClick={refreshHistory} className="hover:text-white flex items-center gap-1 uppercase font-bold cursor-pointer">
+                  <RefreshCw className="w-3 h-3" /> Reload
                 </button>
               </div>
             </motion.div>
-
-            {/* Recommendations Panel (4 cols) */}
+ 
+            {/* Security Tips You've Learned (5 cols) */}
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="lg:col-span-4 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
+              className="lg:col-span-5 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
             >
               <div>
-                <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-4">
-                  [05] What Could Have Prevented These Attacks?
+                <span className="text-[9px] font-mono text-slate-550 uppercase tracking-widest block font-bold mb-4">
+                  Security Tips You've Learned
                 </span>
-
-                <motion.div
-                  className="space-y-4 max-h-[480px] overflow-y-auto pr-1"
-                  variants={containerVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                >
-                  {recommendations.map((rec) => {
-                    const getRecHeaderStyle = (sev: string) => {
-                      if (sev === "critical") return "text-cyber-red border-cyber-red/30 bg-cyber-red/5";
-                      if (sev === "high") return "text-amber-500 border-amber-500/30 bg-amber-500/5";
-                      return "text-cyber-cyan border-cyber-cyan/30 bg-cyber-cyan/5";
-                    };
-
-                    return (
-                      <motion.div key={rec.id} variants={cardVariants} className="border border-cyber-border bg-black/20 p-4 rounded text-left font-mono">
-                        <div className="flex justify-between items-start mb-2 flex-wrap gap-2">
-                          <span className={`px-2 py-0.5 rounded border text-[8px] font-bold uppercase ${getRecHeaderStyle(rec.severity)}`}>
-                            {rec.severity} priority
-                          </span>
-                          <span className="text-[9px] text-slate-600 font-bold">{rec.id}</span>
-                        </div>
-                        <h4 className="text-white text-xs font-bold uppercase">{rec.title}</h4>
-                        <p className="text-[10px] text-slate-400 mt-2 leading-relaxed font-sans">
-                          {rec.description}
-                        </p>
-                      </motion.div>
-                    );
-                  })}
-                </motion.div>
-              </div>
-
-              <div className="text-[9px] font-mono text-slate-500 uppercase mt-6 pt-4 border-t border-cyber-border/40">
-                EDUCATIONAL MITIGATIONS COMPILED FROM HISTORY
+                <p className="text-[11px] text-slate-400 mb-4 font-sans leading-relaxed">
+                  Hover over a security tip card to view the educational explanation.
+                </p>
+                
+                <div className="space-y-3">
+                  {[
+                    { id: "TIP-1", title: "MFA prevents password theft", desc: "Enforcing Multi-Factor Authentication prevents attackers from logging in even if they manage to compromise administrator passwords." },
+                    { id: "TIP-2", title: "WAF blocks common web attacks", desc: "Web Application Firewalls filter malicious database query syntax (like SQL Injection) at the web boundary before it hits databases." },
+                    { id: "TIP-3", title: "Backups reduce ransomware damage", desc: "Storing offline, read-only backups ensures files can be restored without paying hackers in a ransomware scenario." },
+                    { id: "TIP-4", title: "Network segmentation limits movement", desc: "Splitting internal networks into isolated subnets prevents threat actors from pivoting easily from workstations to database servers." }
+                  ].map((tip) => (
+                    <SecurityTipCard key={tip.id} title={tip.title} desc={tip.desc} />
+                  ))}
+                </div>
               </div>
             </motion.div>
           </div>
-
+ 
           {/* Advanced Analytics Toggle Button */}
-          <div className="flex justify-center pt-4">
+          <div className="flex justify-center pt-4 mb-6">
             <button
               onClick={() => setShowAdvancedAnalytics(!showAdvancedAnalytics)}
               className="flex items-center gap-2 px-6 py-3 rounded-xl border border-cyber-cyan/40 bg-cyber-cyan/5 hover:bg-cyber-cyan/15 text-cyber-cyan text-xs font-bold uppercase transition-all duration-300 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)] cursor-pointer"
             >
-              <span>{showAdvancedAnalytics ? "Hide" : "View"} Advanced Threat & Industry Metrics</span>
+              <span>{showAdvancedAnalytics ? "Hide" : "Show"} Advanced Metrics</span>
               <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${showAdvancedAnalytics ? "rotate-90" : "rotate-0"}`} />
             </button>
           </div>
-
+ 
           {/* Collapsible Advanced Analytics Container */}
           <AnimatePresence>
             {showAdvancedAnalytics && (
@@ -771,58 +953,50 @@ export default function CommandCenterPage() {
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="overflow-hidden"
+                className="overflow-hidden space-y-8 pt-4 pb-8"
               >
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch pt-4">
-                  {/* Industry Heatmap (5 cols) */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="lg:col-span-5 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
-                  >
+                {/* Historical stats cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="glassmorphism-card rounded-xl p-5 border border-cyber-border bg-black/25">
+                    <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest block font-bold">Simulations Launched</span>
+                    <h3 className="text-2xl font-extrabold font-mono text-white mt-1.5">{totalSimulations}</h3>
+                  </div>
+                  <div className="glassmorphism-card rounded-xl p-5 border border-cyber-border bg-black/25">
+                    <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest block font-bold">High Risk Scenarios</span>
+                    <h3 className="text-2xl font-extrabold font-mono text-cyber-red mt-1.5">{criticalThreats}</h3>
+                  </div>
+                  <div className="glassmorphism-card rounded-xl p-5 border border-cyber-border bg-black/25">
+                    <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest block font-bold">Defensive Successes</span>
+                    <h3 className="text-2xl font-extrabold font-mono text-cyber-green mt-1.5">{blockedAttacks}</h3>
+                  </div>
+                  <div className="glassmorphism-card rounded-xl p-5 border border-cyber-border bg-black/25">
+                    <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest block font-bold">Bypasses Identified</span>
+                    <h3 className="text-2xl font-extrabold font-mono text-cyber-red mt-1.5">{successfulAttacks}</h3>
+                  </div>
+                </div>
+ 
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                  {/* Industry Target Sectors */}
+                  <div className="lg:col-span-5 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between">
                     <div>
-                      <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-4">
-                        [02] TARGET SECTORS & ATTACK FREQUENCY
+                      <span className="text-[9px] font-mono text-slate-550 uppercase tracking-widest block font-bold mb-4">
+                        Target Sectors & Attack Frequency
                       </span>
-                      <p className="text-xs text-slate-400 mb-6 font-mono">
-                        Tracks how often different industry sectors were targeted in simulations.
-                      </p>
-
                       <div className="space-y-4">
                         {industryCounts.map((ind) => {
                           const percentage = maxIndustryCount > 0 ? (ind.count / maxIndustryCount) * 100 : 0;
-
                           const getBarColor = (cnt: number) => {
                             if (cnt >= 3) return "bg-cyber-red";
                             if (cnt >= 1) return "bg-electric-blue";
                             return "bg-slate-800";
                           };
-
-                          const getIntensityLabel = (cnt: number) => {
-                            if (cnt >= 3) return "HIGH INTENSITY";
-                            if (cnt >= 1) return "TARGETED";
-                            return "MONITORED";
-                          };
-
-                          const getIntensityColor = (cnt: number) => {
-                            if (cnt >= 3) return "text-cyber-red border-cyber-red/20 bg-cyber-red/5";
-                            if (cnt >= 1) return "text-electric-blue border-electric-blue/20 bg-electric-blue/5";
-                            return "text-slate-500 border-slate-800 bg-slate-950/20";
-                          };
-
                           return (
                             <div key={ind.name} className="space-y-2">
-                              <div className="flex justify-between items-center text-[10px] font-mono">
+                              <div className="flex justify-between items-center text-[9px] font-mono">
                                 <span className="text-white font-bold uppercase">{ind.name}</span>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-slate-400">{ind.count} {ind.count === 1 ? "Attack" : "Attacks"}</span>
-                                  <span className={`px-1 rounded border text-[8px] font-bold ${getIntensityColor(ind.count)}`}>
-                                    {getIntensityLabel(ind.count)}
-                                  </span>
-                                </div>
+                                <span className="text-slate-400">{ind.count} Runs</span>
                               </div>
-                              <div className="h-2 bg-slate-950 border border-cyber-border rounded-full overflow-hidden">
+                              <div className="h-1.5 bg-slate-950 border border-cyber-border/40 rounded-full overflow-hidden">
                                 <motion.div
                                   initial={{ width: 0 }}
                                   animate={{ width: `${percentage}%` }}
@@ -835,87 +1009,90 @@ export default function CommandCenterPage() {
                         })}
                       </div>
                     </div>
-
-                    <div className="text-[9px] font-mono text-slate-500 uppercase mt-6 pt-4 border-t border-cyber-border/40">
-                      YOUR PROGRESS INSIGHTS
-                    </div>
-                  </motion.div>
-
-                  {/* MITRE ATT&CK Coverage (7 cols) */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    className="lg:col-span-7 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between"
-                  >
+                  </div>
+ 
+                  {/* MITRE success rates */}
+                  <div className="lg:col-span-7 glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between">
                     <div>
-                      <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-4">
-                        [03] Attack Types Explored (Defense Success Rate)
+                      <span className="text-[9px] font-mono text-slate-550 uppercase tracking-widest block font-bold mb-4">
+                        Attack Coverage & Success Ratios
                       </span>
-                      <p className="text-xs text-slate-400 mb-6 font-mono">
-                        The success rate of our defensive configurations against specific attack types.
-                      </p>
-
-                      <motion.div
-                        className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-                        variants={containerVariants}
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true }}
-                      >
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {techniqueCoverage.map((tech) => {
                           const getCoverageBadge = (cov: number) => {
                             if (cov >= 75) return { text: "MITIGATED", style: "text-cyber-green border-cyber-green/30 bg-cyber-green/5" };
                             if (cov >= 35) return { text: "MONITORED", style: "text-amber-500 border-amber-500/30 bg-amber-500/5" };
                             return { text: "VULNERABLE", style: "text-cyber-red border-cyber-red/30 bg-cyber-red/5" };
                           };
-
                           const badge = getCoverageBadge(tech.coverage);
-
                           return (
-                            <motion.div key={tech.code} variants={cardVariants} className="bg-black/35 p-3 rounded border border-cyber-border flex flex-col justify-between text-left font-mono">
+                            <div key={tech.code} className="bg-black/35 p-3 rounded border border-cyber-border/40 flex flex-col justify-between text-left font-mono">
                               <div>
                                 <div className="flex justify-between items-start">
-                                  <span className="text-cyber-cyan text-[10px] font-bold">{tech.code}</span>
-                                  <span className={`px-1.5 py-0.5 rounded border text-[8px] font-bold ${badge.style}`}>
+                                  <span className="text-cyber-cyan text-[9px] font-bold">{tech.code}</span>
+                                  <span className={`px-1.5 py-0.5 rounded border text-[7px] font-bold ${badge.style}`}>
                                     {badge.text}
                                   </span>
                                 </div>
-                                <h4 className="text-white text-xs font-bold mt-2 uppercase truncate">{tech.name}</h4>
-                                <span className="text-slate-500 text-[8px] uppercase tracking-wider block mt-1">{tech.category}</span>
+                                <h4 className="text-white text-[11px] font-bold mt-2 uppercase truncate">{tech.name}</h4>
                               </div>
-
                               <div className="mt-4 space-y-1">
-                                <div className="flex justify-between text-[9px] text-slate-400">
-                                  <span>Defensive Coverage</span>
+                                <div className="flex justify-between text-[8px] text-slate-400">
+                                  <span>Defended Success Ratio</span>
                                   <span>{tech.coverage}%</span>
                                 </div>
                                 <div className="h-1 bg-slate-900 rounded-full overflow-hidden">
                                   <div
-                                    className={`h-full ${tech.coverage >= 75
-                                      ? "bg-cyber-green"
-                                      : tech.coverage >= 35
-                                        ? "bg-amber-500"
-                                        : "bg-cyber-red"
-                                      }`}
+                                    className={`h-full ${tech.coverage >= 75 ? "bg-cyber-green" : tech.coverage >= 35 ? "bg-amber-500" : "bg-cyber-red"}`}
                                     style={{ width: `${tech.coverage}%` }}
                                   />
                                 </div>
                               </div>
-                            </motion.div>
+                            </div>
                           );
                         })}
-                      </motion.div>
+                      </div>
                     </div>
-
-                    <div className="text-[10px] text-slate-400 font-sans mt-6 pt-4 border-t border-cyber-border/40 leading-relaxed text-left">
-                      <strong>Attack Types Explored</strong>: Measures defensive readiness against specific attack patterns. It shows the percentage of simulations successfully defended for each attack type.
-                    </div>
-                  </motion.div>
+                  </div>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
+ 
+          {/* End Page Celebratory Panel */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glassmorphism-card rounded-xl p-8 border border-cyber-green/45 bg-cyber-green/5 relative overflow-hidden text-center max-w-2xl mx-auto shadow-[0_0_20px_rgba(16,185,129,0.15)] mt-12"
+          >
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-cyber-green" />
+            <h2 className="text-xl font-bold text-white uppercase tracking-wider font-mono">
+              🎉 Great Work!
+            </h2>
+            <div className="my-6 space-y-2 text-sm text-slate-350 font-sans">
+              <p>You have completed <strong className="text-white font-mono">{totalSimulations} simulations</strong> and successfully defended <strong className="text-cyber-green font-mono">{blockedAttacks} attacks</strong>.</p>
+              <p>You've learned <strong className="text-cyber-cyan font-mono">{new Set(history.map(c => c.attackType)).size * 2} cybersecurity concepts</strong>.</p>
+              <p className="text-slate-400 mt-2">You're becoming better at recognizing and mitigating real-world threat actors.</p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4 border-t border-cyber-green/10 font-mono">
+              <Link
+                href="/simulate"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded bg-cyber-green text-xs font-bold tracking-widest text-black uppercase hover:bg-cyber-green/90 hover:shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all duration-300 cursor-pointer"
+              >
+                Run Another Simulation
+              </Link>
+              <button
+                onClick={() => {
+                  window.scrollTo({ top: 400, behavior: "smooth" });
+                }}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded border border-cyber-border bg-cyber-surface hover:bg-cyber-surface-brighter text-xs font-bold tracking-widest text-slate-300 uppercase transition-all duration-300 cursor-pointer"
+              >
+                View Previous Reports
+              </button>
+            </div>
+          </motion.div>
+ 
         </div>
       </motion.div>
 

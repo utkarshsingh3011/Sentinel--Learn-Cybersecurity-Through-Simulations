@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Terminal, Bot, Layers, Play, CheckCircle2,
-  ArrowLeft, RefreshCw, Cpu, Database, Network, ArrowRight
+  ArrowLeft, RefreshCw, Cpu, Database, Network, ArrowRight, X
 } from "lucide-react";
 import JourneyStepper from "../../components/JourneyStepper";
 import Footer from "../../components/Footer";
@@ -165,14 +165,18 @@ const compileCampaignConfig = (
 
 export default function SimulatePage() {
   const router = useRouter();
-  // Field states
-  const [industry, setIndustry] = useState("Healthcare");
-  const [actor, setActor] = useState("APT29");
-  const [attack, setAttack] = useState("Phishing");
-  const [security, setSecurity] = useState("Medium");
+  // Field states initialized to null for validation
+  const [industry, setIndustry] = useState<string | null>(null);
+  const [actor, setActor] = useState<string | null>(null);
+  const [attack, setAttack] = useState<string | null>(null);
+  const [security, setSecurity] = useState<string | null>(null);
 
-  // Tech Mode toggle
+  // Tech Mode toggle (kept for compatibility)
   const [showTechnicalIntel, setShowTechnicalIntel] = useState(false);
+
+  // Validation and Modal states
+  const [showValidationErrors, setShowValidationErrors] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   // Simulation execution states
   const [simState, setSimState] = useState<"idle" | "compiling" | "completed">("idle");
@@ -188,85 +192,117 @@ export default function SimulatePage() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
   };
 
-  const getExpectedOutcome = (level: string) => {
+  const getExpectedOutcome = (level: string | null) => {
+    if (!level) {
+      return {
+        likelihood: 0,
+        rating: "NO SETUP SELECTED",
+        color: "text-slate-500 border-slate-800/40 bg-slate-900/10",
+        barColor: "bg-slate-850",
+        prediction: "Choose a security setup to see our prediction of the attack's outcome."
+      };
+    }
     switch (level) {
       case "Low":
         return {
           likelihood: 85,
-          rating: "HIGH EXPOSURE CHANCE",
+          rating: "HIGH EXPOSURE RISK",
           color: "text-rose-500 border-rose-500/30 bg-rose-500/5",
           barColor: "bg-rose-500",
-          prediction: "Defenses are minimal. The threat actor is expected to bypass the perimeter, Swiping credentials, moving laterally across networks, and exfiltrating core database files without block triggers."
+          prediction: "With only basic security setup, there are no internal boundaries or advanced filters. The attacker will likely bypass perimeter checks, gather credentials, move laterally, and lock or copy sensitive files without triggering any alarms. Let's see if this prediction matches what actually happens."
         };
       case "Medium":
         return {
           likelihood: 55,
-          rating: "MODERATE EXPOSURE CHANCE",
+          rating: "MODERATE EXPOSURE RISK",
           color: "text-amber-500 border-amber-500/30 bg-amber-500/5",
           barColor: "bg-amber-500",
-          prediction: "Defenses will flag initial port scans and credential activity, but without internal network segment locks, the threat actor is likely to pivot to core systems."
+          prediction: "A standard setup will trigger alerts for suspicious login behaviors or simple file scans, but lacks the deep segmentation rules needed to block pivot attacks once the perimeter is crossed. The attacker stands a fair chance of reaching core databases. Let's see if this prediction matches what actually happens."
         };
       case "High":
         return {
           likelihood: 25,
-          rating: "LOW EXPOSURE CHANCE",
+          rating: "LOW EXPOSURE RISK",
           color: "text-emerald-500 border-emerald-500/30 bg-emerald-500/5",
           barColor: "bg-emerald-500",
-          prediction: "Robust security rules and strict authentication setups are highly likely to contain the threat. The attack is expected to be stopped early during the movement phase."
+          prediction: "Advanced defenses deploy multi-factor checks and active network monitors. They are highly effective at detecting credential theft or early lateral movement, containing the intrusion before it reaches core assets. Let's see if this prediction matches what actually happens."
         };
       case "Enterprise":
       default:
         return {
           likelihood: 5,
-          rating: "NEGLIGIBLE EXPOSURE CHANCE",
+          rating: "NEGLIGIBLE EXPOSURE RISK",
           color: "text-cyan-400 border-cyan-400/30 bg-cyan-400/5",
           barColor: "bg-cyan-400",
-          prediction: "Automated security setups, strict token keys, and active monitoring will immediately contain the threat. The intrusion is blocked at the perimeter before any foothold."
+          prediction: "Enterprise controls feature hardware security keys and automatic quarantine actions. The intrusion will be isolated immediately at the initial access stage before any foothold is established. Let's see if this prediction matches what actually happens."
         };
     }
   };
 
   const getDynamicSummarySentence = () => {
+    if (!industry || !actor || !attack || !security) {
+      return "Start building your cybersecurity story by selecting a target system, an attacker motive, an entry method, and defenses.";
+    }
+
     const targetMap: Record<string, string> = {
-      Healthcare: "hospital system",
-      Banking: "online banking platform",
-      Government: "government portal",
-      University: "university network",
-      Startup: "startup infrastructure"
+      Healthcare: "hospital system that stores patient medical files",
+      Banking: "online banking platform that processes financial transfers",
+      Government: "public portal holding citizen registry databases",
+      University: "university network storing academic research and student details",
+      Startup: "startup's cloud application and core server APIs"
     };
     const actorMap: Record<string, string> = {
-      APT29: "data spy",
-      Lazarus: "financial criminal",
-      LockBit: "ransomware operator",
-      Anonymous: "hacktivist",
-      FIN7: "insider threat"
+      APT29: "A stealthy data spy is targeting the network, hoping to silently copy data without leaving a trace.",
+      Lazarus: "A financially motivated criminal group is planning an intrusion, seeking to siphon funds and compromise transaction records.",
+      LockBit: "A dangerous ransomware operator is looking for a foothold, aiming to lock up systems and demand a payout.",
+      Anonymous: "A public hacktivist is launching an assault, wanting to disrupt operations to spread a political message.",
+      FIN7: "A rogue insider threat is misusing their login access, attempting to leak internal files from within."
     };
     const attackMap: Record<string, string> = {
-      Phishing: "fake email scam",
-      Ransomware: "file encryption attack",
-      DDoS: "traffic overload attack",
-      "SQL Injection": "database attack",
-      "Supply Chain": "malicious software installation"
+      Phishing: "They are planning to send a convincing fake email scam to trick an unsuspecting employee into exposing login credentials.",
+      Ransomware: "They plan to execute a file encryption attack, spreading malicious software to lock up the primary servers.",
+      DDoS: "They will launch a massive traffic overload attack, flooding the system to disrupt public access.",
+      "SQL Injection": "They aim to exploit a database vulnerability, injecting malicious inputs to steal records.",
+      "Supply Chain": "They are injecting malicious code into third-party software updates to compromise the server background."
     };
     const defenseMap: Record<string, string> = {
-      Low: "basic setup",
-      Medium: "standard setup",
-      High: "advanced setup",
-      Enterprise: "enterprise setup"
+      Low: "Basic defenses are in place, meaning there are few checks to stop the intrusion.",
+      Medium: "A standard setup is deployed, offering common detection rules but leaving internal segments exposed.",
+      High: "An advanced multi-layered cybersecurity defense is active, ready to trigger alerts and quarantine files.",
+      Enterprise: "An enterprise-grade defense is running, featuring hardware security keys, automated threat response, and constant active logs."
     };
 
-    const targetName = targetMap[industry] || "target environment";
-    const actorName = actorMap[actor] || "attacker";
-    const attackName = attackMap[attack] || "cyberattack";
-    const defenseName = defenseMap[security] || "standard setup";
+    const targetDesc = targetMap[industry] || "target environment";
+    const actorStory = actorMap[actor] || "An attacker is planning an intrusion.";
+    const attackStory = attackMap[attack] || "They plan to compromise the system.";
+    const defenseStory = defenseMap[security] || "Basic defenses are deployed.";
 
-    const aAn = ["a", "e", "i", "o", "u"].includes(actorName.charAt(0)) ? "An" : "A";
+    return `${actorStory} ${attackStory} Their target is a ${targetDesc}. ${defenseStory}`;
+  };
 
-    return `${aAn} ${actorName} is attempting a ${attackName} against a ${targetName} configured with a ${defenseName}.`;
+  const getDidYouKnowFact = (method: string | null) => {
+    const facts: Record<string, string> = {
+      Phishing: "Over 90% of all cyber intrusions begin with a phishing email. Attackers exploit human psychology rather than software bugs to gain their initial foothold.",
+      Ransomware: "The first ransomware attack occurred in 1989 (the AIDS Trojan), distributed via physical floppy disks. Today, ransomware is a multi-billion dollar illicit industry.",
+      DDoS: "The term DDoS stands for Distributed Denial of Service. It works like a sudden highway traffic jam—millions of compromised computers are instructed to access a site at the same time to overload it.",
+      "SQL Injection": "SQL Injection (SQLi) has remained on the OWASP Top 10 list of web vulnerabilities for decades. It occurs when databases mistake user inputs (like usernames) for database command code.",
+      "Supply Chain": "Supply chain attacks target weak vendor links. In famous real-world breaches, attackers compromised small vendor accounts (like an HVAC supplier) to bypass the target's primary firewalls."
+    };
+    return facts[method || "Phishing"] || "Cybersecurity is a continuous game of cat-and-mouse between defenders updating protection filters and threat actors searching for new loopholes.";
+  };
+
+  const handleVerifyAndConfirm = () => {
+    if (!industry || !actor || !attack || !security) {
+      setShowValidationErrors(true);
+      return;
+    }
+    setShowValidationErrors(false);
+    setShowConfirmModal(true);
   };
 
   const handleGenerate = () => {
     if (simState === "compiling") return;
+    if (!industry || !actor || !attack || !security) return;
 
     setSimState("compiling");
     setLogs([]);
@@ -283,14 +319,13 @@ export default function SimulatePage() {
     }
 
     const compileLogs = [
-      `[PREPARE] Initializing Educational Simulation Environment...`,
-      `[PREPARE] Choosing target environment...`,
-      `[PREPARE] Setting threat actor profile...`,
-      `[PREPARE] Establishing attack method...`,
-      `[PREPARE] Configuring security setup...`,
-      `[PREPARE] Preparing walkthrough details...`,
-      `[PREPARE] Building simulation...`,
-      `[SUCCESS] Simulation built successfully! Loading walkthrough...`
+      `[INFO] Loading your selected environment...`,
+      `[INFO] Preparing attacker profile...`,
+      `[INFO] Configuring security defenses...`,
+      `[INFO] Building attack timeline...`,
+      `[INFO] Creating learning walkthrough...`,
+      `[INFO] Generating investigation report...`,
+      `[SUCCESS] Scenario ready`
     ];
 
     compileLogs.forEach((log, index) => {
@@ -298,10 +333,6 @@ export default function SimulatePage() {
         setLogs(prev => [...prev, log]);
         if (index === compileLogs.length - 1) {
           setSimState("completed");
-          // Automatically redirect to attack-viewer after 1.5 seconds!
-          setTimeout(() => {
-            router.push("/attack-viewer");
-          }, 1500);
         }
       }, (index + 1) * 450);
     });
@@ -311,6 +342,11 @@ export default function SimulatePage() {
     setSimState("idle");
     setLogs([]);
     setActiveConfig(null);
+    setIndustry(null);
+    setActor(null);
+    setAttack(null);
+    setSecurity(null);
+    setShowValidationErrors(false);
   };
 
   return (
@@ -345,13 +381,15 @@ export default function SimulatePage() {
         <div className="mb-10 max-w-4xl mx-auto text-center flex flex-col items-center justify-center">
           <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase mb-4 font-bold">
             <Terminal className="w-3.5 h-3.5 text-cyber-cyan animate-pulse" />
-            Simulation Builder
+            {simState === "idle" ? "Simulation Builder" : "Mission Briefing"}
           </div>
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase">
-            Build Your Simulation Scenario
+            {simState === "idle" ? "Design Your Cybersecurity Story" : "Getting Your Simulation Ready"}
           </h1>
           <p className="mt-4 text-slate-400 text-sm md:text-base leading-relaxed font-sans max-w-2xl mx-auto">
-            Choose a target, threat actor, attack method, and security setup to see how the threat behaves and how defenses respond.
+            {simState === "idle"
+              ? "Build a safe learning scenario. Select a target system to protect, an attacker's profile, their entry method, and your defenses to see how they interact."
+              : "Sentinel is preparing a custom, fictional cybersecurity case study. You will watch the simulation unfold, investigate the threat actor's steps, and analyze how defenses respond."}
           </p>
         </div>
 
@@ -362,37 +400,37 @@ export default function SimulatePage() {
             
             <h2 className="text-white text-center text-sm md:text-base font-bold font-mono tracking-wider uppercase mb-6 flex items-center justify-center gap-2">
               <Layers className="w-4 h-4 text-cyber-cyan animate-pulse" />
-              Scenario Setup Guide
+              How to Build Your Story
             </h2>
             
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
               <div className="p-3 rounded bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-1.5 min-h-[90px] group">
                 <span className="text-xl group-hover:scale-110 transition-transform duration-200">🏥</span>
-                <div className="text-[9px] text-white font-mono font-bold uppercase tracking-wider">1. Pick Target</div>
-                <span className="text-[8px] text-slate-450 leading-tight">Identify environment</span>
+                <div className="text-[9px] text-white font-mono font-bold uppercase tracking-wider">1. Select Target</div>
+                <span className="text-[8px] text-slate-450 leading-tight">Choose a system to defend</span>
               </div>
               
               <div className="p-3 rounded bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-1.5 min-h-[90px] group">
                 <span className="text-xl group-hover:scale-110 transition-transform duration-200">🕵️</span>
-                <div className="text-[9px] text-white font-mono font-bold uppercase tracking-wider">2. Pick Threat Actor</div>
-                <span className="text-[8px] text-slate-450 leading-tight">Choose threat profile</span>
+                <div className="text-[9px] text-white font-mono font-bold uppercase tracking-wider">2. Choose Attacker</div>
+                <span className="text-[8px] text-slate-450 leading-tight">Pick the attacker's motive</span>
               </div>
               
               <div className="p-3 rounded bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-1.5 min-h-[90px] group">
                 <span className="text-xl group-hover:scale-110 transition-transform duration-200">📧</span>
-                <div className="text-[9px] text-white font-mono font-bold uppercase tracking-wider">3. Pick Method</div>
-                <span className="text-[8px] text-slate-450 leading-tight">Choose attack vector</span>
+                <div className="text-[9px] text-white font-mono font-bold uppercase tracking-wider">3. Pick Entry Method</div>
+                <span className="text-[8px] text-slate-450 leading-tight">Select how they attempt entry</span>
               </div>
               
               <div className="p-3 rounded bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-1.5 min-h-[90px] group">
                 <span className="text-xl group-hover:scale-110 transition-transform duration-200">🛡️</span>
-                <div className="text-[9px] text-white font-mono font-bold uppercase tracking-wider">4. Security Setup</div>
-                <span className="text-[8px] text-slate-450 leading-tight">Configure defense settings</span>
+                <div className="text-[9px] text-white font-mono font-bold uppercase tracking-wider">4. Set Defenses</div>
+                <span className="text-[8px] text-slate-450 leading-tight">Configure security setups</span>
               </div>
             </div>
             
             <div className="text-center mt-5 font-mono text-[8px] text-cyber-cyan uppercase tracking-widest animate-pulse">
-              ▲ Configure settings below and run the simulation to review results ▲
+              ▲ Configure all four sections and start the simulation to see the outcome ▲
             </div>
           </div>
         )}
@@ -410,12 +448,26 @@ export default function SimulatePage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -15 }}
                   className="space-y-8"
+                  key="form-selectors"
                 >
                   {/* 1. Environment Segment */}
-                  <div className="space-y-4">
-                    <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      Step 1: Choose Target Environment
-                    </span>
+                  <div className={`space-y-4 p-4 rounded-xl border transition-all duration-300 ${
+                    showValidationErrors && !industry
+                      ? "border-rose-500/30 bg-rose-500/[0.02] shadow-[0_0_15px_rgba(244,63,94,0.05)]"
+                      : "border-transparent"
+                  }`}>
+                    <div className="flex justify-between items-center">
+                      <span className={`text-[10px] font-mono uppercase tracking-widest block font-bold ${
+                        showValidationErrors && !industry ? "text-rose-455 font-extrabold animate-pulse" : "text-slate-500"
+                      }`}>
+                        Step 1: Choose Target System to Protect
+                      </span>
+                      {showValidationErrors && !industry && (
+                        <span className="text-[9px] font-mono text-rose-550 uppercase tracking-wider font-bold animate-pulse">
+                          ⚠️ Selection Required
+                        </span>
+                      )}
+                    </div>
                     <motion.div
                       className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
                       variants={containerVariants}
@@ -443,10 +495,23 @@ export default function SimulatePage() {
                   </div>
 
                   {/* 2. Attacker Profile */}
-                  <div className="space-y-4">
-                    <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      Step 2: Choose Threat Actor
-                    </span>
+                  <div className={`space-y-4 p-4 rounded-xl border transition-all duration-300 ${
+                    showValidationErrors && !actor
+                      ? "border-rose-500/30 bg-rose-500/[0.02] shadow-[0_0_15px_rgba(244,63,94,0.05)]"
+                      : "border-transparent"
+                  }`}>
+                    <div className="flex justify-between items-center">
+                      <span className={`text-[10px] font-mono uppercase tracking-widest block font-bold ${
+                        showValidationErrors && !actor ? "text-rose-455 font-extrabold animate-pulse" : "text-slate-500"
+                      }`}>
+                        Step 2: Choose Your Attacker Type
+                      </span>
+                      {showValidationErrors && !actor && (
+                        <span className="text-[9px] font-mono text-rose-550 uppercase tracking-wider font-bold animate-pulse">
+                          ⚠️ Selection Required
+                        </span>
+                      )}
+                    </div>
                     <motion.div
                       className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
                       variants={containerVariants}
@@ -474,10 +539,23 @@ export default function SimulatePage() {
                   </div>
 
                   {/* 3. Attack Type */}
-                  <div className="space-y-4">
-                    <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      Step 3: Choose Attack Method
-                    </span>
+                  <div className={`space-y-4 p-4 rounded-xl border transition-all duration-300 ${
+                    showValidationErrors && !attack
+                      ? "border-rose-500/30 bg-rose-500/[0.02] shadow-[0_0_15px_rgba(244,63,94,0.05)]"
+                      : "border-transparent"
+                  }`}>
+                    <div className="flex justify-between items-center">
+                      <span className={`text-[10px] font-mono uppercase tracking-widest block font-bold ${
+                        showValidationErrors && !attack ? "text-rose-455 font-extrabold animate-pulse" : "text-slate-500"
+                      }`}>
+                        Step 3: Select the Attack Method
+                      </span>
+                      {showValidationErrors && !attack && (
+                        <span className="text-[9px] font-mono text-rose-550 uppercase tracking-wider font-bold animate-pulse">
+                          ⚠️ Selection Required
+                        </span>
+                      )}
+                    </div>
                     <motion.div
                       className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
                       variants={containerVariants}
@@ -505,10 +583,23 @@ export default function SimulatePage() {
                   </div>
 
                   {/* 4. Security Setup */}
-                  <div className="space-y-4">
-                    <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                      Step 4: Choose Security Setup
-                    </span>
+                  <div className={`space-y-4 p-4 rounded-xl border transition-all duration-300 ${
+                    showValidationErrors && !security
+                      ? "border-rose-500/30 bg-rose-500/[0.02] shadow-[0_0_15px_rgba(244,63,94,0.05)]"
+                      : "border-transparent"
+                  }`}>
+                    <div className="flex justify-between items-center">
+                      <span className={`text-[10px] font-mono uppercase tracking-widest block font-bold ${
+                        showValidationErrors && !security ? "text-rose-455 font-extrabold animate-pulse" : "text-slate-500"
+                      }`}>
+                        Step 4: Configure Your Defenses
+                      </span>
+                      {showValidationErrors && !security && (
+                        <span className="text-[9px] font-mono text-rose-550 uppercase tracking-wider font-bold animate-pulse">
+                          ⚠️ Selection Required
+                        </span>
+                      )}
+                    </div>
                     <motion.div
                       className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"
                       variants={containerVariants}
@@ -575,84 +666,141 @@ export default function SimulatePage() {
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -15 }}
-                  className="glassmorphism-card rounded-xl border border-cyber-border overflow-hidden glow-blue animate-pulse-subtle"
+                  className="space-y-6"
+                  key="compiling-terminal"
                 >
-                  {/* Console Top bar */}
-                  <div className="bg-cyber-surface px-4 py-3 border-b border-cyber-border flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-cyan opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-cyber-cyan"></span>
-                      </span>
-                      <span className="text-[10px] font-mono text-slate-500 ml-1">simulation-setup-wizard</span>
+                  {/* Console Terminal Card */}
+                  <div className="glassmorphism-card rounded-xl border border-cyber-border overflow-hidden glow-blue animate-pulse-subtle">
+                    {/* Console Top bar */}
+                    <div className="bg-cyber-surface px-4 py-3 border-b border-cyber-border flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-cyan opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-cyber-cyan"></span>
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-500 ml-1">simulation-setup-wizard</span>
+                      </div>
+                      <div className="text-[9px] font-mono text-cyber-cyan border border-cyber-cyan/30 px-2 py-0.5 rounded bg-cyber-cyan/5">
+                        {simState === "compiling" ? "BUILDING SCENARIO..." : "READY"}
+                      </div>
                     </div>
-                    <div className="text-[9px] font-mono text-cyber-cyan border border-cyber-cyan/30 px-2 py-0.5 rounded bg-cyber-cyan/5">
-                      {simState === "compiling" ? "BUILDING SCENARIO..." : "READY"}
-                    </div>
-                  </div>
 
-                  {/* Console Output logs */}
-                  <div className="p-6 bg-black/80 font-mono text-xs text-slate-400 min-h-[380px] flex flex-col justify-between">
-                    <div className="space-y-2 overflow-y-auto max-h-[300px] pr-2">
-                      {logs.map((log, i) => (
+                    {/* Console Output logs */}
+                    <div className="p-6 bg-black/80 font-mono text-xs text-slate-400 min-h-[380px] flex flex-col justify-between">
+                      <div className="space-y-2 overflow-y-auto max-h-[300px] pr-2">
+                        {logs.map((log, i) => (
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, x: -5 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="leading-relaxed text-[11px]"
+                          >
+                            <span className="text-slate-700 mr-2">&gt;</span>
+                            {log}
+                          </motion.div>
+                        ))}
+                        {simState === "compiling" && (
+                          <div className="flex items-center gap-1.5 text-cyber-cyan text-[11px] font-bold mt-2">
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                            Applying setup configuration...
+                          </div>
+                        )}
+                      </div>
+
+                      {simState === "completed" && activeConfig && (
                         <motion.div
-                          key={i}
-                          initial={{ opacity: 0, x: -5 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="leading-relaxed text-[11px]"
+                          initial={{ opacity: 0, scale: 0.98 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="mt-6 p-5 rounded-lg bg-cyber-surface/60 border border-cyber-green/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-[0_0_20px_rgba(16,185,129,0.05)]"
                         >
-                          <span className="text-slate-700 mr-2">&gt;</span>
-                          {log}
+                          <div className="flex items-start gap-3">
+                            <span className="text-xl mt-0.5">🎉</span>
+                            <div>
+                              <h4 className="text-sm font-bold text-white uppercase tracking-wider font-mono">🎉 Your Scenario Is Ready</h4>
+                              <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed font-sans max-w-md">
+                                Everything has been prepared. You're about to investigate a fictional cyber attack and discover how different security decisions influence the outcome.
+                              </p>
+                              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 mt-3 rounded border border-cyber-green/20 bg-cyber-green/5 text-[8px] font-mono text-cyber-green font-bold uppercase tracking-wider">
+                                ✓ Ready to Explore
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-2 w-full md:w-auto justify-end items-center md:items-end flex-shrink-0">
+                            <div className="flex gap-2.5">
+                              <button
+                                onClick={resetForm}
+                                className="px-4 py-2 rounded bg-slate-900 hover:bg-slate-800 border border-cyber-border text-[10px] font-mono text-slate-355 uppercase tracking-widest transition-all duration-300 hover:cursor-pointer"
+                              >
+                                Create New Scenario
+                              </button>
+
+                              <Link
+                                href="/attack-viewer"
+                                title="Continue to the Attack Viewer"
+                                className="px-5 py-2 rounded bg-electric-blue hover:bg-blue-650 text-[10px] font-mono text-white font-bold uppercase tracking-widest flex items-center gap-1.5 hover:shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all duration-300 hover:cursor-pointer"
+                              >
+                                Begin Investigation
+                                <ArrowRight className="w-3.5 h-3.5" />
+                              </Link>
+                            </div>
+                            <span className="text-[9px] font-mono text-slate-500 uppercase tracking-wider mt-1 font-semibold text-center md:text-right">
+                              Estimated walk-through: 3–5 minutes
+                            </span>
+                          </div>
                         </motion.div>
-                      ))}
-                      {simState === "compiling" && (
-                        <div className="flex items-center gap-1.5 text-cyber-cyan text-[11px] font-bold mt-2">
-                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                          Applying setup configuration...
-                        </div>
                       )}
                     </div>
 
-                    {simState === "completed" && activeConfig && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.98 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="mt-6 p-4 rounded bg-cyber-surface/60 border border-cyber-border flex flex-col md:flex-row items-center justify-between gap-4"
-                      >
-                        <div className="flex items-center gap-3">
-                          <CheckCircle2 className="w-8 h-8 text-cyber-green flex-shrink-0" />
-                          <div>
-                            <h4 className="text-xs font-bold text-white uppercase tracking-wider">Simulation Ready</h4>
-                            <p className="text-[10px] text-slate-500 mt-1 font-sans">
-                              Scenario settings successfully applied. Redirecting to walkthrough screen.
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={resetForm}
-                            className="px-4 py-2 rounded bg-slate-900 hover:bg-slate-800 border border-cyber-border text-[10px] font-mono text-slate-300 uppercase tracking-widest transition-all duration-300 hover:cursor-pointer"
-                          >
-                            Reset
-                          </button>
-
-                          <Link
-                            href="/attack-viewer"
-                            className="px-4 py-2 rounded bg-electric-blue hover:bg-blue-600 text-[10px] font-mono text-white uppercase tracking-widest flex items-center gap-1.5 hover:shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all duration-300"
-                          >
-                            Proceed
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </Link>
-                        </div>
-                      </motion.div>
-                    )}
+                    {/* Console footer info */}
+                    <div className="bg-cyber-surface/70 px-4 py-2 border-t border-cyber-border text-[9px] font-mono text-slate-650 flex justify-between">
+                      <div>JOURNEY STATUS: MISSION BRIEFING PREPARATION</div>
+                      <div className="text-cyber-green">● READY TO EXPLORE</div>
+                    </div>
                   </div>
 
-                  {/* Console footer info */}
-                  <div className="bg-cyber-surface/70 px-4 py-2 border-t border-cyber-border text-[9px] font-mono text-slate-650 flex justify-between">
-                    <div>JOURNEY STATUS: BUILD SPECIFICATION</div>
-                    <div className="text-cyber-green">● READY TO EXPLORE</div>
+                  {/* Educational Context Cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    {/* What Happens Next */}
+                    <div className="p-5 rounded-xl bg-cyber-surface/30 border border-cyber-border/60">
+                      <h3 className="text-white text-xs font-mono font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <span>👀</span> What Happens Next?
+                      </h3>
+                      <ul className="space-y-3.5 text-slate-400 text-xs">
+                        <li className="flex items-start gap-2.5">
+                          <span className="text-electric-blue text-sm mt-[-1px]">👀</span>
+                          <span><strong>Watch the attack unfold:</strong> Observe stage-by-stage how the threat actor attempts to breach the system.</span>
+                        </li>
+                        <li className="flex items-start gap-2.5">
+                          <span className="text-cyber-cyan text-sm mt-[-1px]">🧠</span>
+                          <span><strong>Understand why it worked:</strong> Read breakdown analysis files for each phase of the intrusion campaign.</span>
+                        </li>
+                        <li className="flex items-start gap-2.5">
+                          <span className="text-cyber-green text-sm mt-[-1px]">🛡</span>
+                          <span><strong>Learn how defenses respond:</strong> Verify how firewall filters, security keys, or automated monitoring blocks threats.</span>
+                        </li>
+                        <li className="flex items-start gap-2.5">
+                          <span className="text-amber-500 text-sm mt-[-1px]">📖</span>
+                          <span><strong>Review key lessons:</strong> Consolidate takeaways at the end to learn how to mitigate similar real-world risks.</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* Did You Know Fact */}
+                    <div className="p-5 rounded-xl bg-cyber-surface/30 border border-cyber-border/60 flex flex-col justify-between">
+                      <div>
+                        <h3 className="text-cyber-cyan text-xs font-mono font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                          <span>💡</span> Did You Know?
+                        </h3>
+                        <p className="text-slate-350 text-xs leading-relaxed italic">
+                          "{getDidYouKnowFact(attack)}"
+                        </p>
+                      </div>
+                      <div className="mt-4 pt-3 border-t border-cyber-border/40 text-[9px] font-mono text-slate-500 uppercase tracking-widest flex justify-between">
+                        <span>CONTEXT: {attack || "PHISHING"} ATTACK</span>
+                        <span>EDUCATIONAL INFO</span>
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -661,16 +809,16 @@ export default function SimulatePage() {
           </div>
 
           {/* Right Column: Scenario Setup Sidebar Summary */}
-          <div className="lg:col-span-4">
+          <div className="lg:col-span-4 lg:sticky lg:top-28">
             <div className="glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between relative overflow-hidden">
               <div className="absolute top-0 right-0 w-8 h-8 border-b border-l border-cyber-border pointer-events-none" />
 
               <div className="border-b border-cyber-border/40 pb-4 mb-6">
-                <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                  YOUR LEARNING SCENARIO
+                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest block font-bold">
+                  SCENARIO OVERVIEW
                 </span>
-                <span className="text-[8px] font-mono text-slate-600 uppercase mt-0.5 block">
-                  CURRENT SELECTIONS
+                <span className="text-[8px] font-mono text-slate-650 uppercase mt-0.5 block">
+                  CURRENT CONFIGURATION
                 </span>
                 <div className="mt-4 p-3 rounded bg-cyber-cyan/5 border border-cyber-cyan/35 text-xs text-white leading-relaxed font-sans shadow-[0_0_10px_rgba(6,182,212,0.05)] border-l-2">
                   {getDynamicSummarySentence()}
@@ -685,9 +833,9 @@ export default function SimulatePage() {
                     <Database className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <div className="text-slate-500 text-[9px] uppercase">Target</div>
-                    <div className="text-white font-bold uppercase mt-0.5">
-                      {INDUSTRIES.find(i => i.id === industry)?.name.split(" ").slice(1).join(" ") || industry}
+                    <div className="text-slate-500 text-[9px] uppercase">You're Protecting</div>
+                    <div className={`font-bold uppercase mt-0.5 ${industry ? "text-white" : "text-rose-400/80 animate-pulse"}`}>
+                      {industry ? (INDUSTRIES.find(i => i.id === industry)?.name.split(" ").slice(1).join(" ") || industry) : "Not Selected"}
                     </div>
                   </div>
                 </div>
@@ -697,9 +845,9 @@ export default function SimulatePage() {
                     <Bot className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <div className="text-slate-500 text-[9px] uppercase">Threat Actor</div>
-                    <div className="text-white font-bold uppercase mt-0.5">
-                      {ACTORS.find(a => a.id === actor)?.name.split(" ").slice(1).join(" ") || actor}
+                    <div className="text-slate-500 text-[9px] uppercase">Who's Attacking</div>
+                    <div className={`font-bold uppercase mt-0.5 ${actor ? "text-white" : "text-rose-400/80 animate-pulse"}`}>
+                      {actor ? (ACTORS.find(a => a.id === actor)?.name.split(" ").slice(1).join(" ") || actor) : "Not Selected"}
                     </div>
                   </div>
                 </div>
@@ -710,8 +858,8 @@ export default function SimulatePage() {
                   </div>
                   <div>
                     <div className="text-slate-500 text-[9px] uppercase">Attack Method</div>
-                    <div className="text-white font-bold uppercase mt-0.5">
-                      {ATTACK_TYPES.find(t => t.id === attack)?.name.split(" ").slice(1).join(" ") || attack}
+                    <div className={`font-bold uppercase mt-0.5 ${attack ? "text-white" : "text-rose-400/80 animate-pulse"}`}>
+                      {attack ? (ATTACK_TYPES.find(t => t.id === attack)?.name.split(" ").slice(1).join(" ") || attack) : "Not Selected"}
                     </div>
                   </div>
                 </div>
@@ -721,29 +869,53 @@ export default function SimulatePage() {
                     <Layers className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <div className="text-slate-500 text-[9px] uppercase">Security Setup</div>
+                    <div className="text-slate-500 text-[9px] uppercase">Current Protection</div>
+                    <div className={`font-bold uppercase mt-0.5 ${security ? "text-white" : "text-rose-400/80 animate-pulse"}`}>
+                      {security ? (SECURITY_LEVELS.find(l => l.id === security)?.name || security) : "Not Selected"}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded border border-cyber-border bg-cyber-surface/40 flex items-center justify-center flex-shrink-0 text-slate-400">
+                    <Cpu className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="text-slate-500 text-[9px] uppercase">Estimated Success Rate</div>
                     <div className="text-white font-bold uppercase mt-0.5">
-                      {SECURITY_LEVELS.find(l => l.id === security)?.name.split(" ").slice(1).join(" ") || security}
+                      {security ? `${getExpectedOutcome(security).likelihood}%` : "—"}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded border border-cyber-border bg-cyber-surface/40 flex items-center justify-center flex-shrink-0 text-slate-400">
+                    <RefreshCw className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="text-slate-500 text-[9px] uppercase">Estimated Learning Time</div>
+                    <div className="text-white font-bold uppercase mt-0.5">
+                      3–5 minutes
                     </div>
                   </div>
                 </div>
 
               </div>
 
-              {simState === "idle" && (
-                <div className="mt-8 border-t border-cyber-border/40 pt-6">
-                  {/* Expected Outcome Card */}
-                  <div className={`p-4 rounded-lg border ${getExpectedOutcome(security).color} font-sans mb-6`}>
-                    <div className="flex justify-between items-center border-b border-white/10 pb-2 mb-2">
-                      <span className="text-[9px] font-mono uppercase tracking-wider font-bold">Expected Outcome</span>
-                      <span className="text-[8px] font-mono px-1.5 py-0.5 rounded border border-current font-bold uppercase text-[7px]">
-                        {getExpectedOutcome(security).rating}
-                      </span>
-                    </div>
+              <div className="mt-8 border-t border-cyber-border/40 pt-6">
+                {/* Expected Outcome Card */}
+                <div className={`p-4 rounded-lg border ${getExpectedOutcome(security).color} font-sans mb-6`}>
+                  <div className="flex justify-between items-center border-b border-white/10 pb-2 mb-2">
+                    <span className="text-[9px] font-mono uppercase tracking-wider font-bold">What We Predict</span>
+                    <span className="text-[8px] font-mono px-1.5 py-0.5 rounded border border-current font-bold uppercase text-[7px]">
+                      {getExpectedOutcome(security).rating}
+                    </span>
+                  </div>
+                  {security && (
                     <div className="flex items-center gap-3 mb-2">
                       <div className="text-lg font-bold font-mono text-white">{getExpectedOutcome(security).likelihood}%</div>
                       <div className="flex-grow">
-                        <div className="text-[8px] font-mono uppercase text-slate-550">Attack Exposure Chance</div>
+                        <div className="text-[8px] font-mono uppercase text-slate-555">Attack Exposure Chance</div>
                         <div className="w-full h-1.5 bg-slate-950 border border-white/5 rounded-full overflow-hidden mt-1">
                           <div 
                             className={`h-full ${getExpectedOutcome(security).barColor}`} 
@@ -752,23 +924,38 @@ export default function SimulatePage() {
                         </div>
                       </div>
                     </div>
-                    <p className="text-[10px] text-slate-400 leading-relaxed font-sans">
-                      {getExpectedOutcome(security).prediction}
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={handleGenerate}
-                    className="w-full py-3.5 rounded bg-electric-blue hover:bg-blue-650 text-white font-bold font-mono text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all duration-300 cursor-pointer border border-electric-blue/40"
-                  >
-                    <Play className="w-3.5 h-3.5 fill-current" />
-                    ▶ Build & Run Simulation
-                  </button>
-                  <p className="text-[8px] text-center text-slate-500 font-mono uppercase tracking-wider mt-3 leading-relaxed">
-                    Prepares the step-by-step educational walk-through.
+                  )}
+                  <p className="text-[10px] text-slate-400 leading-relaxed font-sans">
+                    {getExpectedOutcome(security).prediction}
                   </p>
                 </div>
-              )}
+
+                {simState === "idle" && (
+                  <>
+                    {/* Validation Error Message */}
+                    {showValidationErrors && (!industry || !actor || !attack || !security) && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-4 p-3 rounded bg-rose-500/10 border border-rose-500/30 text-[10px] text-rose-455 leading-relaxed font-mono uppercase font-semibold text-center"
+                      >
+                        ⚠️ Almost there! Please complete all four selections before starting your simulation.
+                      </motion.div>
+                    )}
+
+                    <button
+                      onClick={handleVerifyAndConfirm}
+                      className="w-full py-3.5 rounded bg-electric-blue hover:bg-blue-650 text-white font-bold font-mono text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all duration-300 cursor-pointer border border-electric-blue/40"
+                    >
+                      <Play className="w-3.5 h-3.5 fill-current" />
+                      ▶ Run This Scenario
+                    </button>
+                    <p className="text-[8px] text-center text-slate-500 font-mono uppercase tracking-wider mt-3 leading-relaxed">
+                      Prepares the step-by-step educational walk-through.
+                    </p>
+                  </>
+                )}
+              </div>
 
             </div>
           </div>
@@ -776,6 +963,106 @@ export default function SimulatePage() {
         </div>
 
       </div>
+
+      {/* Confirmation Modal */}
+      <AnimatePresence>
+        {showConfirmModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Dark glass backdrop overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowConfirmModal(false)}
+              className="absolute inset-0 bg-black/70 backdrop-blur-md"
+            />
+
+            {/* Modal Box */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: "spring", duration: 0.5, bounce: 0.2 }}
+              className="relative w-full max-w-lg bg-cyber-surface/90 border border-cyber-cyan/30 rounded-xl overflow-hidden shadow-[0_0_30px_rgba(6,182,212,0.15)] z-10 backdrop-blur-xl"
+            >
+              {/* Top border glowing stripe */}
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyber-cyan to-transparent" />
+
+              {/* Close Button */}
+              <button 
+                onClick={() => setShowConfirmModal(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-md hover:bg-white/5 transition-all cursor-pointer animate-pulse-subtle"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {/* Header */}
+              <div className="p-6 border-b border-cyber-border/40">
+                <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase mb-1.5 font-bold">
+                  <Terminal className="w-3.5 h-3.5 text-cyber-cyan animate-pulse" />
+                  Mission Dispatch
+                </div>
+                <h3 className="text-xl font-extrabold text-white uppercase tracking-tight">
+                  Review Your Learning Scenario
+                </h3>
+              </div>
+
+              {/* Content body */}
+              <div className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4 font-mono text-[11px]">
+                  <div className="p-3 rounded bg-black/35 border border-cyber-border">
+                    <span className="text-slate-500 text-[9px] uppercase tracking-wider block">System</span>
+                    <span className="text-white font-bold block mt-1 uppercase">
+                      {industry ? (INDUSTRIES.find(i => i.id === industry)?.name || industry) : ""}
+                    </span>
+                  </div>
+                  <div className="p-3 rounded bg-black/35 border border-cyber-border">
+                    <span className="text-slate-500 text-[9px] uppercase tracking-wider block">Attacker</span>
+                    <span className="text-white font-bold block mt-1 uppercase">
+                      {actor ? (ACTORS.find(a => a.id === actor)?.name || actor) : ""}
+                    </span>
+                  </div>
+                  <div className="p-3 rounded bg-black/35 border border-cyber-border">
+                    <span className="text-slate-500 text-[9px] uppercase tracking-wider block">Attack</span>
+                    <span className="text-white font-bold block mt-1 uppercase">
+                      {attack ? (ATTACK_TYPES.find(t => t.id === attack)?.name || attack) : ""}
+                    </span>
+                  </div>
+                  <div className="p-3 rounded bg-black/35 border border-cyber-border">
+                    <span className="text-slate-500 text-[9px] uppercase tracking-wider block">Protection</span>
+                    <span className="text-white font-bold block mt-1 uppercase">
+                      {security ? (SECURITY_LEVELS.find(l => l.id === security)?.name || security) : ""}
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-400 leading-relaxed font-sans pt-2">
+                  Please review your selections before starting the simulation. You can still go back and make changes if you'd like.
+                </p>
+              </div>
+
+              {/* Action buttons */}
+              <div className="p-6 bg-black/20 border-t border-cyber-border/40 flex flex-col sm:flex-row justify-end gap-3">
+                <button
+                  onClick={() => setShowConfirmModal(false)}
+                  className="px-5 py-2.5 rounded bg-slate-900 hover:bg-slate-800 border border-cyber-border text-xs font-mono text-slate-350 uppercase tracking-widest transition-all duration-300 hover:cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  ← Continue Editing
+                </button>
+                <button
+                  onClick={() => {
+                    setShowConfirmModal(false);
+                    handleGenerate();
+                  }}
+                  className="px-5 py-2.5 rounded bg-electric-blue hover:bg-blue-600 text-xs font-mono text-white font-bold uppercase tracking-widest transition-all duration-300 hover:cursor-pointer flex items-center justify-center gap-1.5 hover:shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+                >
+                  ▶ Start Simulation
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Footer */}
       <Footer />
