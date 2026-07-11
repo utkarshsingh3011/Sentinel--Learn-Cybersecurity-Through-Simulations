@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { Shield, Terminal, ArrowUpRight } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
-
+import { getCampaignHistory } from "./campaignStore";
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -15,6 +15,8 @@ export default function Header() {
 
   const [startSimPath, setStartSimPath] = useState("/simulate");
   const [isInvestigationActive, setIsInvestigationActive] = useState(false);
+  const [historyCount, setHistoryCount] = useState(0);
+  const [badgeHovered, setBadgeHovered] = useState(false);
 
   useEffect(() => {
     const checkActiveSimulation = () => {
@@ -33,6 +35,13 @@ export default function Header() {
         } else {
           setIsInvestigationActive(false);
           setStartSimPath("/simulate");
+        }
+
+        try {
+          const history = getCampaignHistory();
+          setHistoryCount(history.length);
+        } catch (e) {
+          console.error(e);
         }
       }
     };
@@ -57,6 +66,10 @@ export default function Header() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  const getNavHref = (target: string) => {
+    return pathname === "/" ? target : `/${target}`;
+  };
 
   return (
     <motion.header
@@ -117,28 +130,28 @@ export default function Header() {
         </div>
         <nav className="hidden md:flex items-center gap-8">
           <a
-            href="#threats"
+            href={getNavHref("#threats")}
             className="text-xs font-mono text-slate-400 hover:text-white transition-colors tracking-widest uppercase relative py-1 group"
           >
             Attack Simulations
             <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-cyber-cyan transition-all duration-300 group-hover:w-full" />
           </a>
           <a
-            href="#workflow"
+            href={getNavHref("#workflow")}
             className="text-xs font-mono text-slate-400 hover:text-white transition-colors tracking-widest uppercase relative py-1 group"
           >
             Security Insights
             <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-cyber-cyan transition-all duration-300 group-hover:w-full" />
           </a>
           <a
-            href="#preview"
+            href={getNavHref("#preview")}
             className="text-xs font-mono text-slate-400 hover:text-white transition-colors tracking-widest uppercase relative py-1 group"
           >
             Simulation Builder
             <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-cyber-cyan transition-all duration-300 group-hover:w-full" />
           </a>
           <a
-            href="#features"
+            href={getNavHref("#features")}
             className="text-xs font-mono text-slate-400 hover:text-white transition-colors tracking-widest uppercase relative py-1 group"
           >
             Modules
@@ -146,22 +159,50 @@ export default function Header() {
           </a>
           <Link
             href="/about"
-            className="text-xs font-mono text-slate-400 hover:text-white transition-colors tracking-widest uppercase relative py-1 group"
+            className={`text-xs font-mono tracking-widest uppercase relative py-1 transition-colors group ${
+              pathname === "/about" ? "text-cyber-cyan font-bold" : "text-slate-400 hover:text-white"
+            }`}
           >
             About
-            <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-cyber-cyan transition-all duration-300 group-hover:w-full" />
+            <span className={`absolute bottom-0 left-0 h-[1px] bg-cyber-cyan transition-all duration-300 ${
+              pathname === "/about" ? "w-full" : "w-0 group-hover:w-full"
+            }`} />
           </Link>
         </nav>
 
         {/* Right side controls */}
         <div className="flex items-center gap-6">
           {/* Status Indicator */}
-          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyber-surface/60 border border-cyber-border/40 font-mono text-[10px] tracking-wider text-slate-400">
+          <div
+            onMouseEnter={() => setBadgeHovered(true)}
+            onMouseLeave={() => setBadgeHovered(false)}
+            className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyber-surface/60 border border-cyber-border/40 font-mono text-[10px] tracking-wider text-slate-400 relative cursor-pointer transition-colors hover:border-cyber-cyan/30"
+          >
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-green opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-cyber-green"></span>
             </span>
-            <span className="text-slate-300 uppercase font-semibold">INTERACTIVE LABS AVAILABLE</span>
+            <span className="text-slate-300 uppercase font-semibold">
+              {badgeHovered ? `LABS: ${historyCount} RUNS IN HISTORY` : "INTERACTIVE LABS AVAILABLE"}
+            </span>
+
+            <AnimatePresence>
+              {badgeHovered && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute top-full right-0 mt-2 p-2.5 bg-cyber-surface border border-cyber-border-active/40 rounded shadow-xl text-[9px] w-48 text-slate-400 z-50 pointer-events-none"
+                >
+                  <div className="text-white font-bold mb-1 font-mono uppercase tracking-wider text-cyber-cyan border-b border-cyber-border pb-1">
+                    System Telemetry
+                  </div>
+                  <div>Stored Scenarios: <span className="text-white font-bold">{historyCount}</span></div>
+                  <div>Sandbox API: <span className="text-cyber-green font-bold font-mono">ONLINE</span></div>
+                  <div className="mt-1 text-[8px] text-slate-500 italic">Hover to refresh telemetry details</div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Launch Console button */}

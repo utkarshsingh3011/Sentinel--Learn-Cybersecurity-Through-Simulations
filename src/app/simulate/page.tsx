@@ -974,6 +974,34 @@ export default function SimulatePage() {
               </div>
 
               <div className="mt-8 border-t border-cyber-border/40 pt-6">
+                {/* Dynamic Exploitability Index warning banner */}
+                {actor && security && (
+                  <div className="mb-4">
+                    {(() => {
+                      const isDangerousActor = ["LockBit", "Lazarus", "APT29"].includes(actor);
+                      const isWeakDefense = ["Low", "Medium"].includes(security);
+                      if (isDangerousActor && isWeakDefense) {
+                        return (
+                          <div className="p-2.5 rounded border border-cyber-red/30 bg-cyber-red/5 font-mono text-[9px] text-cyber-red uppercase tracking-wider font-semibold animate-pulse flex items-center gap-1.5 justify-center">
+                            <span>🔥</span> WARNING: CRITICAL EXPLOITABILITY PATHWAY DETECTED
+                          </div>
+                        );
+                      } else if (!isWeakDefense) {
+                        return (
+                          <div className="p-2.5 rounded border border-cyber-green/30 bg-cyber-green/5 font-mono text-[9px] text-cyber-green uppercase tracking-wider font-semibold flex items-center gap-1.5 justify-center">
+                            <span>🛡️</span> SYSTEM HARDENED: SECURE MITIGATION ACTIVE
+                          </div>
+                        );
+                      }
+                      return (
+                        <div className="p-2.5 rounded border border-amber-500/30 bg-amber-500/5 font-mono text-[9px] text-amber-500 uppercase tracking-wider font-semibold flex items-center gap-1.5 justify-center">
+                          <span>⚠️</span> NOTICE: DETECTABLE PATHWAY EXPOSED
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+
                 {/* Expected Outcome Card */}
                 <div className={`p-4 rounded-lg border ${getExpectedOutcome(security).color} font-sans mb-6`}>
                   <div className="flex justify-between items-center border-b border-white/10 pb-2 mb-2">

@@ -101,6 +101,21 @@ export default function AttackViewerPage() {
   const [isTechnicalExpanded, setIsTechnicalExpanded] = useState(false);
   const [showLockModal, setShowLockModal] = useState(false);
   const [lockModalType, setLockModalType] = useState<"analyst" | "journal">("journal");
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [packetsCount, setPacketsCount] = useState(0);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isPlaying && progress < 100) {
+      timer = setInterval(() => {
+        setElapsedTime((prev) => prev + 1);
+        setPacketsCount(Math.floor(Math.random() * 330) + 120);
+      }, 1000);
+    } else {
+      setPacketsCount(0);
+    }
+    return () => clearInterval(timer);
+  }, [isPlaying, progress]);
  
   const handleJournalClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -362,6 +377,8 @@ export default function AttackViewerPage() {
     setCurrentStageIdx(0);
     setProgress(0);
     setTerminalLogs([]);
+    setElapsedTime(0);
+    setPacketsCount(0);
     setTimeout(() => setIsPlaying(true), 100);
   };
 
@@ -1504,6 +1521,67 @@ export default function AttackViewerPage() {
                   </div>
                 );
               })()}
+            </div>
+
+            {/* 5. EDR Terminal Console */}
+            <div className="glassmorphism-card rounded-xl border border-cyber-border overflow-hidden glow-blue mt-8">
+              <div className="bg-cyber-surface px-4 py-2 border-b border-cyber-border flex items-center justify-between text-[10px] font-mono text-slate-400">
+                <span className="flex items-center gap-1.5 uppercase font-bold text-cyber-cyan">
+                  <Terminal className="w-3.5 h-3.5 text-cyber-cyan animate-pulse" />
+                  Local EDR Terminal Console
+                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] text-slate-500 uppercase">TIME: {elapsedTime}s</span>
+                  <span className="text-slate-650">|</span>
+                  <span className="text-[9px] text-cyber-green uppercase tracking-wider font-bold animate-pulse">
+                    RX: {packetsCount} PPS
+                  </span>
+                </div>
+              </div>
+              
+              <div 
+                ref={terminalContainerRef}
+                onScroll={handleTerminalScroll}
+                className="bg-black/85 p-4 h-64 overflow-y-auto font-mono text-[10px] leading-relaxed space-y-1.5 scrollbar-thin scrollbar-thumb-cyber-border"
+              >
+                {terminalLogs.length === 0 ? (
+                  <div className="text-slate-600 italic">Initializing EDR secure logging sub-system...</div>
+                ) : (
+                  terminalLogs.map((log, index) => {
+                    let logStyle = "text-slate-350";
+                    if (log.includes("BLOCKED")) {
+                      logStyle = "text-cyber-green font-bold";
+                    } else if (log.includes("EVADED")) {
+                      logStyle = "text-cyber-red font-bold animate-pulse";
+                    } else if (log.includes("[COMPLETE]")) {
+                      logStyle = "text-cyber-cyan font-bold";
+                    } else if (log.includes("[RECON]")) {
+                      logStyle = "text-blue-400";
+                    } else if (log.includes("[INGRESS]")) {
+                      logStyle = "text-indigo-400";
+                    } else if (log.includes("[CREDENTIALS]")) {
+                      logStyle = "text-amber-400";
+                    } else if (log.includes("[LATERAL]")) {
+                      logStyle = "text-purple-400";
+                    } else if (log.includes("[ESCALATION]")) {
+                      logStyle = "text-rose-400";
+                    } else if (log.includes("[EXFILTRATION]")) {
+                      logStyle = "text-cyber-red";
+                    }
+
+                    return (
+                      <div key={index} className={logStyle}>
+                        {log}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+              
+              <div className="bg-cyber-surface/60 px-4 py-2 border-t border-cyber-border text-[9px] font-mono text-slate-600 flex justify-between uppercase">
+                <span>Buffer: Active</span>
+                <span>Security Level: {campaign.securityLevel}</span>
+              </div>
             </div>
 
           </div>

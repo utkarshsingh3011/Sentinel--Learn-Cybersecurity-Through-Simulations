@@ -1804,7 +1804,7 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
             </h1>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2 font-mono text-[10px] tracking-wider">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-2 font-mono text-[10px] tracking-wider">
             <div className="bg-black/40 p-4 rounded-xl border border-cyber-border">
               <span className="text-slate-500 uppercase block text-[8px] font-bold">Attack Result</span>
               <span className={`font-bold block mt-1.5 uppercase ${
@@ -1829,6 +1829,12 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
               <span className="text-slate-500 uppercase block text-[8px] font-bold">Security Level</span>
               <span className="text-white font-bold block mt-1.5 uppercase">
                 {getSecurityLevelName(reportData.securityLevel)}
+              </span>
+            </div>
+            <div className="bg-black/40 p-4 rounded-xl border border-cyber-border col-span-2 md:col-span-1">
+              <span className="text-slate-500 uppercase block text-[8px] font-bold">CTI Classification</span>
+              <span className="text-amber-500 font-bold block mt-1.5 uppercase tracking-wider">
+                🟡 TLP:AMBER
               </span>
             </div>
           </div>
@@ -2012,6 +2018,77 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
               })}
             </div>
           </div>
+
+          {/* Risk Mitigation Scorecard */}
+          <motion.section
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glassmorphism-card rounded-xl p-6 border border-cyber-border relative"
+          >
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyber-cyan/30 via-transparent to-transparent" />
+            <div className="flex items-center justify-between border-b border-cyber-border/40 pb-4 mb-6">
+              <span className="text-cyber-cyan font-mono text-[10px] uppercase font-bold tracking-wider">📊 Risk Mitigation Scorecard</span>
+              <span className="text-[9px] font-mono text-slate-500 uppercase">Analysis Telemetry</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 font-mono text-[10px]">
+              {/* Current Risk Gauge */}
+              <div className="bg-black/30 p-4 rounded-xl border border-cyber-border flex flex-col justify-between items-center text-center">
+                <span className="text-slate-500 text-[8px] uppercase tracking-wider block mb-2 font-mono">Pre-Defense Risk</span>
+                <div className="relative w-16 h-16 flex items-center justify-center">
+                  <svg className="w-full h-full transform -rotate-90">
+                    <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(30, 41, 59, 0.3)" strokeWidth="4" />
+                    <circle 
+                      cx="32" 
+                      cy="32" 
+                      r="28" 
+                      fill="none" 
+                      stroke="#f43f5e" 
+                      strokeWidth="4" 
+                      strokeDasharray={`${2 * Math.PI * 28}`} 
+                      strokeDashoffset={`${2 * Math.PI * 28 * (1 - reportData.currentRisk / 100)}`}
+                    />
+                  </svg>
+                  <span className="absolute text-white font-bold text-xs">{reportData.currentRisk}%</span>
+                </div>
+                <span className="text-cyber-red font-bold uppercase mt-3 tracking-widest text-[8px]">HIGH VULNERABILITY</span>
+              </div>
+
+              {/* Projected Risk Gauge */}
+              <div className="bg-black/30 p-4 rounded-xl border border-cyber-border flex flex-col justify-between items-center text-center">
+                <span className="text-slate-500 text-[8px] uppercase tracking-wider block mb-2 font-mono">Projected Risk</span>
+                <div className="relative w-16 h-16 flex items-center justify-center">
+                  <svg className="w-full h-full transform -rotate-90">
+                    <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(30, 41, 59, 0.3)" strokeWidth="4" />
+                    <circle 
+                      cx="32" 
+                      cy="32" 
+                      r="28" 
+                      fill="none" 
+                      stroke="#10b981" 
+                      strokeWidth="4" 
+                      strokeDasharray={`${2 * Math.PI * 28}`} 
+                      strokeDashoffset={`${2 * Math.PI * 28 * (1 - (reportData.projectedRisk || 5) / 100)}`}
+                    />
+                  </svg>
+                  <span className="absolute text-white font-bold text-xs">{(reportData.projectedRisk || 5)}%</span>
+                </div>
+                <span className="text-cyber-green font-bold uppercase mt-3 tracking-widest text-[8px]">SECURED / CONTROLLED</span>
+              </div>
+
+              {/* Total Mitigation Rating */}
+              <div className="bg-black/30 p-4 rounded-xl border border-cyber-border flex flex-col justify-between items-center text-center">
+                <span className="text-slate-500 text-[8px] uppercase tracking-wider block mb-2 font-mono">Posture Improvement</span>
+                <div className="text-cyber-cyan font-extrabold text-2xl my-auto flex items-center justify-center">
+                  +{reportData.riskReduction}%
+                </div>
+                <div className="w-full bg-slate-900 border border-cyber-border rounded-full h-2 overflow-hidden mt-3">
+                  <div className="bg-cyber-cyan h-full" style={{ width: `${reportData.riskReduction}%` }} />
+                </div>
+                <span className="text-cyber-cyan font-bold uppercase mt-2 tracking-widest text-[8px]">NET REDUCTION RATE</span>
+              </div>
+            </div>
+          </motion.section>
 
           {/* 5. How could this attack be prevented? */}
           <motion.section

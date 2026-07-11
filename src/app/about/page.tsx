@@ -1,12 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft, Lightbulb, Activity, Shield, Cpu,
   Layers, Play, FileText, CheckCircle2, BookOpen
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Header from "../../components/Header";
 import Footer from "@/components/Footer";
 
@@ -210,12 +210,230 @@ export default function AboutPage() {
             </div>
           </section>
 
+          {/* SECTION 6: Interactive Knowledge Check */}
+          <section className="space-y-6 pt-6 border-t border-cyber-border/20">
+            <div className="inline-flex items-center gap-2 text-cyber-cyan text-[10px] font-mono tracking-widest uppercase">
+              <Shield className="w-3.5 h-3.5" />
+              Evaluation
+            </div>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white">
+              Interactive Knowledge Check
+            </h2>
+            <p className="text-slate-400 text-xs md:text-sm leading-relaxed max-w-3xl font-sans">
+              Test your understanding of the core cybersecurity phases and mitigation concepts simulated inside Sentinel.
+            </p>
+            <CyberQuiz />
+          </section>
+
         </motion.div>
       </main>
 
       {/* Global Footer */}
       <Footer />
 
+    </div>
+  );
+}
+
+function CyberQuiz() {
+  const questions = [
+    {
+      q: "Which phase of an attack usually involves mapping ports and scanning network devices?",
+      options: [
+        { text: "Ingress Foothold", isCorrect: false },
+        { text: "Reconnaissance", isCorrect: true },
+        { text: "Data Exfiltration", isCorrect: false },
+        { text: "Lateral Movement", isCorrect: false }
+      ],
+      explanation: "Reconnaissance is the initial phase where an attacker scans and maps the target infrastructure to find open ports and running services."
+    },
+    {
+      q: "What security setup level introduces automated responses, hardware keys, and 95% detection rates in Sentinel?",
+      options: [
+        { text: "Basic Setup", isCorrect: false },
+        { text: "Standard Setup", isCorrect: false },
+        { text: "Advanced Setup", isCorrect: false },
+        { text: "Enterprise Setup", isCorrect: true }
+      ],
+      explanation: "Enterprise Setup provides multi-layered defenses including physical security keys and automated isolation controls, yielding a 95% block chance."
+    },
+    {
+      q: "What attack vector exploits unsanitized web forms to read or modify backend database records?",
+      options: [
+        { text: "Traffic Overload (DDoS)", isCorrect: false },
+        { text: "Phishing Scams", isCorrect: false },
+        { text: "SQL Injection", isCorrect: true },
+        { text: "Supply Chain Compromise", isCorrect: false }
+      ],
+      explanation: "SQL Injection exploits web input flaws, allowing attackers to inject malicious database statements to query, extract, or corrupt backend tables."
+    }
+  ];
+
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [selectedOpt, setSelectedOpt] = useState<number | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [score, setScore] = useState(0);
+  const [quizFinished, setQuizFinished] = useState(false);
+
+  const handleOptionSelect = (idx: number) => {
+    if (submitted) return;
+    setSelectedOpt(idx);
+  };
+
+  const handleSubmit = () => {
+    if (selectedOpt === null || submitted) return;
+    setSubmitted(true);
+    if (questions[currentIdx].options[selectedOpt].isCorrect) {
+      setScore((prev) => prev + 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentIdx < questions.length - 1) {
+      setCurrentIdx((prev) => prev + 1);
+      setSelectedOpt(null);
+      setSubmitted(false);
+    } else {
+      setQuizFinished(true);
+    }
+  };
+
+  const handleReset = () => {
+    setCurrentIdx(0);
+    setSelectedOpt(null);
+    setSubmitted(false);
+    setScore(0);
+    setQuizFinished(false);
+  };
+
+  return (
+    <div className="glassmorphism-card rounded-xl p-6 md:p-8 border border-cyber-border bg-cyber-surface/30 max-w-3xl">
+      <div className="flex items-center justify-between mb-4 border-b border-cyber-border pb-3">
+        <span className="text-[10px] font-mono tracking-widest text-cyber-cyan uppercase font-bold">
+          {quizFinished ? "QUIZ COMPLETED" : `QUESTION ${currentIdx + 1} OF ${questions.length}`}
+        </span>
+        <span className="text-[10px] font-mono tracking-widest text-slate-500 uppercase">
+          Score: {score}/{questions.length}
+        </span>
+      </div>
+
+      <AnimatePresence mode="wait">
+        {!quizFinished ? (
+          <motion.div
+            key={currentIdx}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-6"
+          >
+            <h3 className="text-white text-sm md:text-base font-bold font-sans">
+              {questions[currentIdx].q}
+            </h3>
+
+            <div className="grid grid-cols-1 gap-3">
+              {questions[currentIdx].options.map((opt, oIdx) => {
+                let btnStyle = "border-cyber-border bg-black/10 hover:border-cyber-cyan/30 text-slate-350 cursor-pointer";
+                if (selectedOpt === oIdx) {
+                  btnStyle = "border-cyber-cyan bg-cyber-cyan/5 text-white shadow-[0_0_10px_rgba(6,182,212,0.15)] cursor-pointer";
+                }
+                if (submitted) {
+                  if (opt.isCorrect) {
+                    btnStyle = "border-cyber-green bg-cyber-green/5 text-cyber-green";
+                  } else if (selectedOpt === oIdx) {
+                    btnStyle = "border-cyber-red bg-cyber-red/5 text-cyber-red";
+                  } else {
+                    btnStyle = "border-cyber-border/40 bg-black/5 text-slate-500 opacity-60 pointer-events-none";
+                  }
+                }
+
+                return (
+                  <button
+                    key={oIdx}
+                    disabled={submitted}
+                    onClick={() => handleOptionSelect(oIdx)}
+                    className={`w-full p-3.5 rounded-lg border text-left text-xs font-mono transition-all duration-300 ${btnStyle}`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{opt.text}</span>
+                      {submitted && opt.isCorrect && (
+                        <span className="text-cyber-green font-bold">✓ Correct</span>
+                      )}
+                      {submitted && selectedOpt === oIdx && !opt.isCorrect && (
+                        <span className="text-cyber-red font-bold">✗ Incorrect</span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {submitted && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 rounded-lg bg-cyber-surface/60 border border-cyber-border text-xs text-slate-400 font-sans leading-relaxed"
+              >
+                <strong className="text-white block mb-1">Explanation:</strong>
+                {questions[currentIdx].explanation}
+              </motion.div>
+            )}
+
+            <div className="flex justify-end pt-2">
+              {!submitted ? (
+                <button
+                  disabled={selectedOpt === null}
+                  onClick={handleSubmit}
+                  className="px-6 py-2 rounded bg-electric-blue hover:bg-blue-600 disabled:opacity-40 disabled:hover:bg-electric-blue text-white text-[10px] font-mono tracking-widest uppercase transition-all duration-300 font-bold hover:shadow-[0_0_15px_rgba(37,99,235,0.4)] cursor-pointer"
+                >
+                  Submit Answer
+                </button>
+              ) : (
+                <button
+                  onClick={handleNext}
+                  className="px-6 py-2 rounded bg-cyber-cyan/15 border border-cyber-cyan/50 hover:bg-cyber-cyan/25 text-white text-[10px] font-mono tracking-widest uppercase transition-all duration-300 font-bold hover:shadow-[0_0_15px_rgba(6,182,212,0.3)] cursor-pointer"
+                >
+                  {currentIdx === questions.length - 1 ? "Finish Quiz" : "Next Question"}
+                </button>
+              )}
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center py-6 space-y-6"
+          >
+            <div className="w-16 h-16 mx-auto rounded-full bg-cyber-surface border border-cyber-cyan/30 flex items-center justify-center text-cyber-cyan shadow-[0_0_20px_rgba(6,182,212,0.2)]">
+              <Shield className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-white text-xl font-bold font-sans">Quiz Completed!</h3>
+              <p className="text-slate-400 text-xs font-mono">
+                You scored <span className="text-cyber-cyan font-bold">{score}</span> out of{" "}
+                <span className="text-white font-bold">{questions.length}</span> questions.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-lg bg-black/30 border border-cyber-border text-xs text-slate-400 leading-relaxed font-sans max-w-md mx-auto">
+              {score === questions.length ? (
+                <span className="text-cyber-green font-bold block mb-1">Excellent Work!</span>
+              ) : (
+                <span className="text-cyber-cyan font-bold block mb-1">Great Effort!</span>
+              )}
+              You have successfully completed the Sentinel interactive evaluation. Review the simulation builder pages to explore how these defense settings mitigate threat groups in real-time.
+            </div>
+
+            <button
+              onClick={handleReset}
+              className="px-6 py-2 rounded bg-cyber-surface border border-cyber-border hover:border-cyber-cyan/40 text-slate-300 hover:text-white text-[10px] font-mono tracking-widest uppercase transition-all duration-300 font-bold cursor-pointer"
+            >
+              Retake Quiz
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

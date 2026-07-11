@@ -93,7 +93,7 @@ export default function Home() {
                   return (
                     <div
                       key={idx}
-                      className="bg-cyber-surface/30 border border-cyber-border/40 hover:border-cyber-cyan/35 rounded-xl p-5 transition-all duration-300 relative overflow-hidden flex flex-col justify-between group"
+                      className="bg-cyber-surface/30 border border-cyber-border/40 hover:border-cyber-cyan/60 rounded-xl p-5 transition-all duration-300 relative overflow-hidden flex flex-col justify-between group hover:-translate-y-1.5 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]"
                     >
                       <div>
                         <div className="w-10 h-10 rounded-lg bg-cyber-surface border border-cyber-border flex items-center justify-center text-cyber-cyan group-hover:border-cyber-cyan/40 transition-colors">
@@ -124,22 +124,22 @@ export default function Home() {
           <section className="py-16 bg-black/40 border-t border-cyber-border/20 text-center relative z-10">
             <div className="max-w-7xl mx-auto px-6">
               <span className="font-mono text-[9px] uppercase tracking-widest text-slate-500 font-bold block mb-6">Built With</span>
-              <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 text-xs font-mono font-bold text-slate-400 uppercase tracking-widest">
-                <div className="flex items-center gap-2 hover:text-white transition-colors">
-                  <span className="text-cyber-cyan font-extrabold text-sm">N</span> Next.js
-                </div>
-                <div className="flex items-center gap-2 hover:text-white transition-colors">
-                  <span className="text-cyber-cyan font-extrabold text-sm">#</span> Tailwind CSS
-                </div>
-                <div className="flex items-center gap-2 hover:text-white transition-colors">
-                  <span className="text-cyber-cyan font-extrabold text-sm">M</span> Framer Motion
-                </div>
-                <div className="flex items-center gap-2 hover:text-white transition-colors">
-                  <span className="text-cyber-cyan font-extrabold text-sm">AI</span> Gemini API
-                </div>
-                <div className="flex items-center gap-2 hover:text-white transition-colors">
-                  <span className="text-cyber-cyan font-extrabold text-sm">M</span> MITRE ATT&CK (Technical Reference)
-                </div>
+              <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
+                {[
+                  { tag: "N", label: "Next.js" },
+                  { tag: "#", label: "Tailwind CSS" },
+                  { tag: "M", label: "Framer Motion" },
+                  { tag: "AI", label: "Gemini API" },
+                  { tag: "M", label: "MITRE ATT&CK" }
+                ].map((tech, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded bg-cyber-surface/40 border border-cyber-border/40 hover:border-cyber-cyan/50 hover:text-white transition-all duration-300 cursor-default hover:shadow-[0_0_10px_rgba(6,182,212,0.1)] hover:scale-105 transform"
+                  >
+                    <span className="text-cyber-cyan font-extrabold text-xs">{tech.tag}</span>
+                    <span>{tech.label}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </section>

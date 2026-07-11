@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import {
   getCampaignHistory, StoredCampaign, getActorName,
-  getAttackName
+  getAttackName, getIndustryName
 } from "../../components/campaignStore";
 import AnimatedCounter from "../../components/AnimatedCounter";
 import JourneyStepper from "../../components/JourneyStepper";
@@ -52,6 +52,7 @@ export default function CommandCenterPage() {
   const [activeTab, setActiveTab] = useState<"all" | "blocked" | "successful">("all");
   const [showAdvancedAnalytics, setShowAdvancedAnalytics] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -385,10 +386,22 @@ export default function CommandCenterPage() {
 
   // Filtered History
   const filteredHistory = history.filter(c => {
-    if (activeTab === "blocked") return c.status === "Blocked";
-    if (activeTab === "successful") return c.status === "Successful";
+    if (activeTab === "blocked" && c.status !== "Blocked") return false;
+    if (activeTab === "successful" && c.status !== "Successful") return false;
+
+    if (searchQuery.trim() !== "") {
+      const q = searchQuery.toLowerCase();
+      const matchActor = getActorName(c.threatActor).toLowerCase().includes(q);
+      const matchAttack = getAttackName(c.attackType).toLowerCase().includes(q);
+      const matchIndustry = c.industry.toLowerCase().includes(q) || getIndustryName(c.industry).toLowerCase().includes(q);
+      const matchId = c.id.toLowerCase().includes(q);
+      return matchActor || matchAttack || matchIndustry || matchId;
+    }
+
     return true;
   });
+
+  const displayedHistory = searchQuery.trim() !== "" ? filteredHistory : filteredHistory.slice(0, 5);
 
   const containerVariants = {
     hidden: {},
@@ -841,13 +854,55 @@ export default function CommandCenterPage() {
                   </div>
                 </div>
  
+                {/* Search and Clear Actions Controls */}
+                <div className="flex flex-col sm:flex-row gap-3 items-center justify-between mb-4 pb-2 border-b border-cyber-border/20">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search logs (e.g. SQL, Lazarus, Hospital)..."
+                    className="w-full sm:max-w-xs bg-slate-950 border border-cyber-border rounded px-2.5 py-1.5 font-mono text-[9px] text-slate-300 focus:outline-none focus:border-cyber-cyan/50 placeholder-slate-600 transition-colors"
+                  />
+                  
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <button
+                      onClick={refreshHistory}
+                      className="px-2.5 py-1.5 rounded border border-cyber-border bg-slate-900/60 hover:bg-slate-900 text-slate-400 hover:text-white font-mono text-[8px] uppercase tracking-wider transition-colors cursor-pointer"
+                    >
+                      Refresh
+                    </button>
+                    
+                    {history.length > 0 && (
+                      <button
+                        onClick={() => {
+                          if (confirm("Are you sure you want to clear all simulation history logs? This cannot be undone.")) {
+                            try {
+                              sessionStorage.removeItem("sentinel_campaign_history");
+                              sessionStorage.setItem("sentinel_max_unlocked_step", "1");
+                              sessionStorage.removeItem("sentinel_campaign_config");
+                              window.dispatchEvent(new Event("sentinel_progress_update"));
+                              setHistory([]);
+                              setSelectedCampaign(null);
+                            } catch (e) {
+                              console.error(e);
+                            }
+                          }
+                        }}
+                        className="px-2.5 py-1.5 rounded border border-cyber-red/35 bg-cyber-red/5 hover:bg-cyber-red/10 text-cyber-red font-mono text-[8px] uppercase tracking-wider transition-colors cursor-pointer"
+                      >
+                        Clear Logs
+                      </button>
+                    )}
+                  </div>
+                </div>
+
                 <div className="space-y-3">
-                  {filteredHistory.slice(0, 5).length === 0 ? (
+                  {displayedHistory.length === 0 ? (
                     <div className="py-8 text-center text-slate-500 uppercase font-mono text-[9px]">
-                      No simulations recorded.
+                      {searchQuery.trim() !== "" ? "No matching simulations found." : "No simulations recorded."}
                     </div>
                   ) : (
-                    filteredHistory.slice(0, 5).map((camp) => {
+                    displayedHistory.map((camp) => {
                       const isBlocked = camp.status === "Blocked";
                       const dateStr = new Date(camp.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
                       

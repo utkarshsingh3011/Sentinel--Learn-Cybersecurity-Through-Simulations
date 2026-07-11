@@ -45,7 +45,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6">
         {/* Main Columns */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-start">
-          
+
           {/* Column 1: Brand & Description */}
           <div className="space-y-4 flex flex-col justify-start h-full">
             <div>
@@ -59,7 +59,7 @@ export default function Footer() {
                 Learn cybersecurity by watching attacks unfold, understanding how they work, and exploring practical defense techniques through interactive simulations.
               </p>
             </div>
-            
+
             <div className="pt-6">
               <Link
                 href="/simulate"
@@ -127,7 +127,7 @@ export default function Footer() {
               </div>
             </div>
           </div>
-          
+
         </div>
 
         {/* Divider above bottom bar */}
@@ -136,10 +136,12 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-center text-[10px] text-slate-500 font-mono tracking-wider w-full">
           <div className="sm:w-1/3 sm:text-left">
-            &copy; 2026 SENTINEL
+            &copy; {new Date().getFullYear()} SENTINEL
           </div>
-          <div className="sm:w-1/3 sm:text-center text-slate-400 font-bold uppercase tracking-widest">
-            Educational Cybersecurity Project
+          <div className="sm:w-1/3 sm:text-center text-slate-400 font-bold uppercase tracking-widest flex items-center justify-center gap-1.5">
+            <span className="relative flex h-1.5 w-1.5">
+            </span>
+            <span></span>
           </div>
           <div className="sm:w-1/3 sm:text-right uppercase">
             Designed & Developed by Utkarsh Singh
