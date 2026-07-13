@@ -170,4 +170,4 @@ If you have suggestions or feedback, I'd love to hear them.
 
 ---
 
-⭐ If you found Sentinel interesting, consider giving the repository a star.
+⭐ If you found Sentinel interesting, consider giving the repository a star
