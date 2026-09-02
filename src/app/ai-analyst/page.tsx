@@ -15,6 +15,7 @@ import {
   getCampaignHistory, StoredCampaign, getActorName,
   getAttackName, getIndustryName, CampaignStage, getSecurityLevelName, generateCTIReport
 } from "../../components/campaignStore";
+import { useStageGuard, useProgression, getMaxUnlockedStage } from "../../components/progressionStore";
 
 // Fallback campaign configuration
 const DEFAULT_ANALYST_CAMPAIGN: StoredCampaign = {
@@ -1478,6 +1479,10 @@ function AIAnalystContent() {
   const searchParams = useSearchParams();
   const campaignId = searchParams.get("campaignId");
 
+  // Note: authorization is already guaranteed by the parent AIAnalystPage guard.
+  // We still subscribe to progression for unlock(4) calls and UI state.
+  const { maxUnlocked, unlock, reset, latestValidPath } = useProgression(3);
+
   const [campaign, setCampaign] = useState<StoredCampaign | null>(null);
   const [reportData, setReportData] = useState<CTIReport | null>(null);
   const [loading, setLoading] = useState(false);
@@ -1553,12 +1558,9 @@ function AIAnalystContent() {
             setReportData(parsed);
             setIsLiveAI(parsed.isLiveAI !== undefined ? parsed.isLiveAI : true);
             setLoading(false);
-            
-            // Unlock next step
-            const currentMax = parseInt(sessionStorage.getItem("sentinel_max_unlocked_step") || "1", 10);
-            if (currentMax >= 3 && currentMax < 4) {
-              sessionStorage.setItem("sentinel_max_unlocked_step", "4");
-              window.dispatchEvent(new Event("sentinel_progress_update"));
+            // Only unlock Stage 4 if stage 3 is genuinely authorized
+            if (getMaxUnlockedStage() >= 3) {
+              unlock(4);
             }
             return;
           } catch (e) {
@@ -1633,14 +1635,9 @@ function AIAnalystContent() {
         setIsLiveAI(false);
       } finally {
         setLoading(false);
-        // Only unlock Learning Journal after the report has actually loaded,
-        // and only if the user legitimately reached the AI Analyst step (step >= 3).
-        if (typeof window !== "undefined") {
-          const currentMax = parseInt(sessionStorage.getItem("sentinel_max_unlocked_step") || "1", 10);
-          if (currentMax >= 3 && currentMax < 4) {
-            sessionStorage.setItem("sentinel_max_unlocked_step", "4");
-            window.dispatchEvent(new Event("sentinel_progress_update"));
-          }
+        // Only unlock Stage 4 if stage 3 is genuinely authorized
+        if (getMaxUnlockedStage() >= 3) {
+          unlock(4);
         }
       }
     };
@@ -1719,6 +1716,7 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
     window.print();
   };
 
+
   // High-fidelity dynamic analysis loading screen
   if (loading || !reportData || !campaign) {
     return (
@@ -1772,21 +1770,25 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
         {/* Navigation back and telemetry info - hidden on print */}
         <div className="flex justify-between items-center mb-8 flex-wrap gap-4 print:hidden font-mono text-[10px]">
           <Link
-            href="/command-center"
+            href="/attack-viewer"
             className="inline-flex items-center gap-2 text-slate-400 hover:text-white uppercase transition-colors group"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-            Learning Journal
+            Attack Simulation
           </Link>
 
           <div className="flex items-center gap-4 text-slate-400 tracking-wider">
-            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded border border-cyber-border bg-black/40">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-cyan opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyber-cyan"></span>
-              </span>
-              Simulation Review
-            </span>
+            <Link
+              href="/command-center"
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded border text-[10px] font-mono transition-all duration-300 ${
+                maxUnlocked >= 4
+                  ? "border-cyber-green/40 bg-cyber-green/10 text-cyber-green hover:bg-cyber-green/20"
+                  : "border-slate-800 bg-slate-900/60 text-slate-500 hover:text-slate-400"
+              }`}
+            >
+              {maxUnlocked >= 4 ? <ShieldCheck className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
+              Learning Journal {maxUnlocked < 4 && "[🔒 LOCKED]"}
+            </Link>
           </div>
         </div>
 
@@ -2386,6 +2388,23 @@ VERIFICATION TELEMETRY: COMPLETED // DEFENSE BLOCK STATUS: ${reportData.status.t
 }
 
 export default function AIAnalystPage() {
+  // Guard runs at the root level — before AIAnalystContent or its useEffects mount.
+  const { isAuthorized, isChecking } = useStageGuard(3);
+
+  if (isChecking || !isAuthorized) {
+    return (
+      <div className="min-h-screen bg-cyber-bg flex items-center justify-center font-mono text-xs text-cyber-cyan">
+        <div className="flex flex-col items-center gap-3">
+          <span className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-cyan opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-cyber-cyan"></span>
+          </span>
+          <span className="tracking-widest uppercase text-slate-400">Validating Threat Intelligence Clearance...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-cyber-bg text-cyber-cyan font-mono text-xs uppercase tracking-widest">

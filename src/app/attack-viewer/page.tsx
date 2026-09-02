@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { saveCampaignToHistory, getFriendlySimulationName, getActorName, getAttackName, getIndustryName, getSecurityLevelName, StoredCampaign, generateCTIReport, getCampaignHistory } from "../../components/campaignStore";
+import { useStageGuard, useProgression } from "../../components/progressionStore";
 import JourneyStepper from "../../components/JourneyStepper";
 import AnimatedCounter from "../../components/AnimatedCounter";
 import {
@@ -90,6 +91,9 @@ const FALLBACK_CAMPAIGN: CampaignConfig = {
 
 export default function AttackViewerPage() {
   const router = useRouter();
+  const { isAuthorized, isChecking } = useStageGuard(2);
+  const { maxUnlocked, unlock, reset, latestValidPath } = useProgression(2);
+
   const [campaign, setCampaign] = useState<CampaignConfig | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentStageIdx, setCurrentStageIdx] = useState(0);
@@ -119,27 +123,21 @@ export default function AttackViewerPage() {
  
   const handleJournalClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (typeof window !== "undefined") {
-      const maxUnlocked = parseInt(sessionStorage.getItem("sentinel_max_unlocked_step") || "1", 10);
-      if (maxUnlocked < 4) {
-        setLockModalType("journal");
-        setShowLockModal(true);
-      } else {
-        router.push("/command-center");
-      }
+    if (maxUnlocked < 4) {
+      setLockModalType("journal");
+      setShowLockModal(true);
+    } else {
+      router.push("/command-center");
     }
   };
 
   const handleAnalystClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (typeof window !== "undefined") {
-      const maxUnlocked = parseInt(sessionStorage.getItem("sentinel_max_unlocked_step") || "1", 10);
-      if (maxUnlocked < 3 && progress < 100) {
-        setLockModalType("analyst");
-        setShowLockModal(true);
-      } else {
-        router.push("/ai-analyst");
-      }
+    if (maxUnlocked < 3 && progress < 100) {
+      setLockModalType("analyst");
+      setShowLockModal(true);
+    } else {
+      router.push("/ai-analyst");
     }
   };
 
@@ -344,13 +342,7 @@ export default function AttackViewerPage() {
           setProgress(100);
           clearInterval(streamTimer);
           setTerminalLogs(prev => [...prev, `[COMPLETE] --- All attack stages executed ---`]);
-          if (typeof window !== "undefined") {
-            const currentMax = parseInt(sessionStorage.getItem("sentinel_max_unlocked_step") || "1", 10);
-            if (currentMax < 3) {
-              sessionStorage.setItem("sentinel_max_unlocked_step", "3");
-              window.dispatchEvent(new Event("sentinel_progress_update"));
-            }
-          }
+          unlock(3);
         }
       }
     }, updateInterval);
@@ -917,6 +909,20 @@ export default function AttackViewerPage() {
       ? "border-amber-500/30 bg-amber-500/10 text-amber-500"
       : "border-cyber-green/30 bg-cyber-green/10 text-cyber-green";
 
+  if (isChecking || !isAuthorized) {
+    return (
+      <div className="min-h-screen bg-cyber-bg flex items-center justify-center font-mono text-xs text-cyber-cyan">
+        <div className="flex flex-col items-center gap-3">
+          <span className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-cyan opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-cyber-cyan"></span>
+          </span>
+          <span className="tracking-widest uppercase text-slate-400">Validating Investigation Clearance...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative min-h-screen bg-cyber-bg overflow-x-hidden pt-28 pb-16 flex flex-col justify-between selection:bg-electric-blue/30 selection:text-white font-sans">
 
@@ -952,19 +958,32 @@ export default function AttackViewerPage() {
           <div className="flex items-center gap-4 flex-wrap">
             <button
               onClick={handleJournalClick}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-slate-800 bg-slate-900/60 text-slate-400 hover:bg-slate-850 hover:text-white transition-all duration-300 hover:border-slate-650 cursor-pointer"
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded border text-[10px] font-mono transition-all duration-300 ${
+                maxUnlocked >= 4
+                  ? "border-cyber-green/40 bg-cyber-green/10 text-cyber-green hover:bg-cyber-green/20 cursor-pointer"
+                  : "border-slate-800 bg-slate-900/60 text-slate-500 hover:text-slate-400 cursor-pointer"
+              }`}
             >
-              <Activity className="w-3.5 h-3.5" />
-              Open Learning Journal
+              {maxUnlocked >= 4 ? <ShieldCheck className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
+              Learning Journal {maxUnlocked < 4 && "[🔒 LOCKED]"}
             </button>
-            <a
-              href="/ai-analyst"
+            <button
               onClick={handleAnalystClick}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-cyber-cyan/30 bg-cyber-cyan/10 text-cyber-cyan hover:bg-cyber-cyan/20 transition-all duration-300 hover:shadow-[0_0_15px_rgba(6,182,212,0.25)] hover:border-cyber-cyan/60 cursor-pointer"
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded border text-[10px] font-mono transition-all duration-300 ${
+                progress === 100 || maxUnlocked >= 3
+                  ? "border-cyber-cyan/50 bg-cyber-cyan/15 text-cyber-cyan hover:bg-cyber-cyan/25 hover:shadow-[0_0_15px_rgba(6,182,212,0.35)] cursor-pointer animate-pulse-subtle"
+                  : "border-slate-800 bg-slate-900/60 text-slate-500 hover:border-slate-700 cursor-pointer"
+              }`}
             >
-              <Brain className="w-3.5 h-3.5 animate-pulse" />
-              Next Step: Understand What Happened
-            </a>
+              {progress === 100 || maxUnlocked >= 3 ? (
+                <Brain className="w-3.5 h-3.5 text-cyber-cyan" />
+              ) : (
+                <Lock className="w-3.5 h-3.5 text-slate-500" />
+              )}
+              {progress === 100 || maxUnlocked >= 3
+                ? "Next Step: AI Analyst →"
+                : "AI Analyst [🔒 LOCKED]"}
+            </button>
           </div>
         </div>
 

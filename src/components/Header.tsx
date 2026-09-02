@@ -8,52 +8,36 @@ import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import { getCampaignHistory } from "./campaignStore";
 
+import { useProgression, hasActiveCampaignConfig } from "./progressionStore";
+
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
+  const { maxUnlocked, latestValidPath } = useProgression();
   const [startSimPath, setStartSimPath] = useState("/simulate");
   const [isInvestigationActive, setIsInvestigationActive] = useState(false);
   const [historyCount, setHistoryCount] = useState(0);
   const [badgeHovered, setBadgeHovered] = useState(false);
 
   useEffect(() => {
-    const checkActiveSimulation = () => {
-      if (typeof window !== "undefined") {
-        const saved = sessionStorage.getItem("sentinel_campaign_config");
-        const maxUnlocked = parseInt(sessionStorage.getItem("sentinel_max_unlocked_step") || "1", 10);
-        if (saved && maxUnlocked > 1) {
-          setIsInvestigationActive(true);
-          const pathMap: Record<number, string> = {
-            1: "/simulate",
-            2: "/attack-viewer",
-            3: "/ai-analyst",
-            4: "/command-center"
-          };
-          setStartSimPath(pathMap[maxUnlocked] || "/simulate");
-        } else {
-          setIsInvestigationActive(false);
-          setStartSimPath("/simulate");
-        }
+    const hasConfig = hasActiveCampaignConfig();
+    if (hasConfig && maxUnlocked > 1) {
+      setIsInvestigationActive(true);
+      setStartSimPath(latestValidPath);
+    } else {
+      setIsInvestigationActive(false);
+      setStartSimPath("/simulate");
+    }
 
-        try {
-          const history = getCampaignHistory();
-          setHistoryCount(history.length);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    };
-
-    checkActiveSimulation();
-    window.addEventListener("sentinel_progress_update", checkActiveSimulation);
-    window.addEventListener("focus", checkActiveSimulation);
-    return () => {
-      window.removeEventListener("sentinel_progress_update", checkActiveSimulation);
-      window.removeEventListener("focus", checkActiveSimulation);
-    };
-  }, []);
+    try {
+      const history = getCampaignHistory();
+      setHistoryCount(history.length);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [maxUnlocked, latestValidPath]);
 
   useEffect(() => {
     const handleScroll = () => {

@@ -4,8 +4,12 @@ import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Terminal, Shield, ArrowRight } from "lucide-react";
+import { useProgression, hasActiveCampaignConfig } from "./progressionStore";
 
 export default function CTA() {
+  const { maxUnlocked, latestValidPath } = useProgression();
+  const hasActiveConfig = hasActiveCampaignConfig();
+
   return (
     <section id="cta" className="relative py-32 bg-cyber-bg overflow-hidden border-t border-cyber-border/40">
       {/* Background radial glow */}
@@ -58,10 +62,10 @@ export default function CTA() {
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
                 <Link
-                  href="/attack-viewer"
+                  href={hasActiveConfig && maxUnlocked > 1 ? latestValidPath : "/simulate"}
                   className="flex-1 py-3 rounded bg-cyber-surface border border-cyber-border hover:border-cyber-cyan/40 text-slate-350 hover:text-white font-bold font-mono text-center text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer"
                 >
-                  Explore Simulations
+                  {hasActiveConfig && maxUnlocked > 1 ? "Resume Investigation" : "Launch Simulation"}
                 </Link>
               </div>
             </div>

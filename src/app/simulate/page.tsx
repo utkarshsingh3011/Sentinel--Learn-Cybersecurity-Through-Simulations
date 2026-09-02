@@ -6,11 +6,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Terminal, Bot, Layers, Play, CheckCircle2,
-  ArrowLeft, RefreshCw, Cpu, Database, Network, ArrowRight, X
+  ArrowLeft, RefreshCw, Cpu, Database, Network, ArrowRight, X,
+  ShieldCheck, AlertTriangle, ChevronRight, Activity, Lock, Zap,
 } from "lucide-react";
 import JourneyStepper from "../../components/JourneyStepper";
 import Footer from "../../components/Footer";
 import { getFriendlySimulationName } from "../../components/campaignStore";
+import {
+  useProgression,
+  unlockStage,
+  resetSimulationProgression,
+  hasActiveCampaignConfig,
+} from "../../components/progressionStore";
 
 // Types matching the architectural requirements
 interface CampaignStage {
@@ -166,6 +173,8 @@ const compileCampaignConfig = (
 
 export default function SimulatePage() {
   const router = useRouter();
+  const { maxUnlocked, latestValidPath } = useProgression(1);
+
   // Field states initialized to null for validation
   const [industry, setIndustry] = useState<string | null>(null);
   const [actor, setActor] = useState<string | null>(null);
@@ -179,16 +188,17 @@ export default function SimulatePage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const saved = sessionStorage.getItem("sentinel_campaign_config");
-      const maxUnlocked = parseInt(sessionStorage.getItem("sentinel_max_unlocked_step") || "1", 10);
       if (saved && maxUnlocked > 1) {
         try {
           const parsed = JSON.parse(saved);
           setActiveCampaignExists(true);
           setActiveCampaignName(getFriendlySimulationName(parsed.attackType));
         } catch (e) {}
+      } else {
+        setActiveCampaignExists(false);
       }
     }
-  }, []);
+  }, [maxUnlocked]);
 
   // Tech Mode toggle (kept for compatibility)
   const [showTechnicalIntel, setShowTechnicalIntel] = useState(false);
@@ -204,11 +214,11 @@ export default function SimulatePage() {
 
   const containerVariants = {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.1 } },
+    visible: { transition: { staggerChildren: 0.07 } },
   };
   const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+    hidden: { opacity: 0, y: 16 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
   };
 
   const getExpectedOutcome = (level: string | null) => {
@@ -330,13 +340,6 @@ export default function SimulatePage() {
     const config = compileCampaignConfig(industry, actor, attack, security);
     setActiveConfig(config);
 
-    // Save configuration in session storage so a future '/attack-viewer' page can read it directly!
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("sentinel_campaign_config", JSON.stringify(config));
-      sessionStorage.setItem("sentinel_max_unlocked_step", "2");
-      window.dispatchEvent(new Event("sentinel_progress_update"));
-    }
-
     const compileLogs = [
       `[INFO] Loading your selected environment...`,
       `[INFO] Preparing attacker profile...`,
@@ -351,6 +354,11 @@ export default function SimulatePage() {
       setTimeout(() => {
         setLogs(prev => [...prev, log]);
         if (index === compileLogs.length - 1) {
+          // Genuinely save and unlock stage 2 ONLY when compilation is finished
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("sentinel_campaign_config", JSON.stringify(config));
+            unlockStage(2);
+          }
           setSimState("completed");
         }
       }, (index + 1) * 450);
@@ -358,6 +366,7 @@ export default function SimulatePage() {
   };
 
   const resetForm = () => {
+    resetSimulationProgression();
     setSimState("idle");
     setLogs([]);
     setActiveConfig(null);
@@ -366,7 +375,27 @@ export default function SimulatePage() {
     setAttack(null);
     setSecurity(null);
     setShowValidationErrors(false);
+    setActiveCampaignExists(false);
   };
+
+  // Derived readiness
+  const filledCount = [industry, actor, attack, security].filter(Boolean).length;
+  const isReady = filledCount === 4;
+  const outcome = getExpectedOutcome(security);
+
+  // Section step state helper
+  const stepState = (value: string | null, idx: number) => {
+    if (value) return "done";
+    if (showValidationErrors) return "error";
+    return "pending";
+  };
+
+  const sectionHeaderClass = (state: string) =>
+    state === "done"
+      ? "text-cyber-green"
+      : state === "error"
+      ? "text-rose-400"
+      : "text-slate-500";
 
   return (
     <div className="relative min-h-screen bg-cyber-bg overflow-x-hidden pt-28 pb-16 flex flex-col justify-between selection:bg-electric-blue/30 selection:text-white font-sans">
@@ -431,29 +460,14 @@ export default function SimulatePage() {
             </div>
             <div className="flex gap-2.5 w-full sm:w-auto justify-end">
               <button
-                onClick={() => {
-                  if (typeof window !== "undefined") {
-                    const maxUnlocked = parseInt(sessionStorage.getItem("sentinel_max_unlocked_step") || "1", 10);
-                    const pathMap: Record<number, string> = {
-                      1: "/simulate",
-                      2: "/attack-viewer",
-                      3: "/ai-analyst",
-                      4: "/command-center"
-                    };
-                    router.push(pathMap[maxUnlocked] || "/attack-viewer");
-                  }
-                }}
+                onClick={() => { router.push(latestValidPath); }}
                 className="px-4 py-2 rounded bg-electric-blue hover:bg-blue-600 text-[10px] font-mono text-white font-bold uppercase tracking-widest transition-all duration-300 cursor-pointer shadow-[0_0_10px_rgba(37,99,235,0.3)]"
               >
                 Resume Investigation →
               </button>
               <button
                 onClick={() => {
-                  if (typeof window !== "undefined") {
-                    sessionStorage.removeItem("sentinel_campaign_config");
-                    sessionStorage.setItem("sentinel_max_unlocked_step", "1");
-                    window.dispatchEvent(new Event("sentinel_progress_update"));
-                  }
+                  resetSimulationProgression();
                   setActiveCampaignExists(false);
                 }}
                 className="px-3 py-2 rounded border border-slate-800 bg-transparent text-[10px] font-mono text-slate-400 hover:text-white hover:border-slate-650 transition-all duration-300 cursor-pointer"
@@ -464,53 +478,11 @@ export default function SimulatePage() {
           </motion.div>
         )}
 
-        {/* How It Works - Onboarding */}
-        {simState === "idle" && (
-          <div className="mb-12 mx-auto max-w-[850px] w-full p-6 md:p-8 rounded-xl bg-cyber-surface/40 border border-cyber-cyan/30 shadow-[0_0_20px_rgba(6,182,212,0.1)] relative overflow-hidden backdrop-blur-sm">
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyber-cyan to-transparent animate-pulse" />
-            
-            <h2 className="text-white text-center text-sm md:text-base font-bold font-mono tracking-wider uppercase mb-6 flex items-center justify-center gap-2">
-              <Layers className="w-4 h-4 text-cyber-cyan animate-pulse" />
-              How to Build Your Story
-            </h2>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-              <div className="p-3 rounded bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-1.5 min-h-[90px] group">
-                <span className="text-xl group-hover:scale-110 transition-transform duration-200">🏥</span>
-                <div className="text-[9px] text-white font-mono font-bold uppercase tracking-wider">1. Select Target</div>
-                <span className="text-[8px] text-slate-450 leading-tight">Choose a system to defend</span>
-              </div>
-              
-              <div className="p-3 rounded bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-1.5 min-h-[90px] group">
-                <span className="text-xl group-hover:scale-110 transition-transform duration-200">🕵️</span>
-                <div className="text-[9px] text-white font-mono font-bold uppercase tracking-wider">2. Choose Attacker</div>
-                <span className="text-[8px] text-slate-450 leading-tight">Pick the attacker's motive</span>
-              </div>
-              
-              <div className="p-3 rounded bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-1.5 min-h-[90px] group">
-                <span className="text-xl group-hover:scale-110 transition-transform duration-200">📧</span>
-                <div className="text-[9px] text-white font-mono font-bold uppercase tracking-wider">3. Pick Entry Method</div>
-                <span className="text-[8px] text-slate-450 leading-tight">Select how they attempt entry</span>
-              </div>
-              
-              <div className="p-3 rounded bg-black/40 border border-cyber-border hover:border-cyber-cyan/40 transition-all duration-300 flex flex-col items-center justify-center gap-1.5 min-h-[90px] group">
-                <span className="text-xl group-hover:scale-110 transition-transform duration-200">🛡️</span>
-                <div className="text-[9px] text-white font-mono font-bold uppercase tracking-wider">4. Set Defenses</div>
-                <span className="text-[8px] text-slate-450 leading-tight">Configure security setups</span>
-              </div>
-            </div>
-            
-            <div className="text-center mt-5 font-mono text-[8px] text-cyber-cyan uppercase tracking-widest animate-pulse">
-              ▲ Configure all four sections and start the simulation to see the outcome ▲
-            </div>
-          </div>
-        )}
-
         {/* Main Work Area */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
           {/* Left Column: Parameter Selection Forms */}
-          <div className="lg:col-span-8 space-y-8">
+          <div className="lg:col-span-8 space-y-2">
 
             <AnimatePresence mode="wait">
               {simState === "idle" ? (
@@ -518,216 +490,395 @@ export default function SimulatePage() {
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -15 }}
-                  className="space-y-8"
+                  className="space-y-1"
                   key="form-selectors"
                 >
-                  {/* 1. Environment Segment */}
-                  <div className={`space-y-4 p-4 rounded-xl border transition-all duration-300 ${
+
+                  {/* ── SECTION 1: Target System ── */}
+                  <div className={`rounded-xl border transition-all duration-300 overflow-hidden ${
                     showValidationErrors && !industry
-                      ? "border-rose-500/30 bg-rose-500/[0.02] shadow-[0_0_15px_rgba(244,63,94,0.05)]"
-                      : "border-transparent"
+                      ? "border-rose-500/40 shadow-[0_0_12px_rgba(244,63,94,0.08)]"
+                      : industry
+                      ? "border-cyber-green/20"
+                      : "border-cyber-border/50"
                   }`}>
-                    <div className="flex justify-between items-center">
-                      <span className={`text-[10px] font-mono uppercase tracking-widest block font-bold ${
-                        showValidationErrors && !industry ? "text-rose-455 font-extrabold animate-pulse" : "text-slate-500"
-                      }`}>
-                        Step 1: Choose Target System to Protect
-                      </span>
+                    {/* Section header */}
+                    <div className={`px-5 py-3.5 border-b flex items-center justify-between ${
+                      showValidationErrors && !industry
+                        ? "border-rose-500/20 bg-rose-500/[0.03]"
+                        : industry
+                        ? "border-cyber-green/15 bg-cyber-green/[0.03]"
+                        : "border-cyber-border/30 bg-cyber-surface/20"
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-6 h-6 rounded-full border flex items-center justify-center text-[10px] font-mono font-bold flex-shrink-0 ${
+                          industry
+                            ? "border-cyber-green bg-cyber-green/15 text-cyber-green"
+                            : showValidationErrors && !industry
+                            ? "border-rose-500/60 bg-rose-500/10 text-rose-400"
+                            : "border-slate-700 bg-slate-900/60 text-slate-500"
+                        }`}>
+                          {industry ? "✓" : "1"}
+                        </div>
+                        <div>
+                          <div className={`text-[10px] font-mono font-bold uppercase tracking-widest ${
+                            industry ? "text-cyber-green" : showValidationErrors && !industry ? "text-rose-400" : "text-slate-400"
+                          }`}>
+                            Step 1: Target System
+                          </div>
+                          <div className="text-[9px] text-slate-600 font-mono uppercase tracking-wider mt-0.5">
+                            {industry ? `Selected: ${INDUSTRIES.find(i => i.id === industry)?.name.replace(/^[^\s]+ /, "") || industry}` : "Choose a system to protect"}
+                          </div>
+                        </div>
+                      </div>
                       {showValidationErrors && !industry && (
-                        <span className="text-[9px] font-mono text-rose-550 uppercase tracking-wider font-bold animate-pulse">
-                          ⚠️ Selection Required
+                        <span className="text-[9px] font-mono text-rose-400 uppercase tracking-wider font-bold flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3" /> Required
                         </span>
                       )}
                     </div>
-                    <motion.div
-                      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
-                      variants={containerVariants}
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true }}
-                    >
-                      {INDUSTRIES.map((ind) => (
-                        <motion.button
-                          key={ind.id}
-                          variants={cardVariants}
-                          onClick={() => setIndustry(ind.id)}
-                          className={`p-4 rounded-lg border text-left transition-all duration-300 relative flex flex-col justify-between cursor-pointer ${industry === ind.id
-                            ? "bg-electric-blue/15 border-electric-blue shadow-[0_0_15px_rgba(37,99,235,0.1)] text-white"
-                            : "bg-cyber-surface/40 border-cyber-border hover:border-slate-800 text-slate-400 hover:text-slate-200"
-                            }`}
-                        >
-                          <div>
-                            <div className="text-xs font-bold font-sans uppercase tracking-wider">{ind.name}</div>
-                            <div className="text-[10px] opacity-60 mt-1.5 font-sans leading-relaxed">{ind.desc}</div>
-                          </div>
-                        </motion.button>
-                      ))}
-                    </motion.div>
-                  </div>
 
-                  {/* 2. Attacker Profile */}
-                  <div className={`space-y-4 p-4 rounded-xl border transition-all duration-300 ${
-                    showValidationErrors && !actor
-                      ? "border-rose-500/30 bg-rose-500/[0.02] shadow-[0_0_15px_rgba(244,63,94,0.05)]"
-                      : "border-transparent"
-                  }`}>
-                    <div className="flex justify-between items-center">
-                      <span className={`text-[10px] font-mono uppercase tracking-widest block font-bold ${
-                        showValidationErrors && !actor ? "text-rose-455 font-extrabold animate-pulse" : "text-slate-500"
-                      }`}>
-                        Step 2: Choose Your Attacker Type
-                      </span>
-                      {showValidationErrors && !actor && (
-                        <span className="text-[9px] font-mono text-rose-550 uppercase tracking-wider font-bold animate-pulse">
-                          ⚠️ Selection Required
-                        </span>
-                      )}
-                    </div>
-                    <motion.div
-                      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
-                      variants={containerVariants}
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true }}
-                    >
-                      {ACTORS.map((act) => (
-                        <motion.button
-                          key={act.id}
-                          variants={cardVariants}
-                          onClick={() => setActor(act.id)}
-                          className={`p-4 rounded-lg border text-left transition-all duration-300 relative flex flex-col justify-between cursor-pointer ${actor === act.id
-                            ? "bg-electric-blue/15 border-electric-blue shadow-[0_0_15px_rgba(37,99,235,0.1)] text-white"
-                            : "bg-cyber-surface/40 border-cyber-border hover:border-slate-800 text-slate-400 hover:text-slate-200"
-                            }`}
-                        >
-                          <div>
-                            <div className="text-xs font-bold font-sans uppercase tracking-wider">{act.name}</div>
-                            <div className="text-[10px] opacity-60 mt-1.5 font-sans leading-relaxed">{act.desc}</div>
-                          </div>
-                        </motion.button>
-                      ))}
-                    </motion.div>
-                  </div>
-
-                  {/* 3. Attack Type */}
-                  <div className={`space-y-4 p-4 rounded-xl border transition-all duration-300 ${
-                    showValidationErrors && !attack
-                      ? "border-rose-500/30 bg-rose-500/[0.02] shadow-[0_0_15px_rgba(244,63,94,0.05)]"
-                      : "border-transparent"
-                  }`}>
-                    <div className="flex justify-between items-center">
-                      <span className={`text-[10px] font-mono uppercase tracking-widest block font-bold ${
-                        showValidationErrors && !attack ? "text-rose-455 font-extrabold animate-pulse" : "text-slate-500"
-                      }`}>
-                        Step 3: Select the Attack Method
-                      </span>
-                      {showValidationErrors && !attack && (
-                        <span className="text-[9px] font-mono text-rose-550 uppercase tracking-wider font-bold animate-pulse">
-                          ⚠️ Selection Required
-                        </span>
-                      )}
-                    </div>
-                    <motion.div
-                      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
-                      variants={containerVariants}
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true }}
-                    >
-                      {ATTACK_TYPES.map((type) => (
-                        <motion.button
-                          key={type.id}
-                          variants={cardVariants}
-                          onClick={() => setAttack(type.id)}
-                          className={`p-4 rounded-lg border text-left transition-all duration-300 relative flex flex-col justify-between cursor-pointer ${attack === type.id
-                            ? "bg-electric-blue/15 border-electric-blue shadow-[0_0_15px_rgba(37,99,235,0.1)] text-white"
-                            : "bg-cyber-surface/40 border-cyber-border hover:border-slate-800 text-slate-400 hover:text-slate-200"
-                            }`}
-                        >
-                          <div>
-                            <div className="text-xs font-bold font-sans uppercase tracking-wider">{type.name}</div>
-                            <div className="text-[10px] opacity-60 mt-1.5 font-sans leading-relaxed">{type.desc}</div>
-                          </div>
-                        </motion.button>
-                      ))}
-                    </motion.div>
-                  </div>
-
-                  {/* 4. Security Setup */}
-                  <div className={`space-y-4 p-4 rounded-xl border transition-all duration-300 ${
-                    showValidationErrors && !security
-                      ? "border-rose-500/30 bg-rose-500/[0.02] shadow-[0_0_15px_rgba(244,63,94,0.05)]"
-                      : "border-transparent"
-                  }`}>
-                    <div className="flex justify-between items-center">
-                      <span className={`text-[10px] font-mono uppercase tracking-widest block font-bold ${
-                        showValidationErrors && !security ? "text-rose-455 font-extrabold animate-pulse" : "text-slate-500"
-                      }`}>
-                        Step 4: Configure Your Defenses
-                      </span>
-                      {showValidationErrors && !security && (
-                        <span className="text-[9px] font-mono text-rose-550 uppercase tracking-wider font-bold animate-pulse">
-                          ⚠️ Selection Required
-                        </span>
-                      )}
-                    </div>
-                    <motion.div
-                      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"
-                      variants={containerVariants}
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true }}
-                    >
-                      {SECURITY_LEVELS.map((lvl) => (
-                        <motion.button
-                          key={lvl.id}
-                          variants={cardVariants}
-                          onClick={() => setSecurity(lvl.id)}
-                          className={`p-4 rounded-lg border text-left transition-all duration-300 relative flex flex-col justify-between cursor-pointer ${security === lvl.id
-                            ? "bg-electric-blue/15 border-electric-blue shadow-[0_0_15px_rgba(37,99,235,0.1)] text-white"
-                            : "bg-cyber-surface/40 border-cyber-border hover:border-slate-800 text-slate-400 hover:text-slate-200"
-                            }`}
-                        >
-                          <div>
-                            <div className="text-xs font-bold font-sans uppercase tracking-wider">{lvl.name}</div>
-                            <div className="text-[10px] opacity-60 mt-1.5 font-sans leading-relaxed">{lvl.desc}</div>
-                          </div>
-                          <div className="mt-3 pt-2 border-t border-cyber-border/40 w-full">
-                            <div className="flex justify-between items-center text-[9px] font-mono text-cyber-cyan uppercase">
-                              <span>Block Rate: {lvl.detection}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 mt-1.5">
-                              <span className="text-[8px] font-mono text-slate-500 uppercase">Difficulty:</span>
-                              <div className="flex gap-0.5">
-                                {Array.from({ length: 4 }).map((_, idx) => (
-                                  <div
-                                    key={idx}
-                                    className={`w-2.5 h-1.5 rounded-sm ${
-                                      idx < lvl.level
-                                        ? lvl.id === "Low"
-                                          ? "bg-rose-500"
-                                          : lvl.id === "Medium"
-                                          ? "bg-amber-500"
-                                          : lvl.id === "High"
-                                          ? "bg-cyber-green"
-                                          : "bg-cyber-cyan"
-                                        : "bg-slate-800"
-                                    }`}
-                                  />
-                                ))}
+                    {/* Cards */}
+                    <div className="p-5">
+                      <motion.div
+                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"
+                        variants={containerVariants}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                      >
+                        {INDUSTRIES.map((ind) => {
+                          const isSelected = industry === ind.id;
+                          return (
+                            <motion.button
+                              key={ind.id}
+                              variants={cardVariants}
+                              onClick={() => setIndustry(ind.id)}
+                              className={`p-4 rounded-lg border text-left transition-all duration-200 relative flex flex-col gap-2 cursor-pointer group ${
+                                isSelected
+                                  ? "bg-electric-blue/10 border-electric-blue/70 shadow-[0_0_12px_rgba(37,99,235,0.12)]"
+                                  : "bg-cyber-surface/30 border-cyber-border/60 hover:border-slate-600 hover:bg-cyber-surface/50"
+                              }`}
+                            >
+                              {isSelected && (
+                                <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-electric-blue flex items-center justify-center">
+                                  <CheckCircle2 className="w-3 h-3 text-white" strokeWidth={3} />
+                                </span>
+                              )}
+                              <div className={`text-[11px] font-bold font-mono uppercase tracking-wide leading-tight pr-5 ${isSelected ? "text-white" : "text-slate-300 group-hover:text-white"}`}>
+                                {ind.name}
                               </div>
-                              <span className={`text-[8px] font-bold font-mono ${
-                                lvl.id === "Low" ? "text-rose-500" :
-                                lvl.id === "Medium" ? "text-amber-500" :
-                                lvl.id === "High" ? "text-emerald-500" : "text-cyan-400"
-                              }`}>
-                                {lvl.difficulty}
-                              </span>
-                            </div>
+                              <div className={`text-[10px] leading-relaxed ${isSelected ? "text-slate-300" : "text-slate-500 group-hover:text-slate-400"}`}>
+                                {ind.desc}
+                              </div>
+                              <div className={`text-[9px] font-mono pt-1.5 border-t mt-auto ${isSelected ? "border-electric-blue/20 text-electric-blue/80" : "border-cyber-border/30 text-slate-600"}`}>
+                                TARGET: {ind.target}
+                              </div>
+                            </motion.button>
+                          );
+                        })}
+                      </motion.div>
+                    </div>
+                  </div>
+
+                  {/* ── SECTION 2: Threat Actor ── */}
+                  <div className={`rounded-xl border transition-all duration-300 overflow-hidden ${
+                    showValidationErrors && !actor
+                      ? "border-rose-500/40 shadow-[0_0_12px_rgba(244,63,94,0.08)]"
+                      : actor
+                      ? "border-cyber-green/20"
+                      : "border-cyber-border/50"
+                  }`}>
+                    <div className={`px-5 py-3.5 border-b flex items-center justify-between ${
+                      showValidationErrors && !actor
+                        ? "border-rose-500/20 bg-rose-500/[0.03]"
+                        : actor
+                        ? "border-cyber-green/15 bg-cyber-green/[0.03]"
+                        : "border-cyber-border/30 bg-cyber-surface/20"
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-6 h-6 rounded-full border flex items-center justify-center text-[10px] font-mono font-bold flex-shrink-0 ${
+                          actor
+                            ? "border-cyber-green bg-cyber-green/15 text-cyber-green"
+                            : showValidationErrors && !actor
+                            ? "border-rose-500/60 bg-rose-500/10 text-rose-400"
+                            : "border-slate-700 bg-slate-900/60 text-slate-500"
+                        }`}>
+                          {actor ? "✓" : "2"}
+                        </div>
+                        <div>
+                          <div className={`text-[10px] font-mono font-bold uppercase tracking-widest ${
+                            actor ? "text-cyber-green" : showValidationErrors && !actor ? "text-rose-400" : "text-slate-400"
+                          }`}>
+                            Step 2: Threat Actor
                           </div>
-                        </motion.button>
-                      ))}
-                    </motion.div>
+                          <div className="text-[9px] text-slate-600 font-mono uppercase tracking-wider mt-0.5">
+                            {actor ? `Selected: ${ACTORS.find(a => a.id === actor)?.techName || actor}` : "Choose attacker's motive & profile"}
+                          </div>
+                        </div>
+                      </div>
+                      {showValidationErrors && !actor && (
+                        <span className="text-[9px] font-mono text-rose-400 uppercase tracking-wider font-bold flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3" /> Required
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="p-5">
+                      <motion.div
+                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"
+                        variants={containerVariants}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                      >
+                        {ACTORS.map((act) => {
+                          const isSelected = actor === act.id;
+                          return (
+                            <motion.button
+                              key={act.id}
+                              variants={cardVariants}
+                              onClick={() => setActor(act.id)}
+                              className={`p-4 rounded-lg border text-left transition-all duration-200 relative flex flex-col gap-2 cursor-pointer group ${
+                                isSelected
+                                  ? "bg-electric-blue/10 border-electric-blue/70 shadow-[0_0_12px_rgba(37,99,235,0.12)]"
+                                  : "bg-cyber-surface/30 border-cyber-border/60 hover:border-slate-600 hover:bg-cyber-surface/50"
+                              }`}
+                            >
+                              {isSelected && (
+                                <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-electric-blue flex items-center justify-center">
+                                  <CheckCircle2 className="w-3 h-3 text-white" strokeWidth={3} />
+                                </span>
+                              )}
+                              <div className={`text-[11px] font-bold font-mono uppercase tracking-wide leading-tight pr-5 ${isSelected ? "text-white" : "text-slate-300 group-hover:text-white"}`}>
+                                {act.name}
+                              </div>
+                              <div className={`text-[10px] leading-relaxed ${isSelected ? "text-slate-300" : "text-slate-500 group-hover:text-slate-400"}`}>
+                                {act.desc}
+                              </div>
+                              <div className={`flex items-center justify-between text-[9px] font-mono pt-1.5 border-t mt-auto ${isSelected ? "border-electric-blue/20" : "border-cyber-border/30"}`}>
+                                <span className={isSelected ? "text-electric-blue/80" : "text-slate-600"}>FOCUS: {act.focus}</span>
+                                <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold tracking-wider ${isSelected ? "bg-electric-blue/20 text-electric-blue" : "bg-slate-900 text-slate-600"}`}>
+                                  {act.techName}
+                                </span>
+                              </div>
+                            </motion.button>
+                          );
+                        })}
+                      </motion.div>
+                    </div>
+                  </div>
+
+                  {/* ── SECTION 3: Attack Method ── */}
+                  <div className={`rounded-xl border transition-all duration-300 overflow-hidden ${
+                    showValidationErrors && !attack
+                      ? "border-rose-500/40 shadow-[0_0_12px_rgba(244,63,94,0.08)]"
+                      : attack
+                      ? "border-cyber-green/20"
+                      : "border-cyber-border/50"
+                  }`}>
+                    <div className={`px-5 py-3.5 border-b flex items-center justify-between ${
+                      showValidationErrors && !attack
+                        ? "border-rose-500/20 bg-rose-500/[0.03]"
+                        : attack
+                        ? "border-cyber-green/15 bg-cyber-green/[0.03]"
+                        : "border-cyber-border/30 bg-cyber-surface/20"
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-6 h-6 rounded-full border flex items-center justify-center text-[10px] font-mono font-bold flex-shrink-0 ${
+                          attack
+                            ? "border-cyber-green bg-cyber-green/15 text-cyber-green"
+                            : showValidationErrors && !attack
+                            ? "border-rose-500/60 bg-rose-500/10 text-rose-400"
+                            : "border-slate-700 bg-slate-900/60 text-slate-500"
+                        }`}>
+                          {attack ? "✓" : "3"}
+                        </div>
+                        <div>
+                          <div className={`text-[10px] font-mono font-bold uppercase tracking-widest ${
+                            attack ? "text-cyber-green" : showValidationErrors && !attack ? "text-rose-400" : "text-slate-400"
+                          }`}>
+                            Step 3: Attack Method
+                          </div>
+                          <div className="text-[9px] text-slate-600 font-mono uppercase tracking-wider mt-0.5">
+                            {attack ? `Selected: ${ATTACK_TYPES.find(t => t.id === attack)?.name.replace(/^[^\s]+ /, "") || attack}` : "Select the entry technique"}
+                          </div>
+                        </div>
+                      </div>
+                      {showValidationErrors && !attack && (
+                        <span className="text-[9px] font-mono text-rose-400 uppercase tracking-wider font-bold flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3" /> Required
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="p-5">
+                      <motion.div
+                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"
+                        variants={containerVariants}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                      >
+                        {ATTACK_TYPES.map((type) => {
+                          const isSelected = attack === type.id;
+                          return (
+                            <motion.button
+                              key={type.id}
+                              variants={cardVariants}
+                              onClick={() => setAttack(type.id)}
+                              className={`p-4 rounded-lg border text-left transition-all duration-200 relative flex flex-col gap-2 cursor-pointer group ${
+                                isSelected
+                                  ? "bg-electric-blue/10 border-electric-blue/70 shadow-[0_0_12px_rgba(37,99,235,0.12)]"
+                                  : "bg-cyber-surface/30 border-cyber-border/60 hover:border-slate-600 hover:bg-cyber-surface/50"
+                              }`}
+                            >
+                              {isSelected && (
+                                <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-electric-blue flex items-center justify-center">
+                                  <CheckCircle2 className="w-3 h-3 text-white" strokeWidth={3} />
+                                </span>
+                              )}
+                              <div className={`text-[11px] font-bold font-mono uppercase tracking-wide leading-tight pr-5 ${isSelected ? "text-white" : "text-slate-300 group-hover:text-white"}`}>
+                                {type.name}
+                              </div>
+                              <div className={`text-[10px] leading-relaxed ${isSelected ? "text-slate-300" : "text-slate-500 group-hover:text-slate-400"}`}>
+                                {type.desc}
+                              </div>
+                              <div className={`flex items-center justify-between text-[9px] font-mono pt-1.5 border-t mt-auto ${isSelected ? "border-electric-blue/20" : "border-cyber-border/30"}`}>
+                                <span className={isSelected ? "text-slate-400" : "text-slate-600"}>MITRE ATT&CK</span>
+                                <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold font-mono tracking-wider ${isSelected ? "bg-amber-500/20 text-amber-400 border border-amber-500/20" : "bg-slate-900 text-slate-600 border border-slate-800"}`}>
+                                  {type.tech}
+                                </span>
+                              </div>
+                            </motion.button>
+                          );
+                        })}
+                      </motion.div>
+                    </div>
+                  </div>
+
+                  {/* ── SECTION 4: Security Setup ── */}
+                  <div className={`rounded-xl border transition-all duration-300 overflow-hidden ${
+                    showValidationErrors && !security
+                      ? "border-rose-500/40 shadow-[0_0_12px_rgba(244,63,94,0.08)]"
+                      : security
+                      ? "border-cyber-green/20"
+                      : "border-cyber-border/50"
+                  }`}>
+                    <div className={`px-5 py-3.5 border-b flex items-center justify-between ${
+                      showValidationErrors && !security
+                        ? "border-rose-500/20 bg-rose-500/[0.03]"
+                        : security
+                        ? "border-cyber-green/15 bg-cyber-green/[0.03]"
+                        : "border-cyber-border/30 bg-cyber-surface/20"
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-6 h-6 rounded-full border flex items-center justify-center text-[10px] font-mono font-bold flex-shrink-0 ${
+                          security
+                            ? "border-cyber-green bg-cyber-green/15 text-cyber-green"
+                            : showValidationErrors && !security
+                            ? "border-rose-500/60 bg-rose-500/10 text-rose-400"
+                            : "border-slate-700 bg-slate-900/60 text-slate-500"
+                        }`}>
+                          {security ? "✓" : "4"}
+                        </div>
+                        <div>
+                          <div className={`text-[10px] font-mono font-bold uppercase tracking-widest ${
+                            security ? "text-cyber-green" : showValidationErrors && !security ? "text-rose-400" : "text-slate-400"
+                          }`}>
+                            Step 4: Security Setup
+                          </div>
+                          <div className="text-[9px] text-slate-600 font-mono uppercase tracking-wider mt-0.5">
+                            {security ? `Selected: ${SECURITY_LEVELS.find(l => l.id === security)?.name || security}` : "Configure your defenses"}
+                          </div>
+                        </div>
+                      </div>
+                      {showValidationErrors && !security && (
+                        <span className="text-[9px] font-mono text-rose-400 uppercase tracking-wider font-bold flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3" /> Required
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="p-5">
+                      <motion.div
+                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3"
+                        variants={containerVariants}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                      >
+                        {SECURITY_LEVELS.map((lvl) => {
+                          const isSelected = security === lvl.id;
+                          const levelColor =
+                            lvl.id === "Low" ? "rose" :
+                            lvl.id === "Medium" ? "amber" :
+                            lvl.id === "High" ? "emerald" : "cyan";
+                          const levelTextClass =
+                            lvl.id === "Low" ? "text-rose-400" :
+                            lvl.id === "Medium" ? "text-amber-400" :
+                            lvl.id === "High" ? "text-emerald-400" : "text-cyan-400";
+                          const levelBarClass =
+                            lvl.id === "Low" ? "bg-rose-500" :
+                            lvl.id === "Medium" ? "bg-amber-500" :
+                            lvl.id === "High" ? "bg-emerald-500" : "bg-cyan-400";
+                          return (
+                            <motion.button
+                              key={lvl.id}
+                              variants={cardVariants}
+                              onClick={() => setSecurity(lvl.id)}
+                              className={`p-4 rounded-lg border text-left transition-all duration-200 relative flex flex-col gap-2.5 cursor-pointer group ${
+                                isSelected
+                                  ? "bg-electric-blue/10 border-electric-blue/70 shadow-[0_0_12px_rgba(37,99,235,0.12)]"
+                                  : "bg-cyber-surface/30 border-cyber-border/60 hover:border-slate-600 hover:bg-cyber-surface/50"
+                              }`}
+                            >
+                              {isSelected && (
+                                <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-electric-blue flex items-center justify-center">
+                                  <CheckCircle2 className="w-3 h-3 text-white" strokeWidth={3} />
+                                </span>
+                              )}
+                              <div className={`text-[11px] font-bold font-mono uppercase tracking-wide pr-5 ${isSelected ? "text-white" : "text-slate-300 group-hover:text-white"}`}>
+                                {lvl.name}
+                              </div>
+                              <div className={`text-[10px] leading-relaxed ${isSelected ? "text-slate-300" : "text-slate-500 group-hover:text-slate-400"}`}>
+                                {lvl.desc}
+                              </div>
+                              {/* Defense strength bar */}
+                              <div className="mt-auto pt-2 border-t border-cyber-border/30 space-y-1.5">
+                                <div className="flex justify-between items-center">
+                                  <span className={`text-[8px] font-mono uppercase ${isSelected ? "text-slate-400" : "text-slate-600"}`}>Block Rate</span>
+                                  <span className={`text-[8px] font-mono font-bold ${isSelected ? levelTextClass : "text-slate-500"}`}>{lvl.detection.split(" ")[0]}</span>
+                                </div>
+                                <div className="w-full h-1 bg-slate-900 rounded-full overflow-hidden">
+                                  <div
+                                    className={`h-full rounded-full ${levelBarClass} ${isSelected ? "opacity-100" : "opacity-40"}`}
+                                    style={{ width: lvl.id === "Low" ? "10%" : lvl.id === "Medium" ? "45%" : lvl.id === "High" ? "78%" : "95%" }}
+                                  />
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <div className="flex gap-0.5">
+                                    {Array.from({ length: 4 }).map((_, idx) => (
+                                      <div
+                                        key={idx}
+                                        className={`w-2 h-1 rounded-sm ${
+                                          idx < lvl.level
+                                            ? `${levelBarClass} ${isSelected ? "opacity-100" : "opacity-50"}`
+                                            : "bg-slate-800"
+                                        }`}
+                                      />
+                                    ))}
+                                  </div>
+                                  <span className={`text-[8px] font-bold font-mono ${isSelected ? levelTextClass : "text-slate-600"}`}>
+                                    {lvl.difficulty}
+                                  </span>
+                                </div>
+                              </div>
+                            </motion.button>
+                          );
+                        })}
+                      </motion.div>
+                    </div>
                   </div>
 
                 </motion.div>
@@ -879,182 +1030,234 @@ export default function SimulatePage() {
 
           </div>
 
-          {/* Right Column: Scenario Setup Sidebar Summary */}
+          {/* Right Column: Scenario Setup Sidebar */}
           <div className="lg:col-span-4 lg:sticky lg:top-28">
-            <div className="glassmorphism-card rounded-xl p-6 border border-cyber-border flex flex-col justify-between relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-8 h-8 border-b border-l border-cyber-border pointer-events-none" />
+            <div className="glassmorphism-card rounded-xl border border-cyber-border flex flex-col relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyber-cyan/30 to-transparent" />
 
-              <div className="border-b border-cyber-border/40 pb-4 mb-6">
-                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest block font-bold">
-                  SCENARIO OVERVIEW
-                </span>
-                <span className="text-[8px] font-mono text-slate-650 uppercase mt-0.5 block">
-                  CURRENT CONFIGURATION
-                </span>
-                <div className="mt-4 p-3 rounded bg-cyber-cyan/5 border border-cyber-cyan/35 text-xs text-white leading-relaxed font-sans shadow-[0_0_10px_rgba(6,182,212,0.05)] border-l-2">
-                  {getDynamicSummarySentence()}
+              {/* Panel header */}
+              <div className="px-5 py-4 border-b border-cyber-border/40">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-[10px] font-mono font-bold text-white uppercase tracking-widest">Scenario Preview</div>
+                    <div className="text-[9px] font-mono text-slate-600 uppercase tracking-wider mt-0.5">Live configuration</div>
+                  </div>
+                  {/* Readiness indicator */}
+                  <div className="flex items-center gap-1">
+                    {[industry, actor, attack, security].map((val, i) => (
+                      <div
+                        key={i}
+                        className={`w-5 h-1.5 rounded-full transition-all duration-300 ${val ? "bg-cyber-green" : "bg-slate-800"}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+                {/* Completion label */}
+                <div className={`mt-2 text-[9px] font-mono uppercase tracking-widest font-bold transition-colors ${
+                  filledCount === 4 ? "text-cyber-green" : filledCount > 0 ? "text-amber-500" : "text-slate-600"
+                }`}>
+                  {filledCount === 4 ? "✓ ALL PARAMETERS CONFIGURED — READY" : `${filledCount}/4 PARAMETERS CONFIGURED`}
                 </div>
               </div>
 
-              {/* Selection summary items */}
-              <div className="space-y-5 font-mono text-[10px]">
+              {/* Attack Chain Visual */}
+              <div className="px-5 pt-5 pb-4 border-b border-cyber-border/30">
+                <div className="text-[9px] font-mono text-slate-600 uppercase tracking-widest mb-3">Attack Chain</div>
 
-                <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded border border-cyber-border bg-cyber-surface/40 flex items-center justify-center flex-shrink-0 text-slate-400">
-                    <Database className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <div className="text-slate-500 text-[9px] uppercase">You're Protecting</div>
-                    <div className={`font-bold uppercase mt-0.5 ${industry ? "text-white" : "text-rose-400/80 animate-pulse"}`}>
-                      {industry ? (INDUSTRIES.find(i => i.id === industry)?.name.split(" ").slice(1).join(" ") || industry) : "Not Selected"}
+                {/* Chain nodes */}
+                <div className="space-y-1">
+                  {/* Threat Actor */}
+                  <div className={`flex items-center gap-3 p-2.5 rounded-lg border transition-all duration-200 ${
+                    actor ? "border-rose-500/25 bg-rose-500/[0.04]" : "border-slate-800/50 bg-transparent"
+                  }`}>
+                    <div className={`w-6 h-6 rounded border flex items-center justify-center flex-shrink-0 ${
+                      actor ? "border-rose-500/40 bg-rose-500/10 text-rose-400" : "border-slate-800 text-slate-700"
+                    }`}>
+                      <Bot className="w-3 h-3" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-[8px] font-mono text-slate-600 uppercase tracking-wider">Threat Actor</div>
+                      <div className={`text-[10px] font-mono font-bold uppercase truncate ${actor ? "text-rose-300" : "text-slate-700"}`}>
+                        {actor ? ACTORS.find(a => a.id === actor)?.techName : "— not selected —"}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded border border-cyber-border bg-cyber-surface/40 flex items-center justify-center flex-shrink-0 text-slate-400">
-                    <Bot className="w-3.5 h-3.5" />
+                  <div className="flex justify-center">
+                    <ChevronRight className={`w-3 h-3 rotate-90 ${actor && attack ? "text-slate-600" : "text-slate-800"}`} />
                   </div>
-                  <div>
-                    <div className="text-slate-500 text-[9px] uppercase">Who's Attacking</div>
-                    <div className={`font-bold uppercase mt-0.5 ${actor ? "text-white" : "text-rose-400/80 animate-pulse"}`}>
-                      {actor ? (ACTORS.find(a => a.id === actor)?.name.split(" ").slice(1).join(" ") || actor) : "Not Selected"}
+
+                  {/* Attack Method */}
+                  <div className={`flex items-center gap-3 p-2.5 rounded-lg border transition-all duration-200 ${
+                    attack ? "border-amber-500/25 bg-amber-500/[0.04]" : "border-slate-800/50 bg-transparent"
+                  }`}>
+                    <div className={`w-6 h-6 rounded border flex items-center justify-center flex-shrink-0 ${
+                      attack ? "border-amber-500/40 bg-amber-500/10 text-amber-400" : "border-slate-800 text-slate-700"
+                    }`}>
+                      <Zap className="w-3 h-3" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[8px] font-mono text-slate-600 uppercase tracking-wider">Entry Method</div>
+                      <div className={`text-[10px] font-mono font-bold uppercase truncate ${attack ? "text-amber-300" : "text-slate-700"}`}>
+                        {attack ? attack : "— not selected —"}
+                      </div>
+                    </div>
+                    {attack && (
+                      <span className="text-[8px] font-mono px-1.5 py-0.5 rounded border border-amber-500/20 bg-amber-500/10 text-amber-500 font-bold flex-shrink-0">
+                        {ATTACK_TYPES.find(t => t.id === attack)?.tech}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex justify-center">
+                    <ChevronRight className={`w-3 h-3 rotate-90 ${attack && industry ? "text-slate-600" : "text-slate-800"}`} />
+                  </div>
+
+                  {/* Target System */}
+                  <div className={`flex items-center gap-3 p-2.5 rounded-lg border transition-all duration-200 ${
+                    industry ? "border-electric-blue/25 bg-electric-blue/[0.04]" : "border-slate-800/50 bg-transparent"
+                  }`}>
+                    <div className={`w-6 h-6 rounded border flex items-center justify-center flex-shrink-0 ${
+                      industry ? "border-electric-blue/40 bg-electric-blue/10 text-electric-blue" : "border-slate-800 text-slate-700"
+                    }`}>
+                      <Database className="w-3 h-3" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-[8px] font-mono text-slate-600 uppercase tracking-wider">Target System</div>
+                      <div className={`text-[10px] font-mono font-bold uppercase truncate ${industry ? "text-blue-300" : "text-slate-700"}`}>
+                        {industry ? (INDUSTRIES.find(i => i.id === industry)?.target || industry) : "— not selected —"}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded border border-cyber-border bg-cyber-surface/40 flex items-center justify-center flex-shrink-0 text-slate-400">
-                    <Network className="w-3.5 h-3.5" />
+                  <div className="flex justify-center">
+                    <ChevronRight className={`w-3 h-3 rotate-90 ${industry && security ? "text-slate-600" : "text-slate-800"}`} />
                   </div>
-                  <div>
-                    <div className="text-slate-500 text-[9px] uppercase">Attack Method</div>
-                    <div className={`font-bold uppercase mt-0.5 ${attack ? "text-white" : "text-rose-400/80 animate-pulse"}`}>
-                      {attack ? (ATTACK_TYPES.find(t => t.id === attack)?.name.split(" ").slice(1).join(" ") || attack) : "Not Selected"}
+
+                  {/* Defense Layer */}
+                  <div className={`flex items-center gap-3 p-2.5 rounded-lg border transition-all duration-200 ${
+                    security ? "border-cyber-green/25 bg-cyber-green/[0.04]" : "border-slate-800/50 bg-transparent"
+                  }`}>
+                    <div className={`w-6 h-6 rounded border flex items-center justify-center flex-shrink-0 ${
+                      security ? "border-cyber-green/40 bg-cyber-green/10 text-cyber-green" : "border-slate-800 text-slate-700"
+                    }`}>
+                      <ShieldCheck className="w-3 h-3" />
                     </div>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded border border-cyber-border bg-cyber-surface/40 flex items-center justify-center flex-shrink-0 text-slate-400">
-                    <Layers className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <div className="text-slate-500 text-[9px] uppercase">Current Protection</div>
-                    <div className={`font-bold uppercase mt-0.5 ${security ? "text-white" : "text-rose-400/80 animate-pulse"}`}>
-                      {security ? (SECURITY_LEVELS.find(l => l.id === security)?.name || security) : "Not Selected"}
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[8px] font-mono text-slate-600 uppercase tracking-wider">Defense Layer</div>
+                      <div className={`text-[10px] font-mono font-bold uppercase truncate ${security ? "text-emerald-300" : "text-slate-700"}`}>
+                        {security ? (SECURITY_LEVELS.find(l => l.id === security)?.name || security) : "— not selected —"}
+                      </div>
                     </div>
+                    {security && (
+                      <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border font-bold flex-shrink-0 ${
+                        security === "Low" ? "border-rose-500/20 bg-rose-500/10 text-rose-400" :
+                        security === "Medium" ? "border-amber-500/20 bg-amber-500/10 text-amber-400" :
+                        security === "High" ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400" :
+                        "border-cyan-400/20 bg-cyan-400/10 text-cyan-400"
+                      }`}>
+                        {outcome.likelihood}% risk
+                      </span>
+                    )}
                   </div>
                 </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded border border-cyber-border bg-cyber-surface/40 flex items-center justify-center flex-shrink-0 text-slate-400">
-                    <Cpu className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <div className="text-slate-500 text-[9px] uppercase">Estimated Success Rate</div>
-                    <div className="text-white font-bold uppercase mt-0.5">
-                      {security ? `${getExpectedOutcome(security).likelihood}%` : "—"}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded border border-cyber-border bg-cyber-surface/40 flex items-center justify-center flex-shrink-0 text-slate-400">
-                    <RefreshCw className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <div className="text-slate-500 text-[9px] uppercase">Estimated Learning Time</div>
-                    <div className="text-white font-bold uppercase mt-0.5">
-                      3–5 minutes
-                    </div>
-                  </div>
-                </div>
-
               </div>
 
-              <div className="mt-8 border-t border-cyber-border/40 pt-6">
-                {/* Dynamic Exploitability Index warning banner */}
-                {actor && security && (
-                  <div className="mb-4">
-                    {(() => {
-                      const isDangerousActor = ["LockBit", "Lazarus", "APT29"].includes(actor);
-                      const isWeakDefense = ["Low", "Medium"].includes(security);
-                      if (isDangerousActor && isWeakDefense) {
-                        return (
-                          <div className="p-2.5 rounded border border-cyber-red/30 bg-cyber-red/5 font-mono text-[9px] text-cyber-red uppercase tracking-wider font-semibold animate-pulse flex items-center gap-1.5 justify-center">
-                            <span>🔥</span> WARNING: CRITICAL EXPLOITABILITY PATHWAY DETECTED
-                          </div>
-                        );
-                      } else if (!isWeakDefense) {
-                        return (
-                          <div className="p-2.5 rounded border border-cyber-green/30 bg-cyber-green/5 font-mono text-[9px] text-cyber-green uppercase tracking-wider font-semibold flex items-center gap-1.5 justify-center">
-                            <span>🛡️</span> SYSTEM HARDENED: SECURE MITIGATION ACTIVE
-                          </div>
-                        );
-                      }
-                      return (
-                        <div className="p-2.5 rounded border border-amber-500/30 bg-amber-500/5 font-mono text-[9px] text-amber-500 uppercase tracking-wider font-semibold flex items-center gap-1.5 justify-center">
-                          <span>⚠️</span> NOTICE: DETECTABLE PATHWAY EXPOSED
-                        </div>
-                      );
-                    })()}
-                  </div>
-                )}
+              {/* Narrative summary */}
+              {(industry || actor || attack || security) && (
+                <div className="px-5 py-4 border-b border-cyber-border/30">
+                  <div className="text-[9px] font-mono text-slate-600 uppercase tracking-widest mb-2">Scenario Narrative</div>
+                  <p className="text-[10px] text-slate-400 leading-relaxed font-sans">
+                    {getDynamicSummarySentence()}
+                  </p>
+                </div>
+              )}
 
-                {/* Expected Outcome Card */}
-                <div className={`p-4 rounded-lg border ${getExpectedOutcome(security).color} font-sans mb-6`}>
-                  <div className="flex justify-between items-center border-b border-white/10 pb-2 mb-2">
-                    <span className="text-[9px] font-mono uppercase tracking-wider font-bold">What We Predict</span>
-                    <span className="text-[8px] font-mono px-1.5 py-0.5 rounded border border-current font-bold uppercase text-[7px]">
-                      {getExpectedOutcome(security).rating}
+              {/* Threat index and outcome */}
+              <div className="px-5 py-4 border-b border-cyber-border/30">
+                {/* Exploitability warning */}
+                {actor && security && (() => {
+                  const isDangerousActor = ["LockBit", "Lazarus", "APT29"].includes(actor);
+                  const isWeakDefense = ["Low", "Medium"].includes(security);
+                  if (isDangerousActor && isWeakDefense) {
+                    return (
+                      <div className="mb-3 p-2.5 rounded border border-cyber-red/30 bg-cyber-red/5 font-mono text-[9px] text-cyber-red uppercase tracking-wider font-semibold flex items-center gap-1.5">
+                        <span>🔥</span> CRITICAL: High-risk actor with weak defenses
+                      </div>
+                    );
+                  } else if (!isWeakDefense) {
+                    return (
+                      <div className="mb-3 p-2.5 rounded border border-cyber-green/30 bg-cyber-green/5 font-mono text-[9px] text-cyber-green uppercase tracking-wider font-semibold flex items-center gap-1.5">
+                        <span>🛡️</span> Secure mitigation active
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="mb-3 p-2.5 rounded border border-amber-500/30 bg-amber-500/5 font-mono text-[9px] text-amber-500 uppercase tracking-wider font-semibold flex items-center gap-1.5">
+                      <span>⚠️</span> Detectable pathway exposed
+                    </div>
+                  );
+                })()}
+
+                {/* Outcome prediction */}
+                <div className={`p-3.5 rounded-lg border ${outcome.color}`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[9px] font-mono uppercase tracking-wider font-bold">Predicted Outcome</span>
+                    <span className="text-[7px] font-mono px-1.5 py-0.5 rounded border border-current font-bold uppercase">
+                      {outcome.rating}
                     </span>
                   </div>
                   {security && (
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="text-lg font-bold font-mono text-white">{getExpectedOutcome(security).likelihood}%</div>
+                      <div className="text-base font-bold font-mono text-white">{outcome.likelihood}%</div>
                       <div className="flex-grow">
-                        <div className="text-[8px] font-mono uppercase text-slate-555">Attack Exposure Chance</div>
-                        <div className="w-full h-1.5 bg-slate-950 border border-white/5 rounded-full overflow-hidden mt-1">
-                          <div 
-                            className={`h-full ${getExpectedOutcome(security).barColor}`} 
-                            style={{ width: `${getExpectedOutcome(security).likelihood}%` }}
+                        <div className="text-[8px] font-mono uppercase text-slate-500 mb-1">Attack Success Chance</div>
+                        <div className="w-full h-1.5 bg-slate-950 border border-white/5 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full ${outcome.barColor} transition-all duration-500`}
+                            style={{ width: `${outcome.likelihood}%` }}
                           />
                         </div>
                       </div>
                     </div>
                   )}
-                  <p className="text-[10px] text-slate-400 leading-relaxed font-sans">
-                    {getExpectedOutcome(security).prediction}
+                  <p className="text-[9px] text-slate-400 leading-relaxed font-sans">
+                    {outcome.prediction}
                   </p>
                 </div>
-
-                {simState === "idle" && (
-                  <>
-                    {/* Validation Error Message */}
-                    {showValidationErrors && (!industry || !actor || !attack || !security) && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-4 p-3 rounded bg-rose-500/10 border border-rose-500/30 text-[10px] text-rose-455 leading-relaxed font-mono uppercase font-semibold text-center"
-                      >
-                        ⚠️ Almost there! Please complete all four selections before starting your simulation.
-                      </motion.div>
-                    )}
-
-                    <button
-                      onClick={handleVerifyAndConfirm}
-                      className="w-full py-3.5 rounded bg-electric-blue hover:bg-blue-650 text-white font-bold font-mono text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all duration-300 cursor-pointer border border-electric-blue/40"
-                    >
-                      <Play className="w-3.5 h-3.5 fill-current" />
-                      ▶ Run This Scenario
-                    </button>
-                    <p className="text-[8px] text-center text-slate-500 font-mono uppercase tracking-wider mt-3 leading-relaxed">
-                      Prepares the step-by-step educational walk-through.
-                    </p>
-                  </>
-                )}
               </div>
+
+              {/* CTA area */}
+              {simState === "idle" && (
+                <div className="p-5">
+                  {/* Validation error */}
+                  {showValidationErrors && !isReady && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mb-4 p-3 rounded bg-rose-500/10 border border-rose-500/30 text-[10px] text-rose-400 leading-relaxed font-mono uppercase font-semibold text-center"
+                    >
+                      ⚠️ Complete all 4 selections to run
+                    </motion.div>
+                  )}
+
+                  <button
+                    onClick={handleVerifyAndConfirm}
+                    className={`w-full py-3.5 rounded font-bold font-mono text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer border ${
+                      isReady
+                        ? "bg-electric-blue hover:bg-blue-600 text-white border-electric-blue/50 shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_28px_rgba(37,99,235,0.5)]"
+                        : "bg-slate-900/80 text-slate-500 border-slate-800 hover:border-slate-700"
+                    }`}
+                  >
+                    <Play className={`w-3.5 h-3.5 fill-current ${isReady ? "" : "opacity-50"}`} />
+                    {isReady ? "▶ Run This Scenario" : `Configure ${4 - filledCount} More ${4 - filledCount === 1 ? "Parameter" : "Parameters"}`}
+                  </button>
+
+                  <p className="text-[8px] text-center text-slate-600 font-mono uppercase tracking-wider mt-3 leading-relaxed">
+                    {isReady ? "Prepares a 3–5 min educational walk-through." : "Select all parameters above to continue."}
+                  </p>
+                </div>
+              )}
 
             </div>
           </div>
@@ -1088,7 +1291,7 @@ export default function SimulatePage() {
               <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyber-cyan to-transparent" />
 
               {/* Close Button */}
-              <button 
+              <button
                 onClick={() => setShowConfirmModal(false)}
                 className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-md hover:bg-white/5 transition-all cursor-pointer animate-pulse-subtle"
               >

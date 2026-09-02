@@ -11,6 +11,11 @@ import {
   getCampaignHistory, StoredCampaign, getActorName,
   getAttackName, getIndustryName
 } from "../../components/campaignStore";
+import {
+  useStageGuard,
+  useProgression,
+  resetSimulationProgression,
+} from "../../components/progressionStore";
 import AnimatedCounter from "../../components/AnimatedCounter";
 import JourneyStepper from "../../components/JourneyStepper";
 import Footer from "../../components/Footer";
@@ -46,22 +51,15 @@ function SecurityTipCard({ title, desc }: { title: string; desc: string }) {
 }
 
 export default function CommandCenterPage() {
+  const { isAuthorized, isChecking } = useStageGuard(4);
+  const { maxUnlocked, reset, latestValidPath } = useProgression(4);
+
   const [history, setHistory] = useState<StoredCampaign[]>([]);
   const [selectedCampaign, setSelectedCampaign] = useState<StoredCampaign | null>(null);
   const [currentTime, setCurrentTime] = useState("");
   const [activeTab, setActiveTab] = useState<"all" | "blocked" | "successful">("all");
   const [showAdvancedAnalytics, setShowAdvancedAnalytics] = useState(false);
-  const [isLocked, setIsLocked] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const maxUnlocked = parseInt(sessionStorage.getItem("sentinel_max_unlocked_step") || "1", 10);
-      if (maxUnlocked < 4) {
-        setIsLocked(true);
-      }
-    }
-  }, []);
 
   useEffect(() => {
     setHistory(getCampaignHistory());
@@ -412,53 +410,16 @@ export default function CommandCenterPage() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
   };
 
-  if (isLocked) {
+  if (isChecking || !isAuthorized) {
     return (
-      <div className="relative min-h-screen flex flex-col items-center justify-center overflow-x-hidden bg-cyber-bg text-slate-100">
-        {/* Background Decors */}
-        <div className="absolute inset-0 cyber-grid opacity-30 pointer-events-none z-0" />
-        <div className="absolute inset-0 cyber-grid-fine opacity-50 pointer-events-none z-0" />
-        <div className="fixed inset-0 pointer-events-none z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.15)_50%)] bg-[length:100%_4px] opacity-10" />
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          className="relative z-10 w-full max-w-lg mx-auto px-6 text-center"
-        >
-          {/* Lock icon glow */}
-          <div className="flex items-center justify-center mb-6">
-            <div className="w-16 h-16 rounded-full border border-cyber-red/40 bg-cyber-red/10 flex items-center justify-center shadow-[0_0_30px_rgba(244,63,94,0.2)]">
-              <Lock className="w-8 h-8 text-cyber-red" />
-            </div>
-          </div>
-
-          <span className="text-[10px] font-mono text-cyber-red uppercase tracking-widest block font-bold mb-3">
-            [ STEP 3 INCOMPLETE ]
+      <div className="min-h-screen bg-cyber-bg flex items-center justify-center font-mono text-xs text-cyber-cyan">
+        <div className="flex flex-col items-center gap-3">
+          <span className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-cyan opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-cyber-cyan"></span>
           </span>
-
-          <h1 className="text-2xl font-extrabold text-white uppercase tracking-tight font-sans mb-3">
-            Complete the AI Analyst First
-          </h1>
-
-          <p className="text-slate-400 text-sm leading-relaxed font-sans mb-8 max-w-md mx-auto">
-            The <strong className="text-white">Key Lessons Learning Journal</strong> is unlocked after you complete the <strong className="text-white">Understand What Happened</strong> step. This ensures you understand the attack before reviewing your learning progress.
-          </p>
-
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 font-mono">
-            <Link
-              href="/ai-analyst"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded bg-cyber-red hover:bg-cyber-red/90 text-white text-xs font-bold uppercase tracking-widest transition-all duration-300 shadow-[0_0_20px_rgba(244,63,94,0.3)] cursor-pointer"
-            >
-              Go to AI Analyst →
-            </Link>
-            <Link
-              href="/attack-viewer"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white hover:border-slate-600 text-xs font-bold uppercase tracking-widest transition-all duration-300 cursor-pointer"
-            >
-              ← Back to Attack Viewer
-            </Link>
-          </div>
-        </motion.div>
+          <span className="tracking-widest uppercase text-slate-400">Validating Command Center Clearance...</span>
+        </div>
       </div>
     );
   }
@@ -812,6 +773,7 @@ export default function CommandCenterPage() {
               <div className="pt-4">
                 <Link
                   href="/simulate"
+                  onClick={() => resetSimulationProgression()}
                   className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded bg-cyber-cyan text-[10px] font-mono font-bold tracking-widest text-black uppercase hover:bg-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.4)] transition-all duration-300 cursor-pointer"
                 >
                   Start Challenge →
@@ -819,7 +781,7 @@ export default function CommandCenterPage() {
               </div>
             </motion.div>
           </div>
- 
+
           {/* Row 4: History & Security Tips */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
             {/* Simulation History (7 cols) */}
@@ -833,7 +795,7 @@ export default function CommandCenterPage() {
                   <span className="text-[9px] font-mono text-slate-550 uppercase tracking-widest block font-bold">
                     Simulation History (Last 5 Runs)
                   </span>
- 
+
                   {/* Filters */}
                   <div className="flex items-center gap-2 bg-slate-950 p-1 border border-cyber-border rounded text-[8px] font-mono">
                     {["all", "blocked", "successful"].map((tab) => (
@@ -853,7 +815,7 @@ export default function CommandCenterPage() {
                     ))}
                   </div>
                 </div>
- 
+
                 {/* Search and Clear Actions Controls */}
                 <div className="flex flex-col sm:flex-row gap-3 items-center justify-between mb-4 pb-2 border-b border-cyber-border/20">
                   <input
@@ -877,10 +839,8 @@ export default function CommandCenterPage() {
                         onClick={() => {
                           if (confirm("Are you sure you want to clear all simulation history logs? This cannot be undone.")) {
                             try {
-                              sessionStorage.removeItem("sentinel_campaign_history");
-                              sessionStorage.setItem("sentinel_max_unlocked_step", "1");
-                              sessionStorage.removeItem("sentinel_campaign_config");
-                              window.dispatchEvent(new Event("sentinel_progress_update"));
+                              localStorage.removeItem("sentinel_campaign_history");
+                              resetSimulationProgression();
                               setHistory([]);
                               setSelectedCampaign(null);
                             } catch (e) {
@@ -921,7 +881,7 @@ export default function CommandCenterPage() {
                               {getActorName(camp.threatActor)} targeted {camp.primaryTarget} via {getAttackName(camp.attackType)}.
                             </p>
                           </div>
- 
+
                           <div className="flex items-center gap-3 justify-between sm:justify-end shrink-0 font-mono">
                             <span className={`px-2 py-0.5 rounded border text-[8px] font-bold uppercase ${
                               isBlocked ? "border-cyber-green/30 bg-cyber-green/10 text-cyber-green" : "border-cyber-red/30 bg-cyber-red/10 text-cyber-red"
@@ -938,6 +898,7 @@ export default function CommandCenterPage() {
                               </button>
                               <Link
                                 href="/simulate"
+                                onClick={() => resetSimulationProgression()}
                                 className="px-2 py-1 rounded border border-cyber-border bg-cyber-surface hover:bg-cyber-surface-brighter text-slate-300 text-[8.5px] font-bold uppercase transition-colors cursor-pointer"
                               >
                                 Again
@@ -950,7 +911,7 @@ export default function CommandCenterPage() {
                   )}
                 </div>
               </div>
-              
+
               <div className="flex justify-between items-center text-[9px] font-mono text-slate-500 mt-4 pt-4 border-t border-cyber-border/40">
                 <span>HISTORY LIMITED TO LAST 5 SCENARIOS</span>
                 <button onClick={refreshHistory} className="hover:text-white flex items-center gap-1 uppercase font-bold cursor-pointer">
@@ -958,7 +919,7 @@ export default function CommandCenterPage() {
                 </button>
               </div>
             </motion.div>
- 
+
             {/* Security Tips You've Learned (5 cols) */}
             <motion.div
               initial={{ opacity: 0, y: 15 }}

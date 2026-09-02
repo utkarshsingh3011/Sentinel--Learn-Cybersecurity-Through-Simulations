@@ -56,10 +56,13 @@ const FLOW_STEPS = [
   },
 ];
 
-export default function Hero() {
-  const heroRef = useRef<HTMLElement>(null);
+import { useProgression, hasActiveCampaignConfig } from "./progressionStore";
 
-  // Set up scroll for parallax shifts
+export default function Hero() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { maxUnlocked, latestValidPath } = useProgression();
+  const hasActiveConfig = hasActiveCampaignConfig();
+
   const { scrollY } = useScroll();
 
   // Parallax offsets for a premium digital agency feel
@@ -69,7 +72,7 @@ export default function Hero() {
 
   return (
     <section
-      ref={heroRef}
+      ref={containerRef}
       className="relative min-h-screen flex items-center justify-center pt-24 pb-16 overflow-hidden"
     >
       {/* Background radial glow */}
@@ -184,10 +187,10 @@ export default function Hero() {
               Start Learning
             </Link>
             <Link
-              href="/attack-viewer"
+              href={hasActiveConfig && maxUnlocked > 1 ? latestValidPath : "/simulate"}
               className="px-6 py-3 rounded bg-cyber-surface border border-cyber-border hover:border-cyber-border-active text-xs font-mono tracking-widest uppercase text-slate-300 hover:text-white transition-all duration-300"
             >
-              Explore Simulations
+              {hasActiveConfig && maxUnlocked > 1 ? "Resume Investigation" : "Launch Simulation"}
             </Link>
           </motion.div>
         </motion.div>
