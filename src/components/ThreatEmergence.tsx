@@ -205,6 +205,7 @@ export default function ThreatEmergence() {
                     stroke="rgba(255,255,255,0.7)"
                     strokeWidth="1.5"
                     strokeDasharray="8, 12"
+                    initial={{ strokeDashoffset: 0 }}
                     animate={{
                       strokeDashoffset: [0, -40],
                     }}

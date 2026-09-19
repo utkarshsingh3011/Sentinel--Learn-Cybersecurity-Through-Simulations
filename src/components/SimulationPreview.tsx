@@ -336,6 +336,7 @@ export default function SimulationPreview() {
                       strokeWidth="9"
                       fill="transparent"
                       strokeDasharray={2 * Math.PI * 65}
+                      initial={{ strokeDashoffset: (2 * Math.PI * 65) * (1 - currentRiskScore / 100) }}
                       animate={{ strokeDashoffset: (2 * Math.PI * 65) * (1 - currentRiskScore / 100) }}
                       transition={{ duration: 0.5 }}
                       strokeLinecap="round"

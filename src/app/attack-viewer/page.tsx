@@ -10,7 +10,8 @@ import JourneyStepper from "../../components/JourneyStepper";
 import AnimatedCounter from "../../components/AnimatedCounter";
 import {
   Play, Pause, RotateCcw, ArrowLeft, Terminal,
-  Activity, ShieldCheck, Brain, ChevronRight, Layers, ShieldAlert, CheckCircle2, AlertOctagon, Info, Lock
+  Activity, ShieldCheck, Brain, ChevronRight, Layers, ShieldAlert, CheckCircle2, AlertOctagon, Info, Lock,
+  User, Server, Shield, Crosshair, FileCode, Check
 } from "lucide-react";
 import Footer from "../../components/Footer";
 
@@ -97,16 +98,47 @@ export default function AttackViewerPage() {
   const [campaign, setCampaign] = useState<CampaignConfig | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentStageIdx, setCurrentStageIdx] = useState(0);
+  const [inspectedStageIdx, setInspectedStageIdx] = useState<number | null>(null);
   const [progress, setProgress] = useState(0);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
   const terminalContainerRef = useRef<HTMLDivElement>(null);
   const isNearBottomRef = useRef<boolean>(true);
-  const [showGuide, setShowGuide] = useState(true);
+  const [showGuide, setShowGuide] = useState(false);
   const [isTechnicalExpanded, setIsTechnicalExpanded] = useState(false);
   const [showLockModal, setShowLockModal] = useState(false);
   const [lockModalType, setLockModalType] = useState<"analyst" | "journal">("journal");
   const [elapsedTime, setElapsedTime] = useState(0);
   const [packetsCount, setPacketsCount] = useState(0);
+
+  // Active step to display in briefing: user selected or current in-flight
+  const activeInspectionIdx = inspectedStageIdx !== null ? inspectedStageIdx : currentStageIdx;
+
+  // Derive explicit 4 simulation statuses: Ready, Running, Paused, Completed
+  const simulationStatus: "Ready" | "Running" | "Paused" | "Completed" = (() => {
+    if (progress === 100) return "Completed";
+    if (progress === 0 && !isPlaying) return "Ready";
+    if (isPlaying) return "Running";
+    return "Paused";
+  })();
+
+  const getSecurityControlForStage = (idx: number) => {
+    switch (idx) {
+      case 0:
+        return { name: "Perimeter Firewall & Scan Filter", target: "Edge Gateway", type: "Border Defense" };
+      case 1:
+        return { name: "Secure Ingress Filter & Email Gateway", target: "Workstation Host", type: "Ingress Filtering" };
+      case 2:
+        return { name: "Host EDR & Memory Credential Guard", target: "System Memory (LSASS)", type: "Endpoint Protection" };
+      case 3:
+        return { name: "Subnet Microsegmentation Rules", target: "Internal Jump Server", type: "Network Segmentation" };
+      case 4:
+        return { name: "IAM Privilege Elevation Policy", target: "Domain Controller", type: "Access Control" };
+      case 5:
+        return { name: "DLP Egress & DB Activity Monitor", target: campaign?.primaryTarget || "Database", type: "Data Protection" };
+      default:
+        return { name: "Active Security Control", target: "Network Asset", type: "Defense Control" };
+    }
+  };
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -367,6 +399,7 @@ export default function AttackViewerPage() {
   const resetSimulation = () => {
     setIsPlaying(false);
     setCurrentStageIdx(0);
+    setInspectedStageIdx(null);
     setProgress(0);
     setTerminalLogs([]);
     setElapsedTime(0);
@@ -1094,6 +1127,7 @@ export default function AttackViewerPage() {
                   ? "bg-amber-500 text-black hover:bg-amber-400"
                   : "bg-electric-blue text-white hover:bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.3)]"
                 }`}
+              title={isPlaying ? "Pause Simulation" : "Run Simulation"}
             >
               {isPlaying ? <Pause className="w-4 h-4 fill-current text-black" /> : <Play className="w-4 h-4 fill-current ml-0.5 text-white" />}
             </button>
@@ -1101,13 +1135,50 @@ export default function AttackViewerPage() {
             <button
               onClick={resetSimulation}
               className="w-9 h-9 rounded-full bg-cyber-surface border border-cyber-border hover:border-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-all duration-300 cursor-pointer"
+              title="Reset & Replay"
             >
               <RotateCcw className="w-3.5 h-3.5" />
             </button>
 
-            <span className="text-[10px] font-mono font-bold tracking-widest text-slate-400 uppercase hidden sm:inline">
-              {isPlaying ? "SIMULATION RUNNING" : progress === 100 ? "SIMULATION COMPLETED" : "SIMULATION PAUSED"}
-            </span>
+            {/* Clear Simulation Status Indicator */}
+            <div className="flex items-center gap-2 font-mono text-[10px]">
+              <span className="text-slate-500 uppercase font-bold hidden sm:inline">STATUS:</span>
+              <span
+                className={`px-2.5 py-0.5 rounded border text-[9px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                  simulationStatus === "Running"
+                    ? "border-cyber-cyan/40 bg-cyber-cyan/10 text-cyber-cyan shadow-[0_0_10px_rgba(6,182,212,0.2)]"
+                    : simulationStatus === "Paused"
+                    ? "border-amber-500/40 bg-amber-500/10 text-amber-500"
+                    : simulationStatus === "Completed"
+                    ? campaign?.stages[campaign.stages.length - 1]?.status === "blocked"
+                      ? "border-cyber-green/40 bg-cyber-green/10 text-cyber-green"
+                      : "border-cyber-red/40 bg-cyber-red/10 text-cyber-red"
+                    : "border-slate-700 bg-slate-800/40 text-slate-400"
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    simulationStatus === "Running"
+                      ? "bg-cyber-cyan animate-ping"
+                      : simulationStatus === "Paused"
+                      ? "bg-amber-500"
+                      : simulationStatus === "Completed"
+                      ? campaign?.stages[campaign.stages.length - 1]?.status === "blocked"
+                        ? "bg-cyber-green"
+                        : "bg-cyber-red"
+                      : "bg-slate-400"
+                  }`}
+                />
+                <span>SIMULATION {simulationStatus.toUpperCase()}</span>
+              </span>
+            </div>
+
+            {/* Live stream stats */}
+            <div className="hidden md:flex items-center gap-3 font-mono text-[9px] text-slate-500 pl-2 border-l border-cyber-border/40">
+              <span>ELAPSED: {elapsedTime}s</span>
+              <span>•</span>
+              <span className="text-cyber-green font-bold">RX: {packetsCount} PPS</span>
+            </div>
           </div>
 
           {/* Progress Bar or AI Analyst Action */}
@@ -1126,15 +1197,15 @@ export default function AttackViewerPage() {
                   className="inline-flex items-center gap-2 px-4 py-2 rounded bg-electric-blue border border-electric-blue/50 text-xs font-mono font-bold tracking-widest text-white uppercase hover:bg-blue-600 hover:shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all duration-300 animate-pulse cursor-pointer animate-pulse-subtle"
                 >
                   <Brain className="w-3.5 h-3.5 text-cyber-cyan" />
-                  Understand What Happened (AI Analyst)
+                  Proceed to AI Analyst →
                 </Link>
               </motion.div>
             ) : (
               <>
-                <span className="text-[10px] font-mono text-slate-400">COMPLETION: {progress}%</span>
+                <span className="text-[10px] font-mono text-slate-400">PHASE 0{currentStageIdx + 1}/06 ({progress}%)</span>
                 <div className="w-48 sm:w-64 h-2 bg-slate-950 border border-cyber-border rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full bg-gradient-to-r from-electric-blue to-cyber-cyan"
+                    className="h-full bg-gradient-to-r from-electric-blue via-cyber-cyan to-cyber-green"
                     animate={{ width: `${progress}%` }}
                     transition={{ duration: 0.2 }}
                   />
@@ -1196,11 +1267,98 @@ export default function AttackViewerPage() {
           <div className="lg:col-span-7 space-y-8">
 
             {/* 1. Attack Setup Overview Panel */}
+            {/* 1. Attack Setup Overview & Attack Path Conduit */}
             <div className="glassmorphism-card rounded-xl p-6 border border-cyber-border">
-              <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block font-bold mb-4">
-                [01] ATTACK SETUP OVERVIEW
-              </span>
+              <div className="flex items-center justify-between border-b border-cyber-border/40 pb-3 mb-4 font-mono text-[9px] uppercase tracking-wider text-slate-400">
+                <span className="font-bold text-white flex items-center gap-2">
+                  <Crosshair className="w-3.5 h-3.5 text-cyber-cyan" />
+                  <span>[01] ATTACK PATH CONDUIT</span>
+                </span>
+                <span className="text-slate-500 hidden sm:inline">
+                  ATTACKER ➔ VECTOR ➔ TARGET ➔ DEFENSIVE CONTROL ➔ OUTCOME
+                </span>
+              </div>
 
+              {/* 5-Node Attack Path Conduit */}
+              <div className="grid grid-cols-1 sm:grid-cols-5 gap-2.5 font-mono text-[9px] mb-5">
+                {/* Node 1: Attacker */}
+                <div className="p-3 rounded border border-cyber-border bg-black/40 flex flex-col justify-between">
+                  <div>
+                    <span className="text-slate-500 text-[8px] uppercase font-bold flex items-center justify-between">
+                      <span>WHO ATTACKS</span>
+                      <User className="w-3 h-3 text-cyber-cyan" />
+                    </span>
+                    <div className="text-white font-bold mt-1 text-[11px] uppercase truncate" title={getActorName(campaign.threatActor)}>
+                      {getActorName(campaign.threatActor).split(" ").slice(1).join(" ") || getActorName(campaign.threatActor)}
+                    </div>
+                  </div>
+                  <div className="text-[8px] text-slate-500 mt-2">ACTOR ({campaign.threatActor})</div>
+                </div>
+
+                {/* Node 2: Attack Vector */}
+                <div className="p-3 rounded border border-cyber-border bg-black/40 flex flex-col justify-between">
+                  <div>
+                    <span className="text-slate-500 text-[8px] uppercase font-bold flex items-center justify-between">
+                      <span>ATTACK METHOD</span>
+                      <FileCode className="w-3 h-3 text-cyber-cyan" />
+                    </span>
+                    <div className="text-white font-bold mt-1 text-[11px] uppercase truncate" title={getAttackName(campaign.attackType)}>
+                      {getAttackName(campaign.attackType).split(" ").slice(1).join(" ") || getAttackName(campaign.attackType)}
+                    </div>
+                  </div>
+                  <div className="text-[8px] text-slate-500 mt-2">VECTOR ({campaign.attackType})</div>
+                </div>
+
+                {/* Node 3: Target */}
+                <div className="p-3 rounded border border-cyber-border bg-black/40 flex flex-col justify-between">
+                  <div>
+                    <span className="text-slate-500 text-[8px] uppercase font-bold flex items-center justify-between">
+                      <span>WHAT IS TARGETED</span>
+                      <Server className="w-3 h-3 text-cyber-cyan" />
+                    </span>
+                    <div className="text-white font-bold mt-1 text-[11px] uppercase truncate" title={campaign.primaryTarget}>
+                      {campaign.primaryTarget}
+                    </div>
+                  </div>
+                  <div className="text-[8px] text-slate-500 mt-2 truncate">{getIndustryName(campaign.industry).split(" ").slice(1).join(" ")}</div>
+                </div>
+
+                {/* Node 4: Control */}
+                <div className="p-3 rounded border border-cyber-border bg-black/40 flex flex-col justify-between">
+                  <div>
+                    <span className="text-slate-500 text-[8px] uppercase font-bold flex items-center justify-between">
+                      <span>CONTROL TESTED</span>
+                      <Shield className="w-3 h-3 text-cyber-cyan" />
+                    </span>
+                    <div className="text-white font-bold mt-1 text-[11px] uppercase truncate" title={getSecurityControlForStage(activeInspectionIdx).name}>
+                      {getSecurityControlForStage(activeInspectionIdx).name.split("&")[0]}
+                    </div>
+                  </div>
+                  <div className="text-[8px] text-slate-500 mt-2">{campaign.securityLevel} DEFENSE</div>
+                </div>
+
+                {/* Node 5: Result */}
+                <div className={`p-3 rounded border flex flex-col justify-between ${
+                  campaign.stages[activeInspectionIdx].status === "blocked"
+                    ? "border-cyber-green/40 bg-cyber-green/5 text-cyber-green"
+                    : "border-cyber-red/40 bg-cyber-red/5 text-cyber-red"
+                }`}>
+                  <div>
+                    <span className="text-[8px] uppercase font-bold opacity-75 flex items-center justify-between">
+                      <span>PHASE 0{activeInspectionIdx + 1} RESULT</span>
+                      <Activity className="w-3 h-3" />
+                    </span>
+                    <div className="font-bold mt-1 text-[11px] uppercase truncate">
+                      {campaign.stages[activeInspectionIdx].status === "blocked" ? "BLOCKED" : "BYPASSED"}
+                    </div>
+                  </div>
+                  <div className="text-[8px] opacity-75 mt-2">
+                    {campaign.stages[activeInspectionIdx].status === "blocked" ? "INTERCEPTED" : "DEFENSE EVADED"}
+                  </div>
+                </div>
+              </div>
+
+              {/* Setup Overview Cards */}
               <motion.div
                 className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono text-[10px]"
                 variants={containerVariants}
@@ -1247,36 +1405,49 @@ export default function AttackViewerPage() {
               {/* Timeline Tree */}
               <div className="relative border-l border-cyber-border pl-6 space-y-6 ml-3">
                 {campaign.stages.map((stage, idx) => {
-                  const isActive = currentStageIdx === idx;
-                  const isCompleted = currentStageIdx > idx;
-                  const isPending = currentStageIdx < idx;
+                  const isActive = currentStageIdx === idx && progress < 100;
+                  const isCompleted = currentStageIdx > idx || progress === 100;
+                  const isPending = currentStageIdx < idx && progress < 100;
+                  const isInspected = activeInspectionIdx === idx;
 
                   const getStatusBadge = () => {
                     if (isPending) {
-                      return <span className="px-1.5 py-0.5 rounded border border-slate-800 bg-slate-900/40 text-slate-600 text-[8px] font-mono font-bold uppercase">⚪ Pending</span>;
+                      return <span className="px-1.5 py-0.5 rounded border border-slate-800 bg-slate-900/40 text-slate-600 text-[8px] font-mono font-bold uppercase">⚪ Standby</span>;
                     }
                     if (isActive) {
                       return <span className="px-1.5 py-0.5 rounded border border-amber-500/30 bg-amber-500/10 text-amber-500 text-[8px] font-mono font-bold uppercase animate-pulse">🟡 In Progress</span>;
                     }
                     if (stage.status === "blocked") {
-                      return <span className="px-1.5 py-0.5 rounded border border-cyber-green/30 bg-cyber-green/10 text-cyber-green text-[8px] font-mono font-bold uppercase">🟢 Stopped</span>;
+                      return <span className="px-1.5 py-0.5 rounded border border-cyber-green/30 bg-cyber-green/10 text-cyber-green text-[8px] font-mono font-bold uppercase">🟢 Stopped (Blocked)</span>;
                     }
-                    return <span className="px-1.5 py-0.5 rounded border border-cyber-red/30 bg-cyber-red/10 text-cyber-red text-[8px] font-mono font-bold uppercase">🔴 Successful</span>;
+                    return <span className="px-1.5 py-0.5 rounded border border-cyber-red/30 bg-cyber-red/10 text-cyber-red text-[8px] font-mono font-bold uppercase">🔴 Successful (Bypassed)</span>;
                   };
 
                   return (
                     <div
                       key={idx}
-                      className={`relative transition-all duration-500 ${isPending ? "opacity-35" : "opacity-100"}`}
+                      onClick={() => {
+                        if (!isPending) setInspectedStageIdx(idx);
+                      }}
+                      className={`relative transition-all duration-300 ${isPending ? "opacity-35 cursor-not-allowed" : "opacity-100 cursor-pointer"}`}
                     >
                       {/* Timeline dot */}
-                      <span className={`absolute -left-[31px] top-1.5 w-4.5 h-4.5 rounded-full border flex items-center justify-center ${isActive
-                          ? "bg-black border-cyber-cyan shadow-[0_0_10px_rgba(6,182,212,0.6)]"
-                          : isCompleted
-                            ? "bg-cyber-cyan border-cyber-cyan"
+                      <span className={`absolute -left-[31px] top-1.5 w-4.5 h-4.5 rounded-full border flex items-center justify-center transition-all ${
+                          isInspected
+                            ? "bg-black border-cyber-cyan shadow-[0_0_10px_rgba(6,182,212,0.8)] scale-110"
+                            : isActive
+                            ? "bg-black border-cyber-cyan shadow-[0_0_10px_rgba(6,182,212,0.6)]"
+                            : isCompleted
+                            ? stage.status === "blocked" ? "bg-cyber-green border-cyber-green" : "bg-cyber-red border-cyber-red"
                             : "bg-slate-950 border-slate-800"
                         }`}>
-                        {isCompleted && <span className="w-1.5 h-1.5 rounded-full bg-black" />}
+                        {isCompleted && (
+                          stage.status === "blocked" ? (
+                            <Check className="w-2.5 h-2.5 text-black stroke-[3]" />
+                          ) : (
+                            <span className="w-1.5 h-1.5 rounded-full bg-black" />
+                          )
+                        )}
                         {isActive && <motion.span
                           animate={{ scale: [1, 1.4, 1] }}
                           transition={{ repeat: Infinity, duration: 1.5 }}
@@ -1285,9 +1456,12 @@ export default function AttackViewerPage() {
                       </span>
 
                       {/* Content Card */}
-                      <div className={`p-4 rounded-lg border transition-all duration-300 ${isActive
-                          ? "bg-cyber-surface border-cyber-border-active shadow-[0_0_20px_rgba(6,182,212,0.06)]"
-                          : "bg-cyber-surface/30 border-cyber-border/30"
+                      <div className={`p-4 rounded-lg border transition-all duration-300 ${
+                          isInspected
+                            ? "bg-cyber-surface border-cyber-cyan shadow-[0_0_15px_rgba(6,182,212,0.1)]"
+                            : isActive
+                            ? "bg-cyber-surface border-cyber-border-active shadow-[0_0_20px_rgba(6,182,212,0.06)]"
+                            : "bg-cyber-surface/30 border-cyber-border/30 hover:border-slate-700"
                         }`}>
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
@@ -1308,6 +1482,13 @@ export default function AttackViewerPage() {
                           <span className="text-[9px] text-slate-500 font-normal lowercase">({getFriendlyStageInfo(idx).technical})</span>
                         </h4>
                         <p className="text-[11px] text-slate-400 mt-1 leading-relaxed font-sans">{getFriendlyStageInfo(idx).description}</p>
+                        
+                        {!isPending && (
+                          <div className="mt-2.5 pt-2 border-t border-cyber-border/30 font-mono text-[9px] text-slate-400 truncate">
+                            <span className="text-slate-600 mr-1.5">[LOG]</span>
+                            <span>{stage.log}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
@@ -1420,14 +1601,16 @@ export default function AttackViewerPage() {
             <div className="glassmorphism-card rounded-xl p-6 border border-cyber-cyan/30 bg-cyber-cyan/5 relative overflow-hidden glow-cyan">
               <div className="absolute top-0 right-0 w-8 h-8 border-b border-l border-cyber-cyan/20 pointer-events-none" />
               <div className="flex justify-between items-center border-b border-cyber-cyan/20 pb-3 mb-4">
-                <span className="text-[10px] font-mono text-cyber-cyan uppercase tracking-widest block font-bold flex items-center gap-1.5 animate-pulse">
+                <span className="text-[10px] font-mono text-cyber-cyan uppercase tracking-widest block font-bold flex items-center gap-1.5">
                   <Activity className="w-3.5 h-3.5 text-cyber-cyan animate-pulse" />
                   Visual Attack Storyboard
                 </span>
-                <span className="text-[9px] font-mono text-slate-400">STEP 0{currentStageIdx + 1}/06</span>
+                <span className="text-[9px] font-mono text-slate-400">
+                  PHASE 0{activeInspectionIdx + 1}/06 {inspectedStageIdx !== null && <span className="text-cyber-cyan font-bold">(INSPECTED)</span>}
+                </span>
               </div>
               {(() => {
-                const event = getStoryboardEvent(currentStageIdx, campaign.stages[currentStageIdx].status, campaign.attackType);
+                const event = getStoryboardEvent(activeInspectionIdx, campaign.stages[activeInspectionIdx].status, campaign.attackType);
                 return (
                   <div className="space-y-4 font-sans text-xs">
                     <div className="text-sm font-bold text-white uppercase tracking-wider font-mono border-b border-cyber-cyan/10 pb-2">
@@ -1461,14 +1644,17 @@ export default function AttackViewerPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 mt-4 pt-2 border-t border-cyber-cyan/10">
-                      <span className="text-[8px] font-mono text-slate-500 uppercase">Action Result:</span>
-                      <span className={`px-2 py-0.5 rounded text-[8px] font-mono font-bold uppercase ${
-                        campaign.stages[currentStageIdx].status === "blocked" 
+                    <div className="flex flex-wrap items-center justify-between gap-2 mt-4 pt-2.5 border-t border-cyber-cyan/10 font-mono">
+                      <div>
+                        <span className="text-[8px] text-slate-500 uppercase block">Security Control Evaluated:</span>
+                        <span className="text-[10px] text-slate-200 font-semibold">{getSecurityControlForStage(activeInspectionIdx).name}</span>
+                      </div>
+                      <span className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase ${
+                        campaign.stages[activeInspectionIdx].status === "blocked" 
                           ? "text-cyber-green border border-cyber-green/30 bg-cyber-green/10" 
                           : "text-cyber-red border border-cyber-red/30 bg-cyber-red/10"
                       }`}>
-                        {campaign.stages[currentStageIdx].status === "blocked" ? "🚨 Stopped by Defenses" : "⚠ Succeeded"}
+                        {campaign.stages[activeInspectionIdx].status === "blocked" ? "🚨 Stopped by Defenses" : "⚠ Succeeded / Evaded"}
                       </span>
                     </div>
                   </div>
@@ -1487,10 +1673,10 @@ export default function AttackViewerPage() {
               </div>
 
               {(() => {
-                const isCurrentStageRunning = isPlaying && progress < 100;
+                const isCurrentStageRunning = activeInspectionIdx === currentStageIdx && isPlaying && progress < 100;
                 const summary = getLiveActivitySummary(
-                  currentStageIdx,
-                  campaign.stages[currentStageIdx].status,
+                  activeInspectionIdx,
+                  campaign.stages[activeInspectionIdx].status,
                   campaign.attackType,
                   isCurrentStageRunning
                 );
